@@ -623,8 +623,8 @@ class TestPipelineIntegration:
         from app.services.llm.base import LLMProvider
         from app.services.matching.cross_encoder import CrossEncoderScorer
         from app.schemas.taxonomy import CourseTaxonomy, TaxonomyModule, TaxonomyConcept
-        from app.services.taxonomy.generator import SearchQueriesOutput
-
+        from app.services.taxonomy.generator import BatchSearchQueriesOutput, ModuleQueriesOutput
+        
         # Mock LLM
         mock_llm = AsyncMock(spec=LLMProvider)
 
@@ -666,8 +666,13 @@ class TestPipelineIntegration:
             ],
         )
 
-        search_queries = SearchQueriesOutput(
-            queries=["python basics tutorial", "introduction to python"]
+        search_queries = BatchSearchQueriesOutput(
+            module_queries=[
+                ModuleQueriesOutput(
+                    module_title="Introduction",
+                    queries=["python basics tutorial", "introduction to python"]
+                )
+            ]
         )
 
         mock_llm.generate_structured = AsyncMock(
