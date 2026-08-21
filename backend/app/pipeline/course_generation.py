@@ -125,20 +125,23 @@ class CourseGenerationPipeline:
             logger.info(
                 "query_generation_started generation_id=%s", generation_id
             )
-            for module in taxonomy.modules:
-                try:
-                    queries = await self._taxonomy_generator.generate_search_queries(
-                        module, request
-                    )
-                    module.search_queries = queries
-                except LLMError as exc:
-                    logger.warning(
-                        "Query generation failed for module='%s': %s, using keywords",
-                        module.title,
-                        exc,
-                    )
-                    # Fallback to keyword-based queries
+            try:
+                queries_map = await self._taxonomy_generator.generate_search_queries_batch(
+                    taxonomy.modules, request
+                )
+                for module in taxonomy.modules:
+                    if module.title in queries_map:
+                        module.search_queries = queries_map[module.title]
+                    else:
+                        module.search_queries = self._fallback_queries(module, request)
+            except LLMError as exc:
+                logger.warning(
+                    "Batch query generation failed: %s, using keywords for all modules",
+                    exc,
+                )
+                for module in taxonomy.modules:
                     module.search_queries = self._fallback_queries(module, request)
+                    
             logger.info(
                 "query_generation_completed generation_id=%s", generation_id
             )

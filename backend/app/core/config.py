@@ -8,6 +8,11 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+from pathlib import Path
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+_DEFAULT_DB_PATH = _BACKEND_DIR / "careerforge.db"
+
 class AppSettings(BaseSettings):
     """Central application configuration loaded from environment variables and .env file."""
 
@@ -50,7 +55,7 @@ class AppSettings(BaseSettings):
 
     # Database Configuration
     database_url: str = Field(
-        default="sqlite+aiosqlite:///./careerforge.db",
+        default=f"sqlite+aiosqlite:///{_DEFAULT_DB_PATH}",
         description="Async database URL",
     )
 

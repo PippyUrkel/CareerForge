@@ -83,3 +83,34 @@ class CourseGenerationResponse(BaseModel):
     course: Course = Field(..., description="The generated course")
     metadata: PipelineMetadata = Field(..., description="Pipeline execution metadata")
     debug: DebugInfo | None = Field(default=None, description="Debug info (when requested)")
+
+
+class CourseListItem(BaseModel):
+    """Summary item for course listings."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str = Field(..., description="Internal course UUID")
+    generation_id: str = Field(..., description="Unique generation run ID")
+    course_title: str = Field(..., description="Course title")
+    description: str | None = Field(default=None, description="Course description")
+    difficulty: str | None = Field(default=None, description="Difficulty level")
+    language: str | None = Field(default=None, description="Language")
+    topic: str = Field(..., description="Course topic")
+    target_audience: str | None = Field(default=None, description="Target audience")
+    learning_objectives: list[str] = Field(default_factory=list, description="Learning objectives")
+    prerequisites: list[str] = Field(default_factory=list, description="Prerequisites")
+    created_at: str | None = Field(default=None, description="Creation timestamp ISO string")
+    module_count: int = Field(default=0, description="Total number of modules")
+    video_count: int = Field(default=0, description="Total number of videos")
+    total_duration_seconds: int = Field(default=0, description="Total duration across all videos in seconds")
+
+
+class CourseListResponse(BaseModel):
+    """Response containing a list of persisted courses."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    total: int = Field(..., description="Total number of courses")
+    courses: list[CourseListItem] = Field(default_factory=list, description="List of courses")
+

@@ -50,12 +50,16 @@ class _LLMConceptOutput(BaseModel):
 _LLMTaxonomyOutput.model_rebuild()
 
 
-class SearchQueriesOutput(BaseModel):
-    """LLM output for search query generation."""
+class ModuleQueriesOutput(BaseModel):
+    """Output model for a single module's search queries."""
 
-    queries: list[str] = Field(
-        ..., description="Search queries for finding relevant videos"
-    )
+    module_title: str
+    queries: list[str]
+
+class BatchSearchQueriesOutput(BaseModel):
+    """LLM output for batch search query generation."""
+
+    module_queries: list[ModuleQueriesOutput]
 
 
 class TaxonomyGenerator:
@@ -118,42 +122,43 @@ class TaxonomyGenerator:
 
         return taxonomy
 
-    async def generate_search_queries(
+    async def generate_search_queries_batch(
         self,
-        module: TaxonomyModule,
+        modules: list[TaxonomyModule],
         request: CourseGenerationRequest,
-    ) -> list[str]:
-        """Generate search queries for a module to find relevant videos.
+    ) -> dict[str, list[str]]:
+        """Generate search queries for multiple modules in a single LLM call.
 
         Args:
-            module: The taxonomy module to generate queries for.
+            modules: The taxonomy modules to generate queries for.
             request: The full generation request for context.
 
         Returns:
-            A list of search query strings.
+            A dictionary mapping module title to a list of search query strings.
         """
         queries_per_module = request.search_config.queries_per_module
 
         prompt = (
-            f"Generate exactly {queries_per_module} YouTube search queries to find "
-            f"educational videos for the following course module.\n\n"
+            f"Generate exactly {queries_per_module} YouTube search queries for EACH of the following course modules "
+            f"to find educational videos.\n\n"
             f"Course topic: {request.topic}\n"
-            f"Module title: {module.title}\n"
-            f"Module description: {module.description}\n"
             f"Target audience: {request.target_audience}\n"
             f"Difficulty level: {request.difficulty}\n"
-            f"Language: {request.language}\n"
+            f"Language: {request.language}\n\n"
         )
 
-        if module.keywords:
-            prompt += f"Keywords: {', '.join(module.keywords)}\n"
-        if module.learning_objectives:
-            prompt += (
-                f"Learning objectives: {', '.join(module.learning_objectives)}\n"
-            )
+        for i, module in enumerate(modules):
+            prompt += f"Module {i+1}:\n"
+            prompt += f"  Title: {module.title}\n"
+            prompt += f"  Description: {module.description}\n"
+            if module.keywords:
+                prompt += f"  Keywords: {', '.join(module.keywords)}\n"
+            if module.learning_objectives:
+                prompt += f"  Learning objectives: {', '.join(module.learning_objectives)}\n"
+            prompt += "\n"
 
         prompt += (
-            "\nGenerate diverse queries that would surface high-quality educational "
+            "Generate diverse queries that would surface high-quality educational "
             "videos. Include a mix of specific and general queries. "
             "Each query should be a natural YouTube search string."
         )
@@ -165,19 +170,22 @@ class TaxonomyGenerator:
 
         result = await self._llm.generate_structured(
             prompt=prompt,
-            response_model=SearchQueriesOutput,
+            response_model=BatchSearchQueriesOutput,
             system_prompt=system_prompt,
             temperature=0.7,
             max_tokens=4096,
         )
 
-        logger.debug(
-            "Generated %d search queries for module=%s",
-            len(result.queries),
-            module.title,
-        )
+        queries_map = {}
+        for mq in result.module_queries:
+            queries_map[mq.module_title] = mq.queries[:queries_per_module]
+            logger.debug(
+                "Generated %d search queries for module=%s",
+                len(mq.queries),
+                mq.module_title,
+            )
 
-        return result.queries[:queries_per_module]
+        return queries_map
 
     def _build_taxonomy_prompt(self, request: CourseGenerationRequest) -> str:
         """Build the taxonomy generation prompt from the request."""

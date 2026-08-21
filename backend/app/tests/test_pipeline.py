@@ -623,8 +623,8 @@ class TestPipelineIntegration:
         from app.services.llm.base import LLMProvider
         from app.services.matching.cross_encoder import CrossEncoderScorer
         from app.schemas.taxonomy import CourseTaxonomy, TaxonomyModule, TaxonomyConcept
-        from app.services.taxonomy.generator import SearchQueriesOutput
-
+        from app.services.taxonomy.generator import BatchSearchQueriesOutput, ModuleQueriesOutput
+        
         # Mock LLM
         mock_llm = AsyncMock(spec=LLMProvider)
 
@@ -666,8 +666,13 @@ class TestPipelineIntegration:
             ],
         )
 
-        search_queries = SearchQueriesOutput(
-            queries=["python basics tutorial", "introduction to python"]
+        search_queries = BatchSearchQueriesOutput(
+            module_queries=[
+                ModuleQueriesOutput(
+                    module_title="Introduction",
+                    queries=["python basics tutorial", "introduction to python"]
+                )
+            ]
         )
 
         mock_llm.generate_structured = AsyncMock(
@@ -858,4 +863,39 @@ class TestLLMUnwrapper:
 
         unwrapped = _unwrap_root_key(clean_payload, _LLMTaxonomyOutput)
         assert unwrapped == clean_payload
+
+
+# ─── Course Storage Endpoints Tests ──────────────────────────────────────────
+
+class TestCourseStorageEndpoints:
+    """Test retrieving and listing stored courses from the database."""
+
+    @pytest.mark.asyncio
+    async def test_list_courses_empty(self):
+        from app.api.courses import list_courses
+
+        mock_db = AsyncMock()
+        mock_result = MagicMock()
+        mock_result.scalars.return_value.all.return_value = []
+        mock_db.execute.return_value = mock_result
+
+        response = await list_courses(db=mock_db)
+        assert response.total == 0
+        assert response.courses == []
+
+    @pytest.mark.asyncio
+    async def test_get_course_not_found(self):
+        from fastapi import HTTPException
+        from app.api.courses import get_course
+
+        mock_db = AsyncMock()
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none.return_value = None
+        mock_db.execute.return_value = mock_result
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_course("nonexistent_id", db=mock_db)
+
+        assert exc_info.value.status_code == 404
+
 
