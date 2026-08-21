@@ -12,14 +12,14 @@ export function GenerationForm({ onSubmit, isGenerating }: GenerationFormProps) 
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-ctp-surface0 shadow-xs text-ctp-text">
-      <h2 className="text-xl font-extrabold mb-4 text-ctp-text border-b border-ctp-surface0 pb-3 flex items-center space-x-2">
+    <div className="bg-white p-6 rounded-none border border-ctp-surface0 shadow-2xs text-ctp-text">
+      <h2 className="text-lg font-bold mb-4 text-ctp-text border-b border-ctp-surface0 pb-3 flex items-center space-x-2 uppercase">
         <span className="text-ctp-mauve">✦</span>
         <span>Course Configuration</span>
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
             Course Title
           </label>
           <input
@@ -28,12 +28,12 @@ export function GenerationForm({ onSubmit, isGenerating }: GenerationFormProps) 
             required
             placeholder="e.g., Python Fundamentals"
             defaultValue="Python Fundamentals"
-            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve placeholder:text-ctp-overlay0"
+            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve placeholder:text-ctp-overlay0"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
             Topic & Skills
           </label>
           <input
@@ -42,18 +42,18 @@ export function GenerationForm({ onSubmit, isGenerating }: GenerationFormProps) 
             required
             placeholder="e.g., Python Programming"
             defaultValue="Python Programming"
-            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve placeholder:text-ctp-overlay0"
+            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve placeholder:text-ctp-overlay0"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
             Difficulty
           </label>
           <select
             name="difficulty"
             defaultValue="beginner"
-            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve cursor-pointer"
+            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve cursor-pointer"
           >
             <option value="beginner">Beginner</option>
             <option value="intermediate">Intermediate</option>
@@ -63,7 +63,7 @@ export function GenerationForm({ onSubmit, isGenerating }: GenerationFormProps) 
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
             Target Audience
           </label>
           <input
@@ -72,13 +72,13 @@ export function GenerationForm({ onSubmit, isGenerating }: GenerationFormProps) 
             placeholder="e.g., undergraduate students"
             defaultValue="undergraduate students"
             required
-            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve placeholder:text-ctp-overlay0"
+            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve placeholder:text-ctp-overlay0"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
               Target Modules
             </label>
             <input
@@ -87,11 +87,11 @@ export function GenerationForm({ onSubmit, isGenerating }: GenerationFormProps) 
               min="1"
               max="20"
               defaultValue="6"
-              className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve"
+              className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve font-mono"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
               Videos / Module
             </label>
             <input
@@ -100,13 +100,13 @@ export function GenerationForm({ onSubmit, isGenerating }: GenerationFormProps) 
               min="1"
               max="10"
               defaultValue="3"
-              className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve"
+              className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve font-mono"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
             Target Duration (sec)
           </label>
           <input
@@ -114,14 +114,14 @@ export function GenerationForm({ onSubmit, isGenerating }: GenerationFormProps) 
             type="number"
             min="30"
             defaultValue="600"
-            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve"
+            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve font-mono"
           />
         </div>
 
         <button
           type="submit"
           disabled={isGenerating}
-          className="w-full mt-4 bg-ctp-mauve text-white py-3 px-4 rounded-lg font-bold hover:bg-[#772fe0] active:bg-[#6824c9] focus:outline-none focus:ring-2 focus:ring-ctp-mauve focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all shadow-xs"
+          className="w-full mt-4 bg-ctp-mauve text-white py-2.5 px-4 rounded-none font-bold uppercase tracking-wider hover:bg-[#13382c] active:bg-[#0c241c] focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed transition-all shadow-2xs border border-ctp-mauve cursor-pointer"
         >
           {isGenerating ? "Generating Curriculum..." : "Generate AI Course"}
         </button>

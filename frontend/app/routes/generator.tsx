@@ -168,7 +168,7 @@ export default function GeneratorPage() {
 
         if (autoLoadFirst && coursesList.length > 0) {
           const firstCourse = coursesList[0];
-          await loadCourseById(firstCourse.id || firstCourse.generation_id);
+          await loadCourseById(firstCourse.id ?? firstCourse.generation_id);
         }
       }
     } catch (err) {
@@ -183,9 +183,10 @@ export default function GeneratorPage() {
   }, [fetchSavedCourses]);
 
   // Load a specific course from the database by ID
-  const loadCourseById = async (courseId: string) => {
+  const loadCourseById = async (courseIdOrGenId: string | number) => {
+    const idStr = String(courseIdOrGenId);
     try {
-      const response = await fetch(`http://localhost:8000/api/courses/${courseId}`);
+      const response = await fetch(`http://localhost:8000/api/courses/${idStr}`);
       if (!response.ok) {
         throw new Error(`Failed to load course: ${response.status}`);
       }
@@ -195,7 +196,7 @@ export default function GeneratorPage() {
         const { mappedModules, meta } = formatApiCourse(data.course);
         setModules(mappedModules);
         setCourseMeta(meta);
-        setActiveCourseId(courseId);
+        setActiveCourseId(idStr);
 
         if (mappedModules.length > 0 && mappedModules[0].videos.length > 0) {
           setActiveVideo(mappedModules[0].videos[0]);
@@ -207,16 +208,17 @@ export default function GeneratorPage() {
   };
 
   // Delete a course from the database
-  const handleDeleteCourse = async (courseId: string) => {
+  const handleDeleteCourse = async (courseIdOrGenId: string | number) => {
+    const idStr = String(courseIdOrGenId);
     try {
-      const response = await fetch(`http://localhost:8000/api/courses/${courseId}`, {
+      const response = await fetch(`http://localhost:8000/api/courses/${idStr}`, {
         method: 'DELETE'
       });
       if (response.ok) {
-        const updated = savedCourses.filter(c => c.id !== courseId && c.generation_id !== courseId);
+        const updated = savedCourses.filter(c => String(c.id) !== idStr && c.generation_id !== idStr);
         setSavedCourses(updated);
-        if (activeCourseId === courseId && updated.length > 0) {
-          loadCourseById(updated[0].id || updated[0].generation_id);
+        if (activeCourseId === idStr && updated.length > 0) {
+          loadCourseById(updated[0].id ?? updated[0].generation_id);
         }
       }
     } catch (err) {

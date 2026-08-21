@@ -212,31 +212,31 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
         {activeTab === 'overview' && (
           <div className="space-y-6 w-full">
             {/* Top Course Meta Banner (Full Width) */}
-            <div className="w-full bg-white p-6 sm:p-7 rounded-2xl border border-ctp-surface0 shadow-2xs space-y-4">
+            <div className="w-full bg-white p-6 sm:p-7 rounded-none border border-ctp-surface0 shadow-2xs space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center space-x-1 text-[11px] font-semibold text-ctp-mauve bg-ctp-mauve/10 border border-ctp-mauve/25 px-2.5 py-0.5 rounded-md">
-                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <span className="inline-flex items-center space-x-1 text-[11px] font-mono font-bold text-ctp-mauve bg-ctp-mauve/10 border border-ctp-mauve/25 px-2 py-0.5 rounded-none uppercase">
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>
                     <span>AI Synthesized Curriculum</span>
                   </span>
 
                   {courseMeta.difficulty && (
-                    <span className={`px-2.5 py-0.5 rounded-md text-[11px] font-semibold border capitalize ${getDifficultyBadge(courseMeta.difficulty)}`}>
+                    <span className={`px-2 py-0.5 rounded-none text-[11px] font-mono font-bold border uppercase ${getDifficultyBadge(courseMeta.difficulty)}`}>
                       {courseMeta.difficulty} Level
                     </span>
                   )}
                 </div>
 
-                <div className="flex items-center space-x-2 text-xs text-ctp-subtext0">
-                  <span className="font-semibold text-ctp-text">{totalLectures}</span>
+                <div className="flex items-center space-x-2 text-xs font-mono text-ctp-subtext0 uppercase">
+                  <span className="font-bold text-ctp-text">{totalLectures}</span>
                   <span>Sequential Modules</span>
                 </div>
               </div>
 
               <div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-ctp-text leading-tight tracking-tight">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-ctp-text leading-tight tracking-tight uppercase">
                   {courseMeta.title || (activeVideo ? activeVideo.title : "Python Fundamentals")}
                 </h1>
                 <p className="text-xs sm:text-sm text-ctp-subtext1 font-normal leading-relaxed mt-2 max-w-4xl">
@@ -245,21 +245,21 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
               </div>
 
               {/* Course Meta Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-ctp-surface0/60 text-xs">
-                <div className="p-3 rounded-xl bg-ctp-base/50 border border-ctp-surface0/60">
-                  <span className="text-[11px] text-ctp-subtext0 block font-medium">Domain Area</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-ctp-surface0 text-xs">
+                <div className="p-3 rounded-none bg-ctp-base/50 border border-ctp-surface0">
+                  <span className="text-[10px] font-mono uppercase text-ctp-subtext0 block font-bold">Domain Area</span>
                   <span className="font-semibold text-ctp-text truncate block mt-0.5">{courseMeta.topic || "Programming"}</span>
                 </div>
-                <div className="p-3 rounded-xl bg-ctp-base/50 border border-ctp-surface0/60">
-                  <span className="text-[11px] text-ctp-subtext0 block font-medium">Target Audience</span>
+                <div className="p-3 rounded-none bg-ctp-base/50 border border-ctp-surface0">
+                  <span className="text-[10px] font-mono uppercase text-ctp-subtext0 block font-bold">Target Audience</span>
                   <span className="font-semibold text-ctp-text truncate block mt-0.5">{courseMeta.targetAudience || "All Learners"}</span>
                 </div>
-                <div className="p-3 rounded-xl bg-ctp-base/50 border border-ctp-surface0/60">
-                  <span className="text-[11px] text-ctp-subtext0 block font-medium">Delivery Mode</span>
+                <div className="p-3 rounded-none bg-ctp-base/50 border border-ctp-surface0">
+                  <span className="text-[10px] font-mono uppercase text-ctp-subtext0 block font-bold">Delivery Mode</span>
                   <span className="font-semibold text-ctp-text block mt-0.5">Self-Paced Stream</span>
                 </div>
-                <div className="p-3 rounded-xl bg-ctp-base/50 border border-ctp-surface0/60">
-                  <span className="text-[11px] text-ctp-subtext0 block font-medium">Ranking Engine</span>
+                <div className="p-3 rounded-none bg-ctp-base/50 border border-ctp-surface0">
+                  <span className="text-[10px] font-mono uppercase text-ctp-subtext0 block font-bold">Ranking Engine</span>
                   <span className="font-semibold text-ctp-mauve block mt-0.5">Multi-Signal Dense</span>
                 </div>
               </div>
@@ -270,68 +270,68 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
               {/* Left Column (8 of 12) */}
               <div className="lg:col-span-8 space-y-6">
                 {/* Learning Competencies Card */}
-                <div className="p-6 border border-ctp-surface0 bg-white rounded-2xl shadow-2xs space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-sm sm:text-base font-bold text-ctp-text tracking-tight">
+                <div className="p-6 border border-ctp-surface0 bg-white rounded-none shadow-2xs space-y-4">
+                  <div className="flex items-center justify-between border-b border-ctp-surface0 pb-3">
+                    <h2 className="text-sm sm:text-base font-bold text-ctp-text tracking-tight uppercase">
                       Core Learning Competencies
                     </h2>
-                    <span className="text-xs text-ctp-subtext0 font-medium">4 Key Modules</span>
+                    <span className="text-[11px] font-mono font-bold text-ctp-subtext0 uppercase">4 Key Modules</span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs sm:text-sm text-ctp-subtext1">
-                    <div className="p-3.5 rounded-xl bg-ctp-base/40 border border-ctp-surface0/60 flex items-start space-x-3">
-                      <div className="w-5 h-5 rounded-md bg-ctp-green/10 text-ctp-green flex items-center justify-center shrink-0 mt-0.5">
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm text-ctp-subtext1">
+                    <div className="p-3.5 rounded-none bg-ctp-base/40 border-l-2 border-l-ctp-green border-y border-r border-ctp-surface0 flex items-start space-x-3">
+                      <div className="w-5 h-5 rounded-none bg-ctp-green/10 text-ctp-green flex items-center justify-center shrink-0 mt-0.5">
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                           <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                       </div>
                       <div>
-                        <strong className="text-ctp-text block font-semibold text-xs mb-0.5">Syntax & Foundations</strong>
-                        <span>Variables, types, control structures, and functional patterns.</span>
+                        <strong className="text-ctp-text block font-bold text-xs mb-0.5 uppercase">Syntax & Foundations</strong>
+                        <span className="text-xs">Variables, types, control structures, and functional patterns.</span>
                       </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-ctp-base/40 border border-ctp-surface0/60 flex items-start space-x-3">
-                      <div className="w-5 h-5 rounded-md bg-ctp-green/10 text-ctp-green flex items-center justify-center shrink-0 mt-0.5">
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <div className="p-3.5 rounded-none bg-ctp-base/40 border-l-2 border-l-ctp-green border-y border-r border-ctp-surface0 flex items-start space-x-3">
+                      <div className="w-5 h-5 rounded-none bg-ctp-green/10 text-ctp-green flex items-center justify-center shrink-0 mt-0.5">
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                           <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                       </div>
                       <div>
-                        <strong className="text-ctp-text block font-semibold text-xs mb-0.5">Data Collections</strong>
-                        <span>Sequences, mappings, comprehensions, and memory optimization.</span>
+                        <strong className="text-ctp-text block font-bold text-xs mb-0.5 uppercase">Data Collections</strong>
+                        <span className="text-xs">Sequences, mappings, comprehensions, and memory optimization.</span>
                       </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-ctp-base/40 border border-ctp-surface0/60 flex items-start space-x-3">
-                      <div className="w-5 h-5 rounded-md bg-ctp-green/10 text-ctp-green flex items-center justify-center shrink-0 mt-0.5">
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <div className="p-3.5 rounded-none bg-ctp-base/40 border-l-2 border-l-ctp-green border-y border-r border-ctp-surface0 flex items-start space-x-3">
+                      <div className="w-5 h-5 rounded-none bg-ctp-green/10 text-ctp-green flex items-center justify-center shrink-0 mt-0.5">
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                           <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                       </div>
                       <div>
-                        <strong className="text-ctp-text block font-semibold text-xs mb-0.5">Modular Architecture</strong>
-                        <span>Package management, reusable components, and API integration.</span>
+                        <strong className="text-ctp-text block font-bold text-xs mb-0.5 uppercase">Modular Architecture</strong>
+                        <span className="text-xs">Package management, reusable components, and API integration.</span>
                       </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-ctp-base/40 border border-ctp-surface0/60 flex items-start space-x-3">
-                      <div className="w-5 h-5 rounded-md bg-ctp-green/10 text-ctp-green flex items-center justify-center shrink-0 mt-0.5">
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <div className="p-3.5 rounded-none bg-ctp-base/40 border-l-2 border-l-ctp-green border-y border-r border-ctp-surface0 flex items-start space-x-3">
+                      <div className="w-5 h-5 rounded-none bg-ctp-green/10 text-ctp-green flex items-center justify-center shrink-0 mt-0.5">
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                           <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                       </div>
                       <div>
-                        <strong className="text-ctp-text block font-semibold text-xs mb-0.5">Testing & Verification</strong>
-                        <span>Unit testing, validation routines, and real-world project deployment.</span>
+                        <strong className="text-ctp-text block font-bold text-xs mb-0.5 uppercase">Testing & Verification</strong>
+                        <span className="text-xs">Unit testing, validation routines, and real-world project deployment.</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Prerequisite & Requirements Card */}
-                <div className="p-6 border border-ctp-surface0 bg-white rounded-2xl shadow-2xs space-y-3">
-                  <h3 className="text-sm font-bold text-ctp-text">Requirements & Target Environment</h3>
+                <div className="p-6 border border-ctp-surface0 bg-white rounded-none shadow-2xs space-y-3">
+                  <h3 className="text-sm font-bold text-ctp-text uppercase">Requirements & Target Environment</h3>
                   <ul className="text-xs text-ctp-subtext1 space-y-2 list-disc list-inside">
                     <li>Basic familiarity with general computing concepts and terminal navigation.</li>
                     <li>No prior specialized domain knowledge required for beginner track modules.</li>
@@ -344,17 +344,17 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
               <div className="lg:col-span-4 space-y-6">
                 {/* Active Selection Card */}
                 {activeVideo && (
-                  <div className="p-5 rounded-2xl border border-ctp-surface0 bg-white shadow-2xs space-y-3">
+                  <div className="p-5 rounded-none border border-ctp-surface0 bg-white shadow-2xs space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-ctp-mauve px-2 py-0.5 rounded bg-ctp-mauve/10 border border-ctp-mauve/20">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-ctp-mauve px-2 py-0.5 rounded-none bg-ctp-mauve/10 border border-ctp-mauve/20">
                         Active Lesson
                       </span>
-                      <span className="text-xs text-ctp-subtext0 font-medium">{activeVideo.duration}</span>
+                      <span className="text-xs font-mono text-ctp-subtext0 font-medium">{activeVideo.duration}</span>
                     </div>
                     <h3 className="text-sm font-bold text-ctp-text leading-snug">
                       {activeVideo.title}
                     </h3>
-                    <div className="pt-2 border-t border-ctp-surface0/60 text-xs text-ctp-subtext0 space-y-1">
+                    <div className="pt-2 border-t border-ctp-surface0 text-xs text-ctp-subtext0 space-y-1">
                       <p>Instructor: <strong className="text-ctp-text font-semibold">{activeVideo.author || "Curated Educator"}</strong></p>
                       <p>Status: <span className="text-ctp-green font-medium">Ready to Stream</span></p>
                     </div>
@@ -362,16 +362,16 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
                 )}
 
                 {/* Educator & Sourcing Profile */}
-                <div className="p-5 border border-ctp-surface0 bg-white rounded-2xl shadow-2xs space-y-3">
+                <div className="p-5 border border-ctp-surface0 bg-white rounded-none shadow-2xs space-y-3">
                   <div className="flex items-center space-x-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-ctp-mauve text-white flex items-center justify-center font-bold text-base shadow-xs shrink-0">
+                    <div className="w-10 h-10 rounded-none bg-ctp-mauve text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                       {activeVideo?.author ? activeVideo.author.charAt(0).toUpperCase() : 'C'}
                     </div>
                     <div className="min-w-0">
                       <h4 className="text-sm font-bold text-ctp-text truncate">
                         {activeVideo?.author || "CareerForge Curated Instructor"}
                       </h4>
-                      <p className="text-[11px] text-ctp-subtext0">Educational Content Lead</p>
+                      <p className="text-[11px] font-mono text-ctp-subtext0 uppercase">Educational Content Lead</p>
                     </div>
                   </div>
                   <p className="text-xs text-ctp-subtext1 leading-relaxed">
@@ -389,20 +389,20 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
         {activeTab === 'notes' && (
           <div className="space-y-6 w-full">
             {/* Note Creator Box */}
-            <div className="p-6 bg-white rounded-2xl border border-ctp-surface0 shadow-2xs space-y-4">
-              <div className="flex items-center justify-between">
+            <div className="p-6 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between border-b border-ctp-surface0 pb-3">
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold text-ctp-text">Interactive Lesson Notepad</h3>
+                  <h3 className="text-sm sm:text-base font-bold text-ctp-text uppercase">Interactive Lesson Notepad</h3>
                   <p className="text-xs text-ctp-subtext0 mt-0.5">Take notes timestamped to the active video lesson.</p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-ctp-subtext0 font-medium">Timestamp:</span>
+                  <span className="text-xs font-mono text-ctp-subtext0 uppercase">Timestamp:</span>
                   <input
                     type="text"
                     value={newNoteTimestamp}
                     onChange={(e) => setNewNoteTimestamp(e.target.value)}
                     placeholder="01:30"
-                    className="w-16 px-2 py-1 text-xs border border-ctp-surface0 rounded bg-ctp-base/50 font-mono text-center focus:outline-none focus:border-ctp-mauve"
+                    className="w-16 px-2 py-1 text-xs border border-ctp-surface0 rounded-none bg-ctp-base/50 font-mono text-center focus:outline-none focus:border-ctp-mauve"
                   />
                 </div>
               </div>
@@ -413,15 +413,15 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
                   onChange={(e) => setNewNoteText(e.target.value)}
                   placeholder={`Write your key insights, code snippets, or thoughts for "${activeVideo?.title || 'this lesson'}"...`}
                   rows={3}
-                  className="w-full p-3.5 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-xl focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve transition-colors resize-none placeholder:text-ctp-overlay0"
+                  className="w-full p-3.5 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve resize-none placeholder:text-ctp-overlay0 font-mono"
                 />
                 <div className="flex justify-between items-center">
                   <span className="text-[11px] text-ctp-subtext0">Notes are saved locally in your browser workspace.</span>
                   <button
                     type="submit"
-                    className="px-4 py-2 text-xs font-semibold text-white bg-ctp-mauve hover:bg-[#7a2be2] rounded-lg shadow-xs transition-colors cursor-pointer flex items-center space-x-1.5"
+                    className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] rounded-none shadow-2xs transition-colors cursor-pointer flex items-center space-x-1.5"
                   >
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <line x1="12" y1="5" x2="12" y2="19"></line>
                       <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
@@ -433,14 +433,14 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
 
             {/* Saved Notes Feed */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-ctp-subtext0">Saved Notes ({notes.length})</h4>
+              <div className="flex items-center justify-between border-b border-ctp-surface0 pb-2">
+                <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-ctp-subtext0">Saved Notes ({notes.length})</h4>
                 {notes.length > 0 && (
                   <button
                     onClick={() => {
                       if (confirm('Clear all notes?')) setNotes([]);
                     }}
-                    className="text-xs text-ctp-red hover:underline font-medium cursor-pointer"
+                    className="text-xs text-ctp-red hover:underline font-mono uppercase cursor-pointer"
                   >
                     Clear All
                   </button>
@@ -448,31 +448,31 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
               </div>
 
               {notes.length === 0 ? (
-                <div className="p-8 text-center bg-white rounded-2xl border border-ctp-surface0 text-ctp-subtext0 space-y-2">
-                  <p className="font-semibold text-sm text-ctp-text">No notes recorded yet</p>
+                <div className="p-8 text-center bg-white rounded-none border border-ctp-surface0 text-ctp-subtext0 space-y-2">
+                  <p className="font-bold text-sm text-ctp-text uppercase">No notes recorded yet</p>
                   <p className="text-xs">Type your observations above to keep a personal study journal.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                   {notes.map((note) => (
-                    <div key={note.id} className="p-4 bg-white rounded-xl border border-ctp-surface0 shadow-2xs space-y-2 flex flex-col justify-between">
+                    <div key={note.id} className="p-4 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-2 flex flex-col justify-between">
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="font-mono text-[11px] font-semibold text-ctp-mauve bg-ctp-mauve/10 border border-ctp-mauve/20 px-2 py-0.5 rounded">
+                          <span className="font-mono text-[11px] font-bold text-ctp-mauve bg-ctp-mauve/10 border border-ctp-mauve/20 px-2 py-0.5 rounded-none">
                             {note.timestamp}
                           </span>
-                          <span className="text-[11px] text-ctp-subtext0">{note.createdAt}</span>
+                          <span className="text-[11px] font-mono text-ctp-subtext0">{note.createdAt}</span>
                         </div>
                         <p className="text-xs text-ctp-text font-normal leading-relaxed whitespace-pre-wrap">
                           {note.text}
                         </p>
                       </div>
 
-                      <div className="pt-2 border-t border-ctp-surface0/50 flex items-center justify-between text-[11px] text-ctp-subtext0">
+                      <div className="pt-2 border-t border-ctp-surface0 flex items-center justify-between text-[11px] text-ctp-subtext0 font-mono">
                         <span className="truncate max-w-[200px] font-medium">{note.lessonTitle}</span>
                         <button
                           onClick={() => handleDeleteNote(note.id)}
-                          className="text-ctp-red hover:underline font-medium cursor-pointer"
+                          className="text-ctp-red hover:underline font-bold uppercase cursor-pointer"
                         >
                           Delete
                         </button>
@@ -491,14 +491,14 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
         {activeTab === 'qa' && (
           <div className="space-y-6 w-full">
             {/* Q&A Top Control Bar */}
-            <div className="p-5 bg-white rounded-2xl border border-ctp-surface0 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-4 sm:p-5 bg-white rounded-none border border-ctp-surface0 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="relative flex-1">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search course discussion and student questions..."
-                  className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-ctp-base/50 border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve"
+                  className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-ctp-base/50 border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve font-mono"
                 />
                 <svg className="w-4 h-4 text-ctp-subtext0 absolute left-3 top-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="11" cy="11" r="8"></circle>
@@ -508,7 +508,7 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
 
               <button
                 onClick={() => setShowAskForm(!showAskForm)}
-                className="px-4 py-2 text-xs font-semibold text-white bg-ctp-mauve hover:bg-[#7a2be2] rounded-lg shadow-xs transition-colors shrink-0 cursor-pointer flex items-center justify-center space-x-1.5"
+                className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] rounded-none shadow-xs transition-colors shrink-0 cursor-pointer flex items-center justify-center space-x-1.5"
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -520,34 +520,34 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
 
             {/* Optional Ask Question Form */}
             {showAskForm && (
-              <form onSubmit={handlePostQuestion} className="p-6 bg-white rounded-2xl border border-ctp-mauve/30 shadow-xs space-y-3">
-                <h4 className="text-sm font-bold text-ctp-text">Post a Question for this Curriculum</h4>
+              <form onSubmit={handlePostQuestion} className="p-6 bg-white rounded-none border border-ctp-mauve/30 shadow-xs space-y-3">
+                <h4 className="text-sm font-bold text-ctp-text uppercase">Post a Question for this Curriculum</h4>
                 <input
                   type="text"
                   value={newQuestionTitle}
                   onChange={(e) => setNewQuestionTitle(e.target.value)}
                   placeholder="Summarize your question or technical blocker..."
                   required
-                  className="w-full px-3 py-2 text-xs sm:text-sm bg-ctp-base/40 border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve"
+                  className="w-full px-3 py-2 text-xs sm:text-sm bg-ctp-base/40 border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve"
                 />
                 <textarea
                   value={newQuestionBody}
                   onChange={(e) => setNewQuestionBody(e.target.value)}
                   placeholder="Provide context, code snippets, or what you've tried..."
                   rows={3}
-                  className="w-full px-3 py-2 text-xs sm:text-sm bg-ctp-base/40 border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve resize-none"
+                  className="w-full px-3 py-2 text-xs sm:text-sm bg-ctp-base/40 border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve resize-none font-mono"
                 />
                 <div className="flex justify-end space-x-2">
                   <button
                     type="button"
                     onClick={() => setShowAskForm(false)}
-                    className="px-3 py-1.5 text-xs text-ctp-subtext0 hover:bg-ctp-mantle rounded-lg"
+                    className="px-3 py-1.5 text-xs text-ctp-subtext0 hover:bg-ctp-mantle rounded-none uppercase font-mono"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-1.5 text-xs font-semibold text-white bg-ctp-mauve hover:bg-[#7a2be2] rounded-lg"
+                    className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] rounded-none"
                   >
                     Publish Question
                   </button>
@@ -560,13 +560,13 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
               {questions
                 .filter(q => q.title.toLowerCase().includes(searchQuery.toLowerCase()) || q.body.toLowerCase().includes(searchQuery.toLowerCase()))
                 .map((q) => (
-                  <div key={q.id} className="p-5 bg-white rounded-2xl border border-ctp-surface0 shadow-2xs space-y-3">
+                  <div key={q.id} className="p-5 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1 min-w-0">
-                        <div className="flex items-center space-x-2 text-xs text-ctp-subtext0">
-                          <span className="font-semibold text-ctp-text">{q.author}</span>
+                        <div className="flex items-center space-x-2 text-xs text-ctp-subtext0 font-mono">
+                          <span className="font-bold text-ctp-text">{q.author}</span>
                           <span>•</span>
-                          <span className="text-ctp-mauve font-medium">{q.lessonTitle}</span>
+                          <span className="text-ctp-mauve font-semibold">{q.lessonTitle}</span>
                         </div>
                         <h4 className="text-sm font-bold text-ctp-text leading-snug">{q.title}</h4>
                         <p className="text-xs text-ctp-subtext1 leading-relaxed">{q.body}</p>
@@ -575,7 +575,7 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
                       {/* Vote Button */}
                       <button
                         onClick={() => handleVote(q.id)}
-                        className={`flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-semibold shrink-0 cursor-pointer transition-colors ${
+                        className={`flex flex-col items-center justify-center p-2 rounded-none border text-xs font-semibold shrink-0 cursor-pointer transition-colors ${
                           q.hasUpvoted 
                             ? 'bg-ctp-mauve/15 border-ctp-mauve text-ctp-mauve' 
                             : 'bg-ctp-base/50 border-ctp-surface0 text-ctp-subtext0 hover:border-ctp-surface1'
@@ -584,18 +584,18 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
                         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                           <polyline points="18 15 12 9 6 15"></polyline>
                         </svg>
-                        <span>{q.votes}</span>
+                        <span className="font-mono text-xs">{q.votes}</span>
                       </button>
                     </div>
 
-                    <div className="pt-2 border-t border-ctp-surface0/60 flex items-center justify-between text-xs text-ctp-subtext0">
+                    <div className="pt-2 border-t border-ctp-surface0 flex items-center justify-between text-xs text-ctp-subtext0 font-mono">
                       <span className="flex items-center space-x-1.5">
                         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                         </svg>
                         <span>{q.replies} Community Responses</span>
                       </span>
-                      <button className="text-ctp-mauve hover:underline font-medium cursor-pointer">
+                      <button className="text-ctp-mauve hover:underline font-bold uppercase cursor-pointer">
                         Reply
                       </button>
                     </div>
@@ -610,9 +610,9 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
         {/* ========================================================================= */}
         {activeTab === 'resources' && (
           <div className="space-y-6 w-full">
-            <div className="p-6 bg-white rounded-2xl border border-ctp-surface0 shadow-2xs space-y-4">
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-ctp-text">Verified Course References</h3>
+            <div className="p-6 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-4">
+              <div className="border-b border-ctp-surface0 pb-3">
+                <h3 className="text-sm sm:text-base font-bold text-ctp-text uppercase">Verified Course References</h3>
                 <p className="text-xs text-ctp-subtext0 mt-0.5">Download syllabus cheatsheets, starter code repositories, and documentation.</p>
               </div>
 
@@ -621,10 +621,10 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
                   href="https://docs.python.org/3/"
                   target="_blank"
                   rel="noreferrer"
-                  className="p-4 rounded-xl bg-ctp-base/40 border border-ctp-surface0 hover:border-ctp-mauve transition-colors flex items-start justify-between group cursor-pointer"
+                  className="p-4 rounded-none bg-ctp-base/40 border border-ctp-surface0 hover:border-ctp-mauve transition-colors flex items-start justify-between group cursor-pointer"
                 >
                   <div className="space-y-1">
-                    <span className="text-xs font-bold text-ctp-text group-hover:text-ctp-mauve transition-colors block">
+                    <span className="text-xs font-bold text-ctp-text group-hover:text-ctp-mauve transition-colors block uppercase">
                       Official Language Documentation & Standard Library
                     </span>
                     <p className="text-[11px] text-ctp-subtext0 leading-relaxed">
@@ -638,16 +638,16 @@ export function CourseOverview({ activeVideo, courseMeta, totalLectures }: Cours
                   </svg>
                 </a>
 
-                <div className="p-4 rounded-xl bg-ctp-base/40 border border-ctp-surface0 flex items-start justify-between">
+                <div className="p-4 rounded-none bg-ctp-base/40 border border-ctp-surface0 flex items-start justify-between">
                   <div className="space-y-1">
-                    <span className="text-xs font-bold text-ctp-text block">
+                    <span className="text-xs font-bold text-ctp-text block uppercase">
                       Curriculum Cheatsheet & Code Starter
                     </span>
                     <p className="text-[11px] text-ctp-subtext0 leading-relaxed">
                       Bundled Markdown summary containing code recipes and module exercises.
                     </p>
                   </div>
-                  <span className="text-[10px] font-semibold text-ctp-teal bg-ctp-teal/10 border border-ctp-teal/20 px-2 py-0.5 rounded shrink-0 ml-2">
+                  <span className="text-[10px] font-mono font-bold text-ctp-teal bg-ctp-teal/10 border border-ctp-teal/20 px-2 py-0.5 rounded-none shrink-0 ml-2 uppercase">
                     Included
                   </span>
                 </div>

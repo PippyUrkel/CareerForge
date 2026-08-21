@@ -29,27 +29,27 @@ export function VideoPlayer({
 }: VideoPlayerProps) {
   if (!video) {
     return (
-      <div className="w-full aspect-video bg-ctp-mantle border-b border-ctp-surface0 flex flex-col items-center justify-center text-center p-6 sm:p-12 relative">
+      <div className="w-full aspect-video bg-ctp-mantle border-b border-ctp-surface0 flex flex-col items-center justify-center text-center p-6 sm:p-12 relative rounded-none">
         <div className="max-w-md space-y-3.5">
-          <div className="w-12 h-12 rounded-xl bg-white shadow-2xs border border-ctp-surface0 text-ctp-mauve flex items-center justify-center mx-auto">
-            <svg className="w-5 h-5 ml-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-10 h-10 rounded-none bg-white shadow-2xs border border-ctp-surface0 text-ctp-mauve flex items-center justify-center mx-auto">
+            <svg className="w-4 h-4 ml-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <polygon points="5 3 19 12 5 21 5 3"></polygon>
             </svg>
           </div>
           <div>
-            <h3 className="text-lg sm:text-xl font-bold text-ctp-text tracking-tight">
+            <h3 className="text-base sm:text-lg font-bold text-ctp-text tracking-tight uppercase">
               Interactive Learning Canvas
             </h3>
-            <p className="text-xs sm:text-sm text-ctp-subtext0 mt-1 leading-relaxed max-w-sm mx-auto">
+            <p className="text-xs text-ctp-subtext0 mt-1 leading-relaxed max-w-sm mx-auto">
               Select a lecture from the curriculum sidebar to stream or generate a new customized course track.
             </p>
           </div>
           <div className="pt-1">
             <button
               onClick={onOpenGenerator}
-              className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold text-white bg-ctp-mauve hover:bg-[#7a2be2] active:bg-[#6b22c7] transition-colors shadow-xs text-xs cursor-pointer"
+              className="inline-flex items-center space-x-2 px-4 py-2 rounded-none font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] active:bg-[#0c241c] transition-colors shadow-2xs text-xs cursor-pointer border border-ctp-mauve"
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
@@ -78,7 +78,7 @@ export function VideoPlayer({
   }
 
   return (
-    <div className="w-full bg-[#1e1e2e] border-b border-ctp-surface0 relative">
+    <div className="w-full bg-[#1e1e2e] border-b border-ctp-surface0 relative rounded-none">
       {/* 16:9 Screen Frame */}
       <div className="aspect-video w-full relative">
         {embedUrl ? (
@@ -97,14 +97,14 @@ export function VideoPlayer({
               className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-102 transition-transform duration-300"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ctp-text/80 via-ctp-text/30 to-transparent" />
-            <div className="z-10 bg-white text-ctp-mauve p-3.5 rounded-full shadow-md cursor-pointer hover:scale-105 transition-transform border border-white">
-              <svg className="w-6 h-6 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+            <div className="z-10 bg-white text-ctp-mauve p-3 rounded-none shadow-md cursor-pointer hover:bg-ctp-base transition-colors border border-white">
+              <svg className="w-5 h-5 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
             </div>
             <div className="absolute bottom-4 left-4 right-4 z-10 text-left">
-              <p className="text-[11px] font-medium text-white/80">{video.author}</p>
-              <h3 className="text-sm sm:text-base font-semibold text-white line-clamp-1">{video.title}</h3>
+              <p className="text-[10px] font-mono uppercase font-bold text-white/80">{video.author}</p>
+              <h3 className="text-xs sm:text-sm font-bold text-white line-clamp-1 uppercase">{video.title}</h3>
             </div>
           </div>
         )}
@@ -113,11 +113,11 @@ export function VideoPlayer({
       {/* Player Navigation & Quick Actions Toolbar */}
       <div className="bg-white px-4 sm:px-6 py-2.5 border-t border-ctp-surface0 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div className="flex items-center space-x-3 min-w-0">
-          <span className="font-semibold text-ctp-text truncate max-w-xs sm:max-w-md">
+          <span className="font-bold text-ctp-text truncate max-w-xs sm:max-w-md uppercase text-xs">
             {video.title}
           </span>
           <span className="text-ctp-subtext0 hidden sm:inline">•</span>
-          <span className="text-ctp-subtext0 font-medium hidden sm:inline">{video.duration}</span>
+          <span className="text-ctp-subtext0 font-mono text-[11px] hidden sm:inline">{video.duration}</span>
         </div>
 
         {/* Quick Lesson Steppers */}
@@ -125,7 +125,7 @@ export function VideoPlayer({
           {onToggleComplete && (
             <button
               onClick={onToggleComplete}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-semibold border transition-colors cursor-pointer flex items-center space-x-1 ${
+              className={`px-2.5 py-1 rounded-none text-[10px] font-mono font-bold uppercase border transition-colors cursor-pointer flex items-center space-x-1 ${
                 isCompleted 
                   ? 'bg-ctp-green/10 text-ctp-green border-ctp-green/30' 
                   : 'bg-ctp-base/60 text-ctp-subtext0 border-ctp-surface0 hover:text-ctp-text'
@@ -142,7 +142,7 @@ export function VideoPlayer({
             <button
               onClick={onPrevious}
               disabled={!hasPrevious}
-              className="p-1.5 rounded-md border border-ctp-surface0 text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-mantle disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              className="p-1.5 rounded-none border border-ctp-surface0 text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-mantle disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
               title="Previous lesson"
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -155,7 +155,7 @@ export function VideoPlayer({
             <button
               onClick={onNext}
               disabled={!hasNext}
-              className="p-1.5 rounded-md border border-ctp-surface0 text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-mantle disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              className="p-1.5 rounded-none border border-ctp-surface0 text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-mantle disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
               title="Next lesson"
             >
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -168,4 +168,3 @@ export function VideoPlayer({
     </div>
   );
 }
-
