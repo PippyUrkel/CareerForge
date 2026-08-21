@@ -1,21 +1,35 @@
 import React, { type ReactNode } from 'react';
 
-interface UdemyLayoutProps {
+export interface StudioLayoutProps {
   courseTitle: string;
   onOpenGenerator: () => void;
+  onOpenLibrary?: () => void;
+  savedCoursesCount?: number;
   mainContent: ReactNode;
   sidebarContent: ReactNode;
 }
 
-export function UdemyLayout({ courseTitle, onOpenGenerator, mainContent, sidebarContent }: UdemyLayoutProps) {
+/**
+ * StudioLayout (also exported as UdemyLayout for compatibility)
+ * Provides the responsive two-column application workspace for CareerForge.
+ * Left Pane: Video streaming player and full-width course overview & study tabs.
+ * Right Pane: Interactive curriculum sidebar with search and progress tracking.
+ */
+export function StudioLayout({ 
+  courseTitle, 
+  onOpenGenerator, 
+  onOpenLibrary,
+  savedCoursesCount = 0,
+  mainContent, 
+  sidebarContent 
+}: StudioLayoutProps) {
   return (
     <div className="min-h-screen bg-ctp-base flex flex-col font-sans text-ctp-text antialiased">
-      {/* Top Professional Navigation Header */}
+      {/* Top Application Header */}
       <header className="h-14 bg-white border-b border-ctp-surface0 text-ctp-text flex items-center justify-between px-4 sm:px-6 shrink-0 z-20">
-        {/* Left: Branding & Course Title */}
+        {/* Brand & Breadcrumb Navigation */}
         <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
           <div className="flex items-center space-x-2.5 shrink-0">
-            {/* Geometric Logo */}
             <div className="w-8 h-8 rounded-lg bg-ctp-mauve flex items-center justify-center text-white shadow-xs">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
@@ -31,20 +45,56 @@ export function UdemyLayout({ courseTitle, onOpenGenerator, mainContent, sidebar
 
           <div className="hidden md:block h-4 w-px bg-ctp-surface1 shrink-0" />
 
+          {/* Active Course Breadcrumb / Clickable Course Switcher */}
           <div className="min-w-0 hidden sm:flex items-center space-x-2 text-xs">
-            <span className="text-ctp-subtext0 font-medium">Courses</span>
+            <span className="text-ctp-subtext0 font-medium">Curriculum</span>
             <span className="text-ctp-surface2">/</span>
-            <h1 className="font-medium text-ctp-text truncate max-w-sm lg:max-w-md">
-              {courseTitle || "Course Curriculum"}
-            </h1>
+            {onOpenLibrary ? (
+              <button
+                onClick={onOpenLibrary}
+                className="font-semibold text-ctp-text hover:text-ctp-mauve truncate max-w-xs lg:max-w-md flex items-center space-x-1.5 transition-colors cursor-pointer group text-left"
+                title="Click to switch or browse stored courses"
+              >
+                <span className="truncate">{courseTitle || "Course Curriculum"}</span>
+                <svg className="w-3 h-3 text-ctp-subtext0 group-hover:text-ctp-mauve shrink-0 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+            ) : (
+              <h1 className="font-semibold text-ctp-text truncate max-w-sm lg:max-w-md">
+                {courseTitle || "Course Curriculum"}
+              </h1>
+            )}
           </div>
         </div>
 
-        {/* Right Actions */}
-        <div className="flex items-center space-x-2.5 shrink-0">
+        {/* Global Header Actions */}
+        <div className="flex items-center space-x-2 sm:space-x-2.5 shrink-0">
+          {/* Library Button */}
+          {onOpenLibrary && (
+            <button
+              onClick={onOpenLibrary}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-ctp-text bg-white hover:bg-ctp-mantle border border-ctp-surface0 hover:border-ctp-surface1 transition-colors cursor-pointer shadow-2xs"
+              title="Open database of saved courses"
+            >
+              <svg className="w-3.5 h-3.5 text-ctp-mauve" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+              </svg>
+              <span>Library</span>
+              {savedCoursesCount > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-ctp-mauve/15 text-ctp-mauve border border-ctp-mauve/25">
+                  {savedCoursesCount}
+                </span>
+              )}
+            </button>
+          )}
+
           <button
             onClick={onOpenGenerator}
             className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-ctp-mauve hover:bg-[#7a2be2] active:bg-[#6b22c7] text-white transition-colors shadow-xs cursor-pointer"
+            title="Generate a new AI curriculum"
           >
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -52,32 +102,26 @@ export function UdemyLayout({ courseTitle, onOpenGenerator, mainContent, sidebar
             </svg>
             <span>New Course</span>
           </button>
-
-          <button 
-            onClick={onOpenGenerator}
-            className="hidden sm:flex items-center space-x-1.5 text-xs font-medium text-ctp-subtext1 hover:text-ctp-text px-2.5 py-1.5 border border-ctp-surface0 rounded-lg hover:bg-ctp-mantle transition-colors cursor-pointer"
-          >
-            <svg className="w-3.5 h-3.5 text-ctp-subtext0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
-            <span>Settings</span>
-          </button>
         </div>
       </header>
 
-      {/* Main Content & Sidebar Grid */}
+      {/* Main Viewport Split-Pane */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-3.5rem)]">
-        {/* Main Learning Canvas */}
-        <div className="flex-1 overflow-y-auto bg-ctp-base flex flex-col relative custom-scrollbar">
+        {/* Main Learning Stream (Video Player + Overview) */}
+        <main className="flex-1 overflow-y-auto bg-ctp-base flex flex-col relative custom-scrollbar">
           {mainContent}
-        </div>
+        </main>
 
         {/* Curriculum Playlist Sidebar */}
-        <div className="w-full lg:w-[380px] xl:w-[420px] border-l border-ctp-surface0 bg-white flex flex-col shrink-0 overflow-y-auto custom-scrollbar">
+        <aside className="w-full lg:w-[380px] xl:w-[420px] border-l border-ctp-surface0 bg-white flex flex-col shrink-0 overflow-y-auto custom-scrollbar">
           {sidebarContent}
-        </div>
+        </aside>
       </div>
     </div>
   );
 }
+
+// Retain UdemyLayout export for backward compatibility
+export const UdemyLayout = StudioLayout;
+export type UdemyLayoutProps = StudioLayoutProps;
+

@@ -864,3 +864,38 @@ class TestLLMUnwrapper:
         unwrapped = _unwrap_root_key(clean_payload, _LLMTaxonomyOutput)
         assert unwrapped == clean_payload
 
+
+# ─── Course Storage Endpoints Tests ──────────────────────────────────────────
+
+class TestCourseStorageEndpoints:
+    """Test retrieving and listing stored courses from the database."""
+
+    @pytest.mark.asyncio
+    async def test_list_courses_empty(self):
+        from app.api.courses import list_courses
+
+        mock_db = AsyncMock()
+        mock_result = MagicMock()
+        mock_result.scalars.return_value.all.return_value = []
+        mock_db.execute.return_value = mock_result
+
+        response = await list_courses(db=mock_db)
+        assert response.total == 0
+        assert response.courses == []
+
+    @pytest.mark.asyncio
+    async def test_get_course_not_found(self):
+        from fastapi import HTTPException
+        from app.api.courses import get_course
+
+        mock_db = AsyncMock()
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none.return_value = None
+        mock_db.execute.return_value = mock_result
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_course("nonexistent_id", db=mock_db)
+
+        assert exc_info.value.status_code == 404
+
+

@@ -1,19 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import type { Route } from "./+types/generator";
-import { UdemyLayout } from "../components/UdemyLayout";
+import { StudioLayout } from "../components/UdemyLayout";
 import { CourseSidebar, type Module, type Video } from "../components/CourseSidebar";
 import { VideoPlayer } from "../components/VideoPlayer";
 import { CourseOverview } from "../components/CourseOverview";
 import { GenerationModal } from "../components/GenerationModal";
+import { CourseLibraryModal, type StoredCourseItem } from "../components/CourseLibraryModal";
 
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "CareerForge | AI Educational Course Studio" },
-    { name: "description", content: "AI Powered Course Generation & Learning Studio" },
+    { name: "description", content: "AI Powered Course Generation & Interactive Learning Studio" },
   ];
 }
 
-// Initial demo course data so page looks clean and educational immediately
+// Fallback demo course dataset if the database is initially empty or offline
 const DEFAULT_MODULES: Module[] = [
   {
     id: "m-1",
@@ -29,7 +30,7 @@ const DEFAULT_MODULES: Module[] = [
       },
       {
         id: "v-1-2",
-        title: "2. Core Principles & Setup",
+        title: "2. Core Principles & Environment Setup",
         thumbnail: "https://img.youtube.com/vi/bMknfKXIFA8/hqdefault.jpg",
         duration: "8:30",
         author: "CareerForge Instructor",
@@ -37,7 +38,7 @@ const DEFAULT_MODULES: Module[] = [
       },
       {
         id: "v-1-3",
-        title: "3. First Practical Walkthrough",
+        title: "3. First Practical Code Walkthrough",
         thumbnail: "https://img.youtube.com/vi/bMknfKXIFA8/hqdefault.jpg",
         duration: "11:20",
         author: "CareerForge Instructor",
@@ -59,7 +60,7 @@ const DEFAULT_MODULES: Module[] = [
       },
       {
         id: "v-2-2",
-        title: "5. Working with Functions & Collections",
+        title: "5. Working with Functions & Data Collections",
         thumbnail: "https://img.youtube.com/vi/bMknfKXIFA8/hqdefault.jpg",
         duration: "9:10",
         author: "CareerForge Instructor",
@@ -69,11 +70,11 @@ const DEFAULT_MODULES: Module[] = [
   },
   {
     id: "m-3",
-    title: "Applied Projects & Best Practices",
+    title: "Applied Projects & Industry Best Practices",
     videos: [
       {
         id: "v-3-1",
-        title: "6. Building Modular Components",
+        title: "6. Building Modular Components & Packages",
         thumbnail: "https://img.youtube.com/vi/bMknfKXIFA8/hqdefault.jpg",
         duration: "12:05",
         author: "CareerForge Instructor",
@@ -81,7 +82,7 @@ const DEFAULT_MODULES: Module[] = [
       },
       {
         id: "v-3-2",
-        title: "7. Testing, Optimization & Review",
+        title: "7. Testing, Optimization & Final Review",
         thumbnail: "https://img.youtube.com/vi/bMknfKXIFA8/hqdefault.jpg",
         duration: "15:40",
         author: "CareerForge Instructor",
@@ -91,9 +92,59 @@ const DEFAULT_MODULES: Module[] = [
   }
 ];
 
+/**
+ * Transforms an API course response from the backend into frontend Module and CourseMeta structures.
+ */
+function formatApiCourse(apiCourse: any) {
+  const mappedModules: Module[] = (apiCourse.modules || []).map((m: any, mIndex: number) => ({
+    id: `m-${mIndex}`,
+    title: m.title,
+    videos: (m.videos || []).map((v: any, vIndex: number) => {
+      let thumbnail = "https://placehold.co/640x360/dce0e8/4c4f69?text=Lecture";
+      if (v.source === 'youtube' && v.url) {
+        try {
+          const urlObj = new URL(v.url);
+          const vid = urlObj.searchParams.get('v');
+          if (vid) {
+            thumbnail = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
+          }
+        } catch {
+          // Ignore parsing errors
+        }
+      }
+      const durSec = v.duration_seconds || 0;
+      const durationStr = `${Math.floor(durSec / 60)}:${(durSec % 60).toString().padStart(2, '0')}`;
+
+      return {
+        id: v.video_id || `v-${mIndex}-${vIndex}`,
+        title: v.title,
+        thumbnail,
+        duration: durationStr,
+        author: v.channel_name || "Instructor",
+        videoUrl: v.url
+      };
+    })
+  }));
+
+  const meta = {
+    title: apiCourse.course_title || "Synthesized Curriculum",
+    topic: apiCourse.description || "Core Domain Area",
+    difficulty: apiCourse.difficulty || "beginner",
+    targetAudience: apiCourse.target_audience || "Learners"
+  };
+
+  return { mappedModules, meta };
+}
+
 export default function GeneratorPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoadingLibrary, setIsLoadingLibrary] = useState(false);
+
+  const [savedCourses, setSavedCourses] = useState<StoredCourseItem[]>([]);
+  const [activeCourseId, setActiveCourseId] = useState<string>('');
+
   const [modules, setModules] = useState<Module[]>(DEFAULT_MODULES);
   const [activeVideo, setActiveVideo] = useState<Video | null>(DEFAULT_MODULES[0].videos[0]);
   const [courseMeta, setCourseMeta] = useState({
@@ -104,6 +155,99 @@ export default function GeneratorPage() {
   });
 
   const totalLectures = modules.reduce((acc, m) => acc + m.videos.length, 0);
+
+  // Fetch list of saved courses from careerforge.db on mount
+  const fetchSavedCourses = useCallback(async (autoLoadFirst: boolean = false) => {
+    setIsLoadingLibrary(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/courses');
+      if (response.ok) {
+        const data = await response.json();
+        const coursesList: StoredCourseItem[] = data.courses || [];
+        setSavedCourses(coursesList);
+
+        if (autoLoadFirst && coursesList.length > 0) {
+          const firstCourse = coursesList[0];
+          await loadCourseById(firstCourse.id || firstCourse.generation_id);
+        }
+      }
+    } catch (err) {
+      console.warn("Could not connect to backend course database:", err);
+    } finally {
+      setIsLoadingLibrary(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSavedCourses(true);
+  }, [fetchSavedCourses]);
+
+  // Load a specific course from the database by ID
+  const loadCourseById = async (courseId: string) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/courses/${courseId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to load course: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.course && data.course.modules) {
+        const { mappedModules, meta } = formatApiCourse(data.course);
+        setModules(mappedModules);
+        setCourseMeta(meta);
+        setActiveCourseId(courseId);
+
+        if (mappedModules.length > 0 && mappedModules[0].videos.length > 0) {
+          setActiveVideo(mappedModules[0].videos[0]);
+        }
+      }
+    } catch (err) {
+      console.error("Error loading course from database:", err);
+    }
+  };
+
+  // Delete a course from the database
+  const handleDeleteCourse = async (courseId: string) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/courses/${courseId}`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        const updated = savedCourses.filter(c => c.id !== courseId && c.generation_id !== courseId);
+        setSavedCourses(updated);
+        if (activeCourseId === courseId && updated.length > 0) {
+          loadCourseById(updated[0].id || updated[0].generation_id);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to delete course:", err);
+    }
+  };
+
+  // Flattened video list for sequential Next / Previous navigation
+  const allVideos = useMemo(() => {
+    return modules.flatMap(m => m.videos);
+  }, [modules]);
+
+  const currentVideoIndex = useMemo(() => {
+    if (!activeVideo) return -1;
+    return allVideos.findIndex(v => v.id === activeVideo.id);
+  }, [allVideos, activeVideo]);
+
+  const hasPrevious = currentVideoIndex > 0;
+  const hasNext = currentVideoIndex >= 0 && currentVideoIndex < allVideos.length - 1;
+
+  const handlePreviousVideo = () => {
+    if (hasPrevious) {
+      setActiveVideo(allVideos[currentVideoIndex - 1]);
+    }
+  };
+
+  const handleNextVideo = () => {
+    if (hasNext) {
+      setActiveVideo(allVideos[currentVideoIndex + 1]);
+    }
+  };
 
   const handleSubmit = async (formData: FormData) => {
     setIsGenerating(true);
@@ -152,47 +296,21 @@ export default function GeneratorPage() {
       const data = await response.json();
       
       if (data.course && data.course.modules) {
-        const mappedModules: Module[] = data.course.modules.map((m: any, mIndex: number) => ({
-          id: `m-${mIndex}`,
-          title: m.title,
-          videos: m.videos.map((v: any, vIndex: number) => {
-            let thumbnail = "https://placehold.co/640x360/1c1d1f/ffffff?text=Video";
-            if (v.source === 'youtube' && v.url) {
-              try {
-                const urlObj = new URL(v.url);
-                const vid = urlObj.searchParams.get('v');
-                if (vid) {
-                  thumbnail = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
-                }
-              } catch (e) {
-                // Ignore URL parsing errors
-              }
-            }
-            return {
-              id: v.video_id || `v-${mIndex}-${vIndex}`,
-              title: v.title,
-              thumbnail,
-              duration: `${Math.floor(v.duration_seconds / 60)}:${(v.duration_seconds % 60).toString().padStart(2, '0')}`,
-              author: v.channel_name || "Instructor",
-              videoUrl: v.url
-            };
-          })
-        }));
+        const { mappedModules, meta } = formatApiCourse(data.course);
 
         setModules(mappedModules);
-        setCourseMeta({
-          title,
-          topic,
-          difficulty,
-          targetAudience
-        });
+        setCourseMeta(meta);
+        setActiveCourseId(data.generation_id || '');
 
         if (mappedModules.length > 0 && mappedModules[0].videos.length > 0) {
           setActiveVideo(mappedModules[0].videos[0]);
         }
 
-        // Close the popup dialog smoothly so only the final Udemy view is shown
+        // Close the popup dialog smoothly after generation completes
         setIsModalOpen(false);
+
+        // Refresh database course list
+        fetchSavedCourses(false);
       } else {
         throw new Error("Invalid response format from server");
       }
@@ -206,24 +324,30 @@ export default function GeneratorPage() {
 
   return (
     <>
-      <UdemyLayout 
+      <StudioLayout 
         courseTitle={courseMeta.title}
         onOpenGenerator={() => setIsModalOpen(true)}
+        onOpenLibrary={() => setIsLibraryOpen(true)}
+        savedCoursesCount={savedCourses.length}
         mainContent={
-          <>
-            {/* Top Video Player */}
+          <div className="flex-1 flex flex-col w-full">
+            {/* Top Video Streaming Canvas */}
             <VideoPlayer 
               video={activeVideo} 
               onOpenGenerator={() => setIsModalOpen(true)} 
+              onPrevious={handlePreviousVideo}
+              onNext={handleNextVideo}
+              hasPrevious={hasPrevious}
+              hasNext={hasNext}
             />
 
-            {/* Course Overview & Details Section Below Player */}
+            {/* Course Overview & Learning Workspace Below Player (Full Width) */}
             <CourseOverview 
               activeVideo={activeVideo}
               courseMeta={courseMeta}
               totalLectures={totalLectures}
             />
-          </>
+          </div>
         }
         sidebarContent={
           <CourseSidebar 
@@ -231,17 +355,32 @@ export default function GeneratorPage() {
             activeVideoId={activeVideo?.id}
             onVideoSelect={setActiveVideo}
             onOpenGenerator={() => setIsModalOpen(true)}
+            onOpenLibrary={() => setIsLibraryOpen(true)}
           />
         } 
       />
 
-      {/* Generator Popup Dialog (Disappears after generation is complete) */}
+      {/* Generator Popup Dialog */}
       <GenerationModal 
         isOpen={isModalOpen}
         onClose={() => !isGenerating && setIsModalOpen(false)}
         onSubmit={handleSubmit}
         isGenerating={isGenerating}
       />
+
+      {/* Database Stored Course Library Modal */}
+      <CourseLibraryModal
+        isOpen={isLibraryOpen}
+        onClose={() => setIsLibraryOpen(false)}
+        courses={savedCourses}
+        activeCourseId={activeCourseId}
+        onSelectCourse={loadCourseById}
+        onDeleteCourse={handleDeleteCourse}
+        isLoading={isLoadingLibrary}
+        onOpenGenerator={() => setIsModalOpen(true)}
+      />
     </>
   );
 }
+
+

@@ -1,15 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GenerationPipeline } from './GenerationPipeline';
 
-interface GenerationModalProps {
+export interface GenerationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (formData: FormData) => void;
   isGenerating: boolean;
 }
 
+/**
+ * GenerationModal Component
+ * Interactive modal dialog for inputting course taxonomy constraints,
+ * difficulty level, target audience, and video count parameters.
+ */
 export function GenerationModal({ isOpen, onClose, onSubmit, isGenerating }: GenerationModalProps) {
+  const [courseTitle, setCourseTitle] = useState('Python Fundamentals');
+  const [topic, setTopic] = useState('Python Programming');
+  const [difficulty, setDifficulty] = useState('beginner');
+  const [targetAudience, setTargetAudience] = useState('undergraduate students');
+  const [targetModules, setTargetModules] = useState(6);
+  const [videosPerModule, setVideosPerModule] = useState(3);
+  const [durationSeconds, setDurationSeconds] = useState(600);
+
   if (!isOpen) return null;
+
+  const applyPreset = (preset: 'crash' | 'standard' | 'deep') => {
+    if (preset === 'crash') {
+      setTargetModules(3);
+      setVideosPerModule(2);
+      setDurationSeconds(480);
+    } else if (preset === 'standard') {
+      setTargetModules(6);
+      setVideosPerModule(3);
+      setDurationSeconds(600);
+    } else if (preset === 'deep') {
+      setTargetModules(9);
+      setVideosPerModule(4);
+      setDurationSeconds(720);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,10 +65,10 @@ export function GenerationModal({ isOpen, onClose, onSubmit, isGenerating }: Gen
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-ctp-text">
-                    Curriculum Generation Parameters
+                    AI Curriculum Generator
                   </h3>
                   <p className="text-xs text-ctp-subtext0">
-                    Define course taxonomy and video sourcing parameters
+                    Define course taxonomy and video sourcing constraints
                   </p>
                 </div>
               </div>
@@ -56,6 +85,40 @@ export function GenerationModal({ isOpen, onClose, onSubmit, isGenerating }: Gen
               </button>
             </div>
 
+            {/* Quick Presets */}
+            <div className="mb-4 p-2.5 bg-ctp-base/50 rounded-xl border border-ctp-surface0/60 flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-ctp-subtext0">Scope Presets:</span>
+              <div className="flex space-x-1.5 text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => applyPreset('crash')}
+                  className={`px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer ${
+                    targetModules === 3 ? 'bg-ctp-mauve text-white' : 'bg-white border border-ctp-surface0 text-ctp-subtext1 hover:border-ctp-surface1'
+                  }`}
+                >
+                  Quick (3 Mod)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyPreset('standard')}
+                  className={`px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer ${
+                    targetModules === 6 ? 'bg-ctp-mauve text-white' : 'bg-white border border-ctp-surface0 text-ctp-subtext1 hover:border-ctp-surface1'
+                  }`}
+                >
+                  Standard (6 Mod)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyPreset('deep')}
+                  className={`px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer ${
+                    targetModules === 9 ? 'bg-ctp-mauve text-white' : 'bg-white border border-ctp-surface0 text-ctp-subtext1 hover:border-ctp-surface1'
+                  }`}
+                >
+                  Masterclass (9 Mod)
+                </button>
+              </div>
+            </div>
+
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div>
@@ -66,8 +129,9 @@ export function GenerationModal({ isOpen, onClose, onSubmit, isGenerating }: Gen
                   name="course_title"
                   type="text"
                   required
+                  value={courseTitle}
+                  onChange={(e) => setCourseTitle(e.target.value)}
                   placeholder="e.g., Python Fundamentals"
-                  defaultValue="Python Fundamentals"
                   className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve transition-colors placeholder:text-ctp-overlay0"
                 />
               </div>
@@ -80,8 +144,9 @@ export function GenerationModal({ isOpen, onClose, onSubmit, isGenerating }: Gen
                   name="topic"
                   type="text"
                   required
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
                   placeholder="e.g., Python Programming"
-                  defaultValue="Python Programming"
                   className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve transition-colors placeholder:text-ctp-overlay0"
                 />
               </div>
@@ -93,7 +158,8 @@ export function GenerationModal({ isOpen, onClose, onSubmit, isGenerating }: Gen
                   </label>
                   <select
                     name="difficulty"
-                    defaultValue="beginner"
+                    value={difficulty}
+                    onChange={(e) => setDifficulty(e.target.value)}
                     className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve transition-colors cursor-pointer"
                   >
                     <option value="beginner">Beginner</option>
@@ -111,8 +177,9 @@ export function GenerationModal({ isOpen, onClose, onSubmit, isGenerating }: Gen
                     name="target_audience"
                     type="text"
                     required
+                    value={targetAudience}
+                    onChange={(e) => setTargetAudience(e.target.value)}
                     placeholder="e.g., undergraduate students"
-                    defaultValue="undergraduate students"
                     className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve transition-colors placeholder:text-ctp-overlay0"
                   />
                 </div>
@@ -128,7 +195,8 @@ export function GenerationModal({ isOpen, onClose, onSubmit, isGenerating }: Gen
                     type="number"
                     min="1"
                     max="20"
-                    defaultValue="6"
+                    value={targetModules}
+                    onChange={(e) => setTargetModules(Number(e.target.value))}
                     className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve transition-colors"
                   />
                 </div>
@@ -142,7 +210,8 @@ export function GenerationModal({ isOpen, onClose, onSubmit, isGenerating }: Gen
                     type="number"
                     min="1"
                     max="10"
-                    defaultValue="3"
+                    value={videosPerModule}
+                    onChange={(e) => setVideosPerModule(Number(e.target.value))}
                     className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve transition-colors"
                   />
                 </div>
@@ -155,7 +224,8 @@ export function GenerationModal({ isOpen, onClose, onSubmit, isGenerating }: Gen
                     name="target_duration_seconds"
                     type="number"
                     min="30"
-                    defaultValue="600"
+                    value={durationSeconds}
+                    onChange={(e) => setDurationSeconds(Number(e.target.value))}
                     className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-lg focus:outline-none focus:border-ctp-mauve focus:ring-1 focus:ring-ctp-mauve transition-colors"
                   />
                 </div>
@@ -183,3 +253,4 @@ export function GenerationModal({ isOpen, onClose, onSubmit, isGenerating }: Gen
     </div>
   );
 }
+

@@ -1,12 +1,32 @@
 import React from 'react';
 import type { Video } from './CourseSidebar';
 
-interface VideoPlayerProps {
+export interface VideoPlayerProps {
   video: Video | null;
   onOpenGenerator: () => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
+  hasPrevious?: boolean;
+  hasNext?: boolean;
+  isCompleted?: boolean;
+  onToggleComplete?: () => void;
 }
 
-export function VideoPlayer({ video, onOpenGenerator }: VideoPlayerProps) {
+/**
+ * VideoPlayer Component
+ * Renders the primary video streaming canvas with playback controls,
+ * embed URL resolver for YouTube/hosted lectures, and quick lesson navigation.
+ */
+export function VideoPlayer({ 
+  video, 
+  onOpenGenerator,
+  onPrevious,
+  onNext,
+  hasPrevious = false,
+  hasNext = false,
+  isCompleted = false,
+  onToggleComplete
+}: VideoPlayerProps) {
   if (!video) {
     return (
       <div className="w-full aspect-video bg-ctp-mantle border-b border-ctp-surface0 flex flex-col items-center justify-center text-center p-6 sm:p-12 relative">
@@ -41,6 +61,7 @@ export function VideoPlayer({ video, onOpenGenerator }: VideoPlayerProps) {
     );
   }
 
+  // Parse embed URL if source is YouTube
   const isYouTube = video.videoUrl?.includes('youtube.com') || video.videoUrl?.includes('youtu.be');
   let embedUrl = video.videoUrl;
 
@@ -51,13 +72,14 @@ export function VideoPlayer({ video, onOpenGenerator }: VideoPlayerProps) {
       if (vid) {
         embedUrl = `https://www.youtube.com/embed/${vid}?autoplay=1&modestbranding=1&rel=0`;
       }
-    } catch (e) {
-      // Keep original url
+    } catch {
+      // Keep original URL
     }
   }
 
   return (
     <div className="w-full bg-[#1e1e2e] border-b border-ctp-surface0 relative">
+      {/* 16:9 Screen Frame */}
       <div className="aspect-video w-full relative">
         {embedUrl ? (
           <iframe
@@ -87,6 +109,63 @@ export function VideoPlayer({ video, onOpenGenerator }: VideoPlayerProps) {
           </div>
         )}
       </div>
+
+      {/* Player Navigation & Quick Actions Toolbar */}
+      <div className="bg-white px-4 sm:px-6 py-2.5 border-t border-ctp-surface0 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div className="flex items-center space-x-3 min-w-0">
+          <span className="font-semibold text-ctp-text truncate max-w-xs sm:max-w-md">
+            {video.title}
+          </span>
+          <span className="text-ctp-subtext0 hidden sm:inline">•</span>
+          <span className="text-ctp-subtext0 font-medium hidden sm:inline">{video.duration}</span>
+        </div>
+
+        {/* Quick Lesson Steppers */}
+        <div className="flex items-center space-x-2 shrink-0">
+          {onToggleComplete && (
+            <button
+              onClick={onToggleComplete}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-semibold border transition-colors cursor-pointer flex items-center space-x-1 ${
+                isCompleted 
+                  ? 'bg-ctp-green/10 text-ctp-green border-ctp-green/30' 
+                  : 'bg-ctp-base/60 text-ctp-subtext0 border-ctp-surface0 hover:text-ctp-text'
+              }`}
+            >
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>{isCompleted ? 'Completed' : 'Mark Done'}</span>
+            </button>
+          )}
+
+          {onPrevious && (
+            <button
+              onClick={onPrevious}
+              disabled={!hasPrevious}
+              className="p-1.5 rounded-md border border-ctp-surface0 text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-mantle disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              title="Previous lesson"
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+          )}
+
+          {onNext && (
+            <button
+              onClick={onNext}
+              disabled={!hasNext}
+              className="p-1.5 rounded-md border border-ctp-surface0 text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-mantle disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              title="Next lesson"
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
+
