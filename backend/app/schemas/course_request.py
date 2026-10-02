@@ -266,6 +266,9 @@ class CourseGenerationRequest(BaseModel):
     teaching_style: str = Field(default="balanced", description="Teaching style (e.g., practical, theoretical)")
     domain: str | None = Field(default=None, description="Specific domain (e.g., Data Science)")
     region: str | None = Field(default=None, description="Regional focus if any")
+    skill_context: dict[str, Any] | None = Field(
+        default=None, description="Personalized skill assessment context, strengths, and identified gaps"
+    )
 
     # Pipeline configuration
     module_config: ModuleConfig = Field(default_factory=ModuleConfig, description="Module generation settings")

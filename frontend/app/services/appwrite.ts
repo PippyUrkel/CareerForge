@@ -11,6 +11,8 @@ export const APPWRITE_PROFILES_COLLECTION_ID =
   import.meta.env.VITE_APPWRITE_PROFILES_COLLECTION_ID || "profiles";
 export const APPWRITE_COURSES_COLLECTION_ID =
   import.meta.env.VITE_APPWRITE_COURSES_COLLECTION_ID || "courses";
+export const APPWRITE_ASSESSMENTS_COLLECTION_ID =
+  import.meta.env.VITE_APPWRITE_ASSESSMENTS_COLLECTION_ID || "skill_assessments";
 export const APPWRITE_BUCKET_ID =
   import.meta.env.VITE_APPWRITE_BUCKET_ID || "resumes";
 
@@ -37,6 +39,8 @@ export interface UserProfile extends Models.Document {
   experienceLevel?: string;
   strongSkills?: string; // JSON string array
   weakSkills?: string;   // JSON string array
+  developingSkills?: string; // JSON string array
+  insufficientEvidenceSkills?: string; // JSON string array
   skillProfile?: string; // JSON string
   assessmentStatus?: string;
   primaryGoals?: string;
@@ -181,6 +185,35 @@ export async function listUserCourses(userId: string): Promise<AppwriteCourseDoc
   }
 }
 
+export async function getUserCourseById(
+  courseIdOrDocId: string
+): Promise<AppwriteCourseDocument | null> {
+  try {
+    // 1. Try fetching directly as document ID
+    try {
+      const doc = await databases.getDocument<AppwriteCourseDocument>(
+        APPWRITE_DATABASE_ID,
+        APPWRITE_COURSES_COLLECTION_ID,
+        courseIdOrDocId
+      );
+      if (doc) return doc;
+    } catch {
+      // Not a document ID, proceed to query by courseId
+    }
+
+    // 2. Query by courseId attribute
+    const res = await databases.listDocuments<AppwriteCourseDocument>(
+      APPWRITE_DATABASE_ID,
+      APPWRITE_COURSES_COLLECTION_ID,
+      [Query.equal("courseId", courseIdOrDocId), Query.limit(1)]
+    );
+    return res.documents.length > 0 ? res.documents[0] : null;
+  } catch (err) {
+    console.warn("Could not fetch course by id from Appwrite:", err);
+    return null;
+  }
+}
+
 export async function saveUserCourse(
   userId: string,
   courseData: {
@@ -197,6 +230,24 @@ export async function saveUserCourse(
     metadata?: any;
   }
 ): Promise<AppwriteCourseDocument> {
+  // Idempotence check: return existing course if already recorded for this user
+  try {
+    const existing = await databases.listDocuments<AppwriteCourseDocument>(
+      APPWRITE_DATABASE_ID,
+      APPWRITE_COURSES_COLLECTION_ID,
+      [
+        Query.equal("userId", userId),
+        Query.equal("courseId", courseData.courseId),
+        Query.limit(1),
+      ]
+    );
+    if (existing.documents.length > 0) {
+      return existing.documents[0];
+    }
+  } catch (err) {
+    console.debug("Existing course query skipped:", err);
+  }
+
   const permissions = [
     Permission.read(Role.user(userId)),
     Permission.update(Role.user(userId)),
@@ -261,4 +312,34 @@ export async function uploadResumeFile(
 
 export function getFileViewUrl(fileId: string): string {
   return `${APPWRITE_ENDPOINT}/storage/buckets/${APPWRITE_BUCKET_ID}/files/${fileId}/view?project=${APPWRITE_PROJECT_ID}`;
+}
+
+export interface AppwriteAssessmentDocument extends Models.Document {
+  assessmentId: string;
+  userId: string;
+  targetOccupation: string;
+  overallScore: string;
+  overallConfidence: string;
+  skillsSummary: string; // JSON string
+  rawEvidence: string;   // JSON string
+  gapAnalysis: string;   // JSON string
+  createdAt: string;
+}
+
+export async function getUserLatestAssessment(userId: string): Promise<AppwriteAssessmentDocument | null> {
+  try {
+    const res = await databases.listDocuments<AppwriteAssessmentDocument>(
+      APPWRITE_DATABASE_ID,
+      APPWRITE_ASSESSMENTS_COLLECTION_ID,
+      [
+        Query.equal("userId", userId),
+        Query.orderDesc("$createdAt"),
+        Query.limit(1),
+      ]
+    );
+    return res.documents.length > 0 ? res.documents[0] : null;
+  } catch (err) {
+    console.warn("Could not fetch user latest assessment from Appwrite:", err);
+    return null;
+  }
 }

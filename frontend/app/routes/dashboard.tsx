@@ -19,6 +19,7 @@ import {
   Tooltip,
   Alert,
   Flex,
+  Anchor,
 } from "@mantine/core";
 import {
   IconUser,
@@ -71,6 +72,24 @@ export default function DashboardPage() {
       return [];
     }
   }, [profile?.strongSkills]);
+
+  const developingSkills: string[] = React.useMemo(() => {
+    if (!profile?.developingSkills) return [];
+    try {
+      return JSON.parse(profile.developingSkills);
+    } catch {
+      return [];
+    }
+  }, [profile?.developingSkills]);
+
+  const weakSkills: string[] = React.useMemo(() => {
+    if (!profile?.weakSkills) return [];
+    try {
+      return JSON.parse(profile.weakSkills);
+    } catch {
+      return [];
+    }
+  }, [profile?.weakSkills]);
 
   // Fetch courses belonging to the current authenticated user
   const fetchCourses = useCallback(async (userId: string) => {
@@ -248,32 +267,46 @@ export default function DashboardPage() {
               </Stack>
             </Paper>
 
-            {/* Card 2: Assessment Status (Part 1 Foundation) */}
+            {/* Card 2: Assessment Status */}
             <Paper p="lg" radius="sm" shadow="xs" style={{ backgroundColor: "#ffffff", border: "1px solid var(--cf-border)" }}>
               <Stack gap="xs">
                 <Group justify="space-between">
                   <ThemeIcon size="md" radius="sm" color="forest" variant="light">
                     <IconSparkles size={18} />
                   </ThemeIcon>
-                  <Badge color="blue" variant="light" size="xs">
-                    Assessment Status
+                  <Badge color={profile?.assessmentStatus === "completed" ? "teal" : "orange"} variant="light" size="xs">
+                    {profile?.assessmentStatus === "completed" ? "Benchmarked" : "Diagnostic Ready"}
                   </Badge>
                 </Group>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
                   Skill Gap Scoring
                 </Text>
                 <Text fw={700} size="sm" c="var(--cf-text)">
-                  {profile?.assessmentStatus === "completed" ? "Evaluated" : "Pending Calibration"}
+                  {profile?.assessmentStatus === "completed"
+                    ? "Evaluated & Benchmarked"
+                    : "Pending Skill Evaluation"}
                 </Text>
                 <Text size="xs" c="dimmed" lh={1.5}>
-                  {profile?.primaryGoals
-                    ? `Goal: "${profile.primaryGoals}"`
-                    : "Calibrated foundational profile ready for automated skill-gap analysis in Part 2."}
+                  {profile?.assessmentStatus === "completed"
+                    ? `Verified: ${strongSkills.length} strong, ${developingSkills.length} developing, ${weakSkills.length} gaps.`
+                    : "Calibrated foundational profile ready for automated MCQ evaluation and ESCO/O*NET gap analysis."}
                 </Text>
+                <Anchor
+                  component={Link}
+                  to="/skills"
+                  size="xs"
+                  fw={700}
+                  c="forest"
+                  mt={4}
+                >
+                  {profile?.assessmentStatus === "completed"
+                    ? "Open Competency Matrix →"
+                    : "Launch Skill Assessment →"}
+                </Anchor>
               </Stack>
             </Paper>
 
-            {/* Card 3: Skills & Resume */}
+            {/* Card 3: Skills & Credentials */}
             <Paper p="lg" radius="sm" shadow="xs" style={{ backgroundColor: "#ffffff", border: "1px solid var(--cf-border)" }}>
               <Stack gap="xs">
                 <Group justify="space-between">
@@ -281,11 +314,11 @@ export default function DashboardPage() {
                     <IconFileText size={18} />
                   </ThemeIcon>
                   <Badge variant="outline" color="gray" size="xs">
-                    Credentials
+                    Competencies
                   </Badge>
                 </Group>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
-                  Baseline Skills ({strongSkills.length})
+                  Verified Skills ({strongSkills.length})
                 </Text>
                 <Group gap={4} wrap="wrap">
                   {strongSkills.length > 0 ? (
@@ -295,7 +328,7 @@ export default function DashboardPage() {
                       </Badge>
                     ))
                   ) : (
-                    <Text size="xs" c="dimmed">No skills recorded yet.</Text>
+                    <Text size="xs" c="dimmed">No skills evaluated yet.</Text>
                   )}
                   {strongSkills.length > 6 && (
                     <Badge size="xs" color="gray" variant="subtle">
@@ -303,6 +336,11 @@ export default function DashboardPage() {
                     </Badge>
                   )}
                 </Group>
+                {weakSkills.length > 0 && (
+                  <Text size="11px" c="dimmed">
+                    Gaps to Bridge: <Text span c="red" fw={600}>{weakSkills.slice(0, 3).join(", ")}</Text>
+                  </Text>
+                )}
                 <Divider my={4} style={{ borderColor: "rgba(0,0,0,0.06)" }} />
                 {profile?.resumeFileId ? (
                   <Group gap={6}>

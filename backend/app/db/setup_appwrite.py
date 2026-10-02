@@ -48,7 +48,22 @@ def ensure_database(client: httpx.Client):
 def ensure_collection(client: httpx.Client, collection_id: str, name: str):
     r = client.get(f"/databases/{DATABASE_ID}/collections/{collection_id}")
     if r.status_code == 200:
-        print(f"Collection '{collection_id}' exists.")
+        # Ensure permissions and documentSecurity are up to date
+        client.put(
+            f"/databases/{DATABASE_ID}/collections/{collection_id}",
+            json={
+                "name": name,
+                "permissions": [
+                    'read("users")',
+                    'create("users")',
+                    'update("users")',
+                    'delete("users")',
+                ],
+                "documentSecurity": True,
+                "enabled": True,
+            },
+        )
+        print(f"Collection '{collection_id}' exists and permissions verified.")
         return
     print(f"Creating collection '{collection_id}' ({name})...")
     r = client.post(
@@ -196,9 +211,11 @@ def main():
     ensure_string_attribute(client, PROFILES_COLLECTION_ID, "targetRole", size=128, required=False, default="")
     ensure_string_attribute(client, PROFILES_COLLECTION_ID, "targetCareer", size=128, required=False, default="")
     ensure_string_attribute(client, PROFILES_COLLECTION_ID, "experienceLevel", size=64, required=False, default="beginner")
-    ensure_string_attribute(client, PROFILES_COLLECTION_ID, "strongSkills", size=2000, required=False, default="[]")
-    ensure_string_attribute(client, PROFILES_COLLECTION_ID, "weakSkills", size=2000, required=False, default="[]")
-    ensure_string_attribute(client, PROFILES_COLLECTION_ID, "skillProfile", size=4000, required=False, default="{}")
+    ensure_string_attribute(client, PROFILES_COLLECTION_ID, "strongSkills", size=65535, required=False, default="[]")
+    ensure_string_attribute(client, PROFILES_COLLECTION_ID, "weakSkills", size=65535, required=False, default="[]")
+    ensure_string_attribute(client, PROFILES_COLLECTION_ID, "developingSkills", size=65535, required=False, default="[]")
+    ensure_string_attribute(client, PROFILES_COLLECTION_ID, "insufficientEvidenceSkills", size=65535, required=False, default="[]")
+    ensure_string_attribute(client, PROFILES_COLLECTION_ID, "skillProfile", size=65535, required=False, default="{}")
     ensure_string_attribute(client, PROFILES_COLLECTION_ID, "assessmentStatus", size=64, required=False, default="pending")
     ensure_string_attribute(client, PROFILES_COLLECTION_ID, "primaryGoals", size=1000, required=False, default="")
     ensure_string_attribute(client, PROFILES_COLLECTION_ID, "resumeFileId", size=64, required=False, default="")
@@ -206,7 +223,24 @@ def main():
     wait_for_attributes(client, PROFILES_COLLECTION_ID)
     ensure_index(client, PROFILES_COLLECTION_ID, "idx_userId", "key", ["userId"])
 
-    # 2. Courses Collection
+    # 2. Skill Assessments Collection
+    ASSESSMENTS_COLLECTION_ID = os.getenv("APPWRITE_ASSESSMENTS_COLLECTION_ID", "skill_assessments")
+    ensure_collection(client, ASSESSMENTS_COLLECTION_ID, "Skill Assessments")
+    ensure_string_attribute(client, ASSESSMENTS_COLLECTION_ID, "assessmentId", size=64, required=True)
+    ensure_string_attribute(client, ASSESSMENTS_COLLECTION_ID, "userId", size=36, required=True)
+    ensure_string_attribute(client, ASSESSMENTS_COLLECTION_ID, "targetOccupation", size=128, required=True)
+    ensure_string_attribute(client, ASSESSMENTS_COLLECTION_ID, "overallScore", size=16, required=False, default="0")
+    ensure_string_attribute(client, ASSESSMENTS_COLLECTION_ID, "overallConfidence", size=16, required=False, default="0")
+    ensure_string_attribute(client, ASSESSMENTS_COLLECTION_ID, "skillsSummary", size=65535, required=False, default="[]")
+    ensure_string_attribute(client, ASSESSMENTS_COLLECTION_ID, "rawEvidence", size=65535, required=False, default="{}")
+    ensure_string_attribute(client, ASSESSMENTS_COLLECTION_ID, "gapAnalysis", size=65535, required=False, default="[]")
+    ensure_string_attribute(client, ASSESSMENTS_COLLECTION_ID, "createdAt", size=64, required=False, default="")
+
+    wait_for_attributes(client, ASSESSMENTS_COLLECTION_ID)
+    ensure_index(client, ASSESSMENTS_COLLECTION_ID, "idx_asmt_userId", "key", ["userId"])
+    ensure_index(client, ASSESSMENTS_COLLECTION_ID, "idx_asmt_id", "key", ["assessmentId"])
+
+    # 3. Courses Collection
     ensure_collection(client, COURSES_COLLECTION_ID, "User Courses")
     ensure_string_attribute(client, COURSES_COLLECTION_ID, "courseId", size=64, required=True)
     ensure_string_attribute(client, COURSES_COLLECTION_ID, "userId", size=36, required=True)
@@ -226,7 +260,7 @@ def main():
     ensure_index(client, COURSES_COLLECTION_ID, "idx_course_userId", "key", ["userId"])
     ensure_index(client, COURSES_COLLECTION_ID, "idx_course_courseId", "key", ["courseId"])
 
-    # 3. Storage Bucket
+    # 4. Storage Bucket
     ensure_bucket(client, BUCKET_ID, "User Resumes")
 
     print("=== Appwrite Schema setup completed successfully! ===")

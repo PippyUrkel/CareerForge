@@ -81,6 +81,9 @@ class AppSettings(BaseSettings):
     appwrite_profiles_collection_id: str = Field(
         default="profiles", description="Appwrite Profiles Collection ID"
     )
+    appwrite_assessments_collection_id: str = Field(
+        default="skill_assessments", description="Appwrite Skill Assessments Collection ID"
+    )
     appwrite_bucket_id: str = Field(
         default="resumes", description="Appwrite Storage Bucket ID"
     )

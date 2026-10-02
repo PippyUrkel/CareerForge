@@ -260,6 +260,18 @@ class TaxonomyGenerator:
             for prereq in request.prerequisites:
                 parts.append(f"  - {prereq}")
 
+        if getattr(request, "skill_context", None):
+            sc = request.skill_context
+            parts.append("")
+            parts.append("Personalized Learner Skill Profile & Target Gaps:")
+            if "target_occupation" in sc:
+                parts.append(f"  - Career Goal: {sc['target_occupation']}")
+            if sc.get("strong_skills"):
+                parts.append(f"  - Verified Strengths: {', '.join(sc['strong_skills'])}")
+            if sc.get("weak_skills"):
+                parts.append(f"  - Specific Competency Deficits to Remediate: {', '.join(sc['weak_skills'])}")
+            parts.append("Tailor the instructional focus toward bridging these identified skill gaps without re-teaching elementary concepts already mastered.")
+
         parts.append("")
         parts.append(
             "For each module, provide:\n"

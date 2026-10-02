@@ -8,22 +8,37 @@ export interface GenerationModalProps {
   onClose: () => void;
   onSubmit: (formData: FormData) => void;
   isGenerating?: boolean;
+  initialTopic?: string;
+  initialTitle?: string;
+  initialDifficulty?: string;
+  initialTargetAudience?: string;
 }
 
 export function GenerationModal({
   isOpen,
   onClose,
   onSubmit,
-  isGenerating = false
+  isGenerating = false,
+  initialTopic,
+  initialTitle,
+  initialDifficulty,
+  initialTargetAudience,
 }: GenerationModalProps) {
-  const [courseTitle, setCourseTitle] = useState('Python Fundamentals');
-  const [topic, setTopic] = useState('Python Programming');
-  const [difficulty, setDifficulty] = useState('beginner');
-  const [targetAudience, setTargetAudience] = useState('undergraduate students');
+  const [courseTitle, setCourseTitle] = useState(initialTitle || 'Python Fundamentals');
+  const [topic, setTopic] = useState(initialTopic || 'Python Programming');
+  const [difficulty, setDifficulty] = useState(initialDifficulty || 'beginner');
+  const [targetAudience, setTargetAudience] = useState(initialTargetAudience || 'undergraduate students');
   const [targetModules, setTargetModules] = useState<number | string>(6);
   const [videosPerModule, setVideosPerModule] = useState<number | string>(3);
   const [durationSeconds, setDurationSeconds] = useState<number | string>(600);
   const [preset, setPreset] = useState<string>('standard');
+
+  React.useEffect(() => {
+    if (initialTopic) setTopic(initialTopic);
+    if (initialTitle) setCourseTitle(initialTitle);
+    if (initialDifficulty) setDifficulty(initialDifficulty);
+    if (initialTargetAudience) setTargetAudience(initialTargetAudience);
+  }, [initialTopic, initialTitle, initialDifficulty, initialTargetAudience, isOpen]);
 
   const applyPreset = (val: string) => {
     setPreset(val);

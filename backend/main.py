@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.courses import router as courses_router
+from app.api.skills import router as skills_router
 from app.core.config import get_settings
 from app.db.session import init_db
 
@@ -58,6 +59,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(courses_router)
+app.include_router(skills_router)
 
 
 @app.get("/", tags=["health"])
