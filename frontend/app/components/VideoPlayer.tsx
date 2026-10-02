@@ -1,4 +1,6 @@
 import React from 'react';
+import { Box, Paper, Group, Text, Button, ActionIcon, Stack, Badge, Image, AspectRatio } from '@mantine/core';
+import { IconPlayerPlay, IconPlus, IconChevronLeft, IconChevronRight, IconCheck } from '@tabler/icons-react';
 import type { Video } from './CourseSidebar';
 
 export interface VideoPlayerProps {
@@ -12,11 +14,6 @@ export interface VideoPlayerProps {
   onToggleComplete?: () => void;
 }
 
-/**
- * VideoPlayer Component
- * Renders the primary video streaming canvas with playback controls,
- * embed URL resolver for YouTube/hosted lectures, and quick lesson navigation.
- */
 export function VideoPlayer({ 
   video, 
   onOpenGenerator,
@@ -29,39 +26,36 @@ export function VideoPlayer({
 }: VideoPlayerProps) {
   if (!video) {
     return (
-      <div className="w-full aspect-video bg-ctp-mantle border-b border-ctp-surface0 flex flex-col items-center justify-center text-center p-6 sm:p-12 relative rounded-none">
-        <div className="max-w-md space-y-3.5">
-          <div className="w-10 h-10 rounded-none bg-white shadow-2xs border border-ctp-surface0 text-ctp-mauve flex items-center justify-center mx-auto">
-            <svg className="w-4 h-4 ml-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-          </div>
-          <div>
-            <h3 className="text-base sm:text-lg font-bold text-ctp-text tracking-tight uppercase">
-              Interactive Learning Canvas
-            </h3>
-            <p className="text-xs text-ctp-subtext0 mt-1 leading-relaxed max-w-sm mx-auto">
-              Select a lecture from the curriculum sidebar to stream or generate a new customized course track.
-            </p>
-          </div>
-          <div className="pt-1">
-            <button
+      <Box style={{ borderBottom: '1px solid #e9ecef' }}>
+        <AspectRatio ratio={16 / 9} style={{ backgroundColor: '#f1f3f5' }}>
+          <Stack align="center" justify="center" gap="md" p="xl" style={{ textAlign: 'center' }}>
+            <ActionIcon size="xl" radius="sm" variant="outline" color="#1b4d3e" style={{ backgroundColor: 'white' }}>
+              <IconPlayerPlay size={24} />
+            </ActionIcon>
+            <Box>
+              <Text size="lg" fw={700} tt="uppercase">
+                Interactive Learning Canvas
+              </Text>
+              <Text size="sm" c="dimmed" mt="xs" maw={400} mx="auto">
+                Select a lecture from the curriculum sidebar to stream or generate a new customized course track.
+              </Text>
+            </Box>
+            <Button 
+              color="#1b4d3e" 
+              radius="sm" 
+              leftSection={<IconPlus size={16} />} 
               onClick={onOpenGenerator}
-              className="inline-flex items-center space-x-2 px-4 py-2 rounded-none font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] active:bg-[#0c241c] transition-colors shadow-2xs text-xs cursor-pointer border border-ctp-mauve"
+              tt="uppercase"
+              lts={1}
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              <span>Generate Curriculum</span>
-            </button>
-          </div>
-        </div>
-      </div>
+              Generate Curriculum
+            </Button>
+          </Stack>
+        </AspectRatio>
+      </Box>
     );
   }
 
-  // Parse embed URL if source is YouTube
   const isYouTube = video.videoUrl?.includes('youtube.com') || video.videoUrl?.includes('youtu.be');
   let embedUrl = video.videoUrl;
 
@@ -78,93 +72,94 @@ export function VideoPlayer({
   }
 
   return (
-    <div className="w-full bg-[#1e1e2e] border-b border-ctp-surface0 relative rounded-none">
-      {/* 16:9 Screen Frame */}
-      <div className="aspect-video w-full relative">
+    <Box style={{ borderBottom: '1px solid #e9ecef', backgroundColor: '#1a1b1e' }}>
+      <AspectRatio ratio={16 / 9} style={{ position: 'relative' }}>
         {embedUrl ? (
           <iframe
             src={embedUrl}
             title={video.title}
-            className="w-full h-full absolute inset-0 border-0"
+            style={{ border: 0, width: '100%', height: '100%' }}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-ctp-crust text-ctp-text relative group overflow-hidden">
-            <img 
+          <Box style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+            <Image 
               src={video.thumbnail} 
               alt={video.title} 
-              className="absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-102 transition-transform duration-300"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.75 }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-ctp-text/80 via-ctp-text/30 to-transparent" />
-            <div className="z-10 bg-white text-ctp-mauve p-3 rounded-none shadow-md cursor-pointer hover:bg-ctp-base transition-colors border border-white">
-              <svg className="w-5 h-5 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
-            </div>
-            <div className="absolute bottom-4 left-4 right-4 z-10 text-left">
-              <p className="text-[10px] font-mono uppercase font-bold text-white/80">{video.author}</p>
-              <h3 className="text-xs sm:text-sm font-bold text-white line-clamp-1 uppercase">{video.title}</h3>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Player Navigation & Quick Actions Toolbar */}
-      <div className="bg-white px-4 sm:px-6 py-2.5 border-t border-ctp-surface0 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div className="flex items-center space-x-3 min-w-0">
-          <span className="font-bold text-ctp-text truncate max-w-xs sm:max-w-md uppercase text-xs">
-            {video.title}
-          </span>
-          <span className="text-ctp-subtext0 hidden sm:inline">•</span>
-          <span className="text-ctp-subtext0 font-mono text-[11px] hidden sm:inline">{video.duration}</span>
-        </div>
-
-        {/* Quick Lesson Steppers */}
-        <div className="flex items-center space-x-2 shrink-0">
-          {onToggleComplete && (
-            <button
-              onClick={onToggleComplete}
-              className={`px-2.5 py-1 rounded-none text-[10px] font-mono font-bold uppercase border transition-colors cursor-pointer flex items-center space-x-1 ${
-                isCompleted 
-                  ? 'bg-ctp-green/10 text-ctp-green border-ctp-green/30' 
-                  : 'bg-ctp-base/60 text-ctp-subtext0 border-ctp-surface0 hover:text-ctp-text'
-              }`}
+            <Box style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }} />
+            <ActionIcon 
+              size={48} 
+              radius="sm" 
+              variant="filled" 
+              color="white" 
+              style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 10, color: '#1b4d3e' }}
             >
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>{isCompleted ? 'Completed' : 'Mark Done'}</span>
-            </button>
+              <IconPlayerPlay size={24} />
+            </ActionIcon>
+            <Stack gap={4} style={{ position: 'absolute', bottom: 16, left: 16, right: 16, zIndex: 10 }}>
+              <Text size="xs" ff="monospace" c="white" tt="uppercase" fw={700} style={{ opacity: 0.8 }}>{video.author}</Text>
+              <Text size="sm" fw={700} c="white" tt="uppercase" lineClamp={1}>{video.title}</Text>
+            </Stack>
+          </Box>
+        )}
+      </AspectRatio>
+
+      <Group justify="space-between" px="md" py="xs" bg="white" style={{ borderTop: '1px solid #e9ecef' }}>
+        <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+          <Text fw={700} size="xs" tt="uppercase" truncate style={{ maxWidth: 300 }}>
+            {video.title}
+          </Text>
+          <Text c="dimmed" display={{ base: 'none', sm: 'block' }}>•</Text>
+          <Text c="dimmed" size="xs" ff="monospace" display={{ base: 'none', sm: 'block' }}>{video.duration}</Text>
+        </Group>
+
+        <Group gap="xs" wrap="nowrap">
+          {onToggleComplete && (
+            <Button
+              variant={isCompleted ? "light" : "default"}
+              color={isCompleted ? "green" : "gray"}
+              size="compact-sm"
+              radius="sm"
+              leftSection={isCompleted ? <IconCheck size={14} /> : <IconCheck size={14} color="transparent" style={{ border: '1px solid currentColor', borderRadius: 2 }} />}
+              onClick={onToggleComplete}
+              tt="uppercase"
+              ff="monospace"
+              style={{ fontSize: 10 }}
+            >
+              {isCompleted ? 'Completed' : 'Mark Done'}
+            </Button>
           )}
 
           {onPrevious && (
-            <button
-              onClick={onPrevious}
+            <ActionIcon
+              variant="default"
+              size="md"
+              radius="sm"
               disabled={!hasPrevious}
-              className="p-1.5 rounded-none border border-ctp-surface0 text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-mantle disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              onClick={onPrevious}
               title="Previous lesson"
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </button>
+              <IconChevronLeft size={16} />
+            </ActionIcon>
           )}
 
           {onNext && (
-            <button
-              onClick={onNext}
+            <ActionIcon
+              variant="default"
+              size="md"
+              radius="sm"
               disabled={!hasNext}
-              className="p-1.5 rounded-none border border-ctp-surface0 text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-mantle disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              onClick={onNext}
               title="Next lesson"
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
+              <IconChevronRight size={16} />
+            </ActionIcon>
           )}
-        </div>
-      </div>
-    </div>
+        </Group>
+      </Group>
+    </Box>
   );
 }

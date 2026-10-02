@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PlatformHeader } from '../components/PlatformHeader';
 import { WipFeatureBanner } from '../components/WipFeatureBanner';
+import { Box, Button, Group, Stack, Grid, Text, Title, Badge, Progress, Container, Flex, Divider, ThemeIcon, Paper, Select, SimpleGrid } from '@mantine/core';
+import { IconUpload, IconArrowRight, IconTarget } from '@tabler/icons-react';
 
 export interface SkillGapItem {
   name: string;
@@ -14,8 +16,8 @@ export interface SkillGapItem {
 
 export default function SkillsGapAnalysisRoute() {
   const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState('Senior AI Systems Engineer');
-  const [experienceLevel, setExperienceLevel] = useState('Mid-Level (3-5 yrs)');
+  const [selectedRole, setSelectedRole] = useState<string | null>('Senior AI Systems Engineer');
+  const [experienceLevel, setExperienceLevel] = useState<string | null>('Mid-Level (3-5 yrs)');
 
   const skills: SkillGapItem[] = [
     {
@@ -77,192 +79,205 @@ export default function SkillsGapAnalysisRoute() {
     navigate(`/generator?topic=${encodeURIComponent(skillName)}&title=${encodeURIComponent(`Mastering ${skillName}`)}`);
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'matched': return 'teal';
+      case 'developing': return 'yellow';
+      case 'missing': return 'red';
+      default: return 'gray';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-ctp-base flex flex-col font-sans text-ctp-text antialiased">
+    <Box bg="gray.0" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-[1720px] mx-auto p-4 sm:p-6 lg:p-10 space-y-6">
-        <WipFeatureBanner
-          title="AI Skill Gap Analysis & Matrix"
-          category="Talent Intelligence Engine"
-          description="Deconstruct your technical competency profile against real-time market role benchmarks. CareerForge isolates competency deltas and automatically synthesizes targeted curriculum bridges."
-          plannedServices={[
-            "Semantic Resume Parser",
-            "Market Skill Vector Extractor",
-            "Competency Delta Scorer",
-            "Auto-Course Generator Bridge"
-          ]}
-        />
+      <Container size="xl" py="xl" style={{ flex: 1, width: '100%' }}>
+        <Stack gap="lg">
+          <WipFeatureBanner
+            title="AI Skill Gap Analysis & Matrix"
+            category="Talent Intelligence Engine"
+            description="Deconstruct your technical competency profile against real-time market role benchmarks. CareerForge isolates competency deltas and automatically synthesizes targeted curriculum bridges."
+            plannedServices={[
+              "Semantic Resume Parser",
+              "Market Skill Vector Extractor",
+              "Competency Delta Scorer",
+              "Auto-Course Generator Bridge"
+            ]}
+          />
 
-        {/* Role & Profile Selector Bar */}
-        <div className="bg-white p-5 rounded-none border border-ctp-surface0 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-            <div>
-              <label className="block text-xs font-mono font-bold uppercase text-ctp-subtext0 mb-1">
-                Target Role Benchmark
-              </label>
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full px-3 py-2 text-xs sm:text-sm bg-ctp-base/50 border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve font-mono"
+          {/* Role & Profile Selector Bar */}
+          <Paper p="md" shadow="sm" radius="sm" withBorder>
+            <Flex
+              direction={{ base: 'column', md: 'row' }}
+              align={{ base: 'stretch', md: 'flex-end' }}
+              justify="space-between"
+              gap="md"
+            >
+              <Group grow style={{ flex: 1 }}>
+                <Select
+                  label="Target Role Benchmark"
+                  value={selectedRole}
+                  onChange={setSelectedRole}
+                  data={['Senior AI Systems Engineer', 'Full-Stack Python Architect', 'Cloud Infrastructure Lead', 'Data Science & ML Specialist']}
+                  size="sm"
+                  styles={{ label: { textTransform: 'uppercase', fontWeight: 700, fontSize: '0.75rem', marginBottom: 4 } }}
+                />
+                <Select
+                  label="Current Experience Level"
+                  value={experienceLevel}
+                  onChange={setExperienceLevel}
+                  data={['Junior (1-2 yrs)', 'Mid-Level (3-5 yrs)', 'Senior (5+ yrs)']}
+                  size="sm"
+                  styles={{ label: { textTransform: 'uppercase', fontWeight: 700, fontSize: '0.75rem', marginBottom: 4 } }}
+                />
+              </Group>
+
+              <Button
+                leftSection={<IconUpload size={16} />}
+                variant="outline"
+                color="gray"
+                size="sm"
+                radius="sm"
+                styles={{ root: { textTransform: 'uppercase', fontWeight: 700 } }}
               >
-                <option value="Senior AI Systems Engineer">Senior AI Systems Engineer</option>
-                <option value="Full-Stack Python Architect">Full-Stack Python Architect</option>
-                <option value="Cloud Infrastructure Lead">Cloud Infrastructure Lead</option>
-                <option value="Data Science & ML Specialist">Data Science & ML Specialist</option>
-              </select>
-            </div>
+                Upload Resume (PDF)
+              </Button>
+            </Flex>
+          </Paper>
 
-            <div>
-              <label className="block text-xs font-mono font-bold uppercase text-ctp-subtext0 mb-1">
-                Current Experience Level
-              </label>
-              <select
-                value={experienceLevel}
-                onChange={(e) => setExperienceLevel(e.target.value)}
-                className="w-full px-3 py-2 text-xs sm:text-sm bg-ctp-base/50 border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve font-mono"
-              >
-                <option value="Junior (1-2 yrs)">Junior (1-2 yrs)</option>
-                <option value="Mid-Level (3-5 yrs)">Mid-Level (3-5 yrs)</option>
-                <option value="Senior (5+ yrs)">Senior (5+ yrs)</option>
-              </select>
-            </div>
-          </div>
+          {/* Competency Overview Metric Cards */}
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
+            <Paper p="md" shadow="sm" radius="sm" withBorder>
+              <Stack gap="xs">
+                <Text size="xs" fw={700} tt="uppercase" c="dimmed">Market Role Alignment</Text>
+                <Group align="baseline" gap="xs">
+                  <Title order={2} style={{ color: '#1b4d3e' }}>{overallFitPercent}%</Title>
+                  <Text size="xs" c="teal" fw={700}>+8% this month</Text>
+                </Group>
+                <Progress value={overallFitPercent} color="#1b4d3e" size="sm" radius="sm" mt="xs" />
+              </Stack>
+            </Paper>
 
-          <div className="flex items-center space-x-3 shrink-0 pt-2 md:pt-0">
-            <button className="px-4 py-2 text-xs font-mono font-bold uppercase text-ctp-text bg-ctp-base hover:bg-ctp-mantle border border-ctp-surface0 rounded-none transition-colors cursor-pointer flex items-center space-x-1.5">
-              <svg className="w-3.5 h-3.5 text-ctp-mauve" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
-              <span>Upload Resume (PDF)</span>
-            </button>
-          </div>
-        </div>
+            <Paper p="md" shadow="sm" radius="sm" withBorder>
+              <Stack gap="xs">
+                <Text size="xs" fw={700} tt="uppercase" c="dimmed">Verified Proficiencies</Text>
+                <Group align="baseline" gap="xs">
+                  <Title order={2} c="teal">{matchedCount}</Title>
+                  <Text size="xs" c="dimmed">of {skills.length} skills</Text>
+                </Group>
+                <Text size="xs" c="teal" fw={700} tt="uppercase">Ready for deployment</Text>
+              </Stack>
+            </Paper>
 
-        {/* Competency Overview Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="p-5 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-1">
-            <span className="text-[10px] font-mono uppercase font-bold text-ctp-subtext0 block">Market Role Alignment</span>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold font-mono text-ctp-mauve">{overallFitPercent}%</span>
-              <span className="text-xs text-ctp-green font-mono font-bold">+8% this month</span>
-            </div>
-            <div className="w-full bg-ctp-surface0 rounded-none h-1 mt-2 overflow-hidden">
-              <div className="bg-ctp-mauve h-1 rounded-none" style={{ width: `${overallFitPercent}%` }} />
-            </div>
-          </div>
+            <Paper p="md" shadow="sm" radius="sm" withBorder>
+              <Stack gap="xs">
+                <Text size="xs" fw={700} tt="uppercase" c="dimmed">Developing Skills</Text>
+                <Group align="baseline" gap="xs">
+                  <Title order={2} c="yellow.7">{developingCount}</Title>
+                  <Text size="xs" c="dimmed">in progress</Text>
+                </Group>
+                <Text size="xs" c="yellow.7" fw={700} tt="uppercase">~2 weeks to mastery</Text>
+              </Stack>
+            </Paper>
 
-          <div className="p-5 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-1">
-            <span className="text-[10px] font-mono uppercase font-bold text-ctp-subtext0 block">Verified Proficiencies</span>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold font-mono text-ctp-green">{matchedCount}</span>
-              <span className="text-xs font-mono text-ctp-subtext0">of {skills.length} skills</span>
-            </div>
-            <span className="text-[11px] font-mono text-ctp-green font-bold uppercase">Ready for deployment</span>
-          </div>
+            <Paper p="md" shadow="sm" radius="sm" withBorder>
+              <Stack gap="xs">
+                <Text size="xs" fw={700} tt="uppercase" c="dimmed">Critical Skill Gaps</Text>
+                <Group align="baseline" gap="xs">
+                  <Title order={2} c="red">{missingCount}</Title>
+                  <Text size="xs" c="dimmed">unacquired</Text>
+                </Group>
+                <Text size="xs" c="red" fw={700} tt="uppercase">High priority for target role</Text>
+              </Stack>
+            </Paper>
+          </SimpleGrid>
 
-          <div className="p-5 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-1">
-            <span className="text-[10px] font-mono uppercase font-bold text-ctp-subtext0 block">Developing Skills</span>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold font-mono text-ctp-peach">{developingCount}</span>
-              <span className="text-xs font-mono text-ctp-subtext0">in progress</span>
-            </div>
-            <span className="text-[11px] font-mono text-ctp-peach font-bold uppercase">~2 weeks to mastery</span>
-          </div>
+          {/* Detailed Competency Matrix Table */}
+          <Paper shadow="sm" radius="sm" withBorder style={{ overflow: 'hidden' }}>
+            <Box p="md" style={{ borderBottom: '1px solid #e9ecef' }}>
+              <Flex justify="space-between" align="center">
+                <Box>
+                  <Title order={3} size="h5" tt="uppercase">Competency Delta Breakdown</Title>
+                  <Text size="sm" c="dimmed" mt={2}>
+                    Comparison of your current proficiency vs market requirements for {selectedRole}.
+                  </Text>
+                </Box>
+                <Badge variant="light" color="gray" radius="sm">
+                  {skills.length} Tracked Competencies
+                </Badge>
+              </Flex>
+            </Box>
 
-          <div className="p-5 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-1">
-            <span className="text-[10px] font-mono uppercase font-bold text-ctp-subtext0 block">Critical Skill Gaps</span>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold font-mono text-ctp-red">{missingCount}</span>
-              <span className="text-xs font-mono text-ctp-subtext0">unacquired</span>
-            </div>
-            <span className="text-[11px] font-mono text-ctp-red font-bold uppercase">High priority for target role</span>
-          </div>
-        </div>
+            <Stack gap={0}>
+              {skills.map((skill, index) => (
+                <Box
+                  key={skill.name}
+                  p="md"
+                  style={{
+                    borderBottom: index < skills.length - 1 ? '1px solid #e9ecef' : 'none',
+                    backgroundColor: '#fff'
+                  }}
+                >
+                  <Flex
+                    direction={{ base: 'column', sm: 'row' }}
+                    align={{ base: 'stretch', sm: 'center' }}
+                    justify="space-between"
+                    gap="md"
+                  >
+                    <Stack gap="xs" style={{ flex: 1 }}>
+                      <Group gap="xs">
+                        <Text size="sm" fw={700} tt="uppercase">{skill.name}</Text>
+                        <Badge variant="outline" color="gray" radius="sm" size="sm">{skill.category}</Badge>
+                        <Badge variant="light" color={getStatusColor(skill.status)} radius="sm" size="sm">
+                          {skill.status}
+                        </Badge>
+                      </Group>
 
-        {/* Detailed Competency Matrix Table */}
-        <div className="bg-white rounded-none border border-ctp-surface0 shadow-2xs overflow-hidden">
-          <div className="p-5 border-b border-ctp-surface0 flex items-center justify-between">
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-ctp-text uppercase">
-                Competency Delta Breakdown
-              </h3>
-              <p className="text-xs text-ctp-subtext0 mt-0.5">
-                Comparison of your current proficiency vs market requirements for {selectedRole}.
-              </p>
-            </div>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-none bg-ctp-mantle border border-ctp-surface0 text-ctp-subtext0 uppercase">
-              {skills.length} Tracked Competencies
-            </span>
-          </div>
+                      <Box w="100%" maw={400}>
+                        <Group justify="space-between" mb={4}>
+                          <Text size="xs" c="dimmed">Current: <Text span fw={700} c="dark">{skill.currentLevel}%</Text></Text>
+                          <Text size="xs" c="dimmed">Target: <Text span fw={700} c="dark">{skill.requiredLevel}%</Text></Text>
+                        </Group>
+                        <Progress
+                          value={skill.currentLevel}
+                          color={getStatusColor(skill.status)}
+                          size="sm"
+                          radius="sm"
+                        />
+                      </Box>
+                    </Stack>
 
-          <div className="divide-y divide-ctp-surface0 overflow-x-auto">
-            {skills.map((skill) => (
-              <div key={skill.name} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-ctp-base/30 transition-colors">
-                <div className="space-y-1.5 min-w-0 flex-1">
-                  <div className="flex items-center space-x-2">
-                    <h4 className="text-xs sm:text-sm font-bold text-ctp-text uppercase">{skill.name}</h4>
-                    <span className="text-[10px] font-mono text-ctp-subtext0 font-bold px-1.5 py-0.2 rounded-none bg-ctp-base border border-ctp-surface0 uppercase">
-                      {skill.category}
-                    </span>
-                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-none border uppercase tracking-wider ${
-                      skill.status === 'matched'
-                        ? 'bg-ctp-green/10 text-ctp-green border-ctp-green/25'
-                        : skill.status === 'developing'
-                          ? 'bg-ctp-peach/10 text-ctp-peach border-ctp-peach/25'
-                          : 'bg-ctp-red/10 text-ctp-red border-ctp-red/25'
-                    }`}>
-                      {skill.status}
-                    </span>
-                  </div>
+                    <Group gap="xl">
+                      <Box display={{ base: 'none', md: 'block' }} ta="right">
+                        <Text size="xs" fw={700} tt="uppercase" c="dimmed">Market Demand</Text>
+                        <Text size="sm" fw={700}>{skill.marketDemand}</Text>
+                      </Box>
 
-                  {/* Skill Progress Bar comparison */}
-                  <div className="space-y-1 max-w-md">
-                    <div className="flex justify-between text-[10px] font-mono text-ctp-subtext0">
-                      <span>Current: <strong className="text-ctp-text">{skill.currentLevel}%</strong></span>
-                      <span>Target: <strong className="text-ctp-text">{skill.requiredLevel}%</strong></span>
-                    </div>
-                    <div className="w-full bg-ctp-surface0 rounded-none h-1 overflow-hidden flex">
-                      <div
-                        className={`h-1 rounded-none ${
-                          skill.status === 'matched' ? 'bg-ctp-green' : skill.status === 'developing' ? 'bg-ctp-peach' : 'bg-ctp-red'
-                        }`}
-                        style={{ width: `${skill.currentLevel}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3 shrink-0">
-                  <div className="text-right hidden md:block">
-                    <span className="text-[10px] font-mono text-ctp-subtext0 block uppercase font-bold">Market Demand</span>
-                    <span className="text-xs font-mono font-bold text-ctp-text">{skill.marketDemand}</span>
-                  </div>
-
-                  {skill.status !== 'matched' ? (
-                    <button
-                      onClick={() => handleGenerateForSkill(skill.name)}
-                      className="px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] rounded-none shadow-2xs transition-colors cursor-pointer flex items-center space-x-1 border border-ctp-mauve"
-                    >
-                      <span>Synthesize Course</span>
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                      </svg>
-                    </button>
-                  ) : (
-                    <span className="px-2.5 py-1 text-xs font-mono font-bold uppercase text-ctp-green bg-ctp-green/10 border border-ctp-green/20 rounded-none">
-                      Competency Verified
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-    </div>
+                      {skill.status !== 'matched' ? (
+                        <Button
+                          rightSection={<IconArrowRight size={16} />}
+                          color="#1b4d3e"
+                          radius="sm"
+                          size="sm"
+                          styles={{ root: { textTransform: 'uppercase', fontWeight: 700 } }}
+                          onClick={() => handleGenerateForSkill(skill.name)}
+                        >
+                          Synthesize Course
+                        </Button>
+                      ) : (
+                        <Badge variant="light" color="teal" radius="sm" size="lg" styles={{ root: { textTransform: 'uppercase' } }}>
+                          Competency Verified
+                        </Badge>
+                      )}
+                    </Group>
+                  </Flex>
+                </Box>
+              ))}
+            </Stack>
+          </Paper>
+        </Stack>
+      </Container>
+    </Box>
   );
 }

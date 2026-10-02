@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { PlatformHeader } from '../components/PlatformHeader';
 import { WipFeatureBanner } from '../components/WipFeatureBanner';
+import { Box, Button, Group, Stack, Grid, Text, Title, Badge, Container, Flex, Divider, ThemeIcon, Paper, Slider } from '@mantine/core';
+import { IconCheck, IconChevronRight, IconPlayerPlay } from '@tabler/icons-react';
 
 export interface MilestoneItem {
   id: string;
@@ -15,7 +17,7 @@ export interface MilestoneItem {
 
 export default function LearningPathsRoute() {
   const navigate = useNavigate();
-  const [weeklyHours, setWeeklyHours] = useState(8);
+  const [weeklyHours, setWeeklyHours] = useState<number>(8);
 
   const milestones: MilestoneItem[] = [
     {
@@ -56,165 +58,157 @@ export default function LearningPathsRoute() {
     }
   ];
 
+  const getStatusProps = (status: string) => {
+    if (status === 'completed') return { color: 'teal', label: 'completed', borderColor: '#20c997' };
+    if (status === 'in_progress') return { color: '#1b4d3e', label: 'in progress', borderColor: '#1b4d3e' };
+    return { color: 'gray', label: 'upcoming', borderColor: '#e9ecef' };
+  };
+
   return (
-    <div className="min-h-screen bg-ctp-base flex flex-col font-sans text-ctp-text antialiased">
+    <Box bg="gray.0" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-[1720px] mx-auto p-4 sm:p-6 lg:p-10 space-y-6">
-        <WipFeatureBanner
-          title="Personalized Learning Paths & Roadmaps"
-          category="Curriculum Roadmaps"
-          description="Builds goal-driven, multi-course learning roadmaps scheduled across your weekly availability. Seamlessly combines AI-synthesized course tracks into sequential mastery milestones."
-          plannedServices={[
-            "Curriculum Multi-Track Planner",
-            "Weekly Study Pacing Engine",
-            "Milestone Dependency Resolver",
-            "Mastery Assessment Evaluator"
-          ]}
-        />
+      <Container size="xl" py="xl" style={{ flex: 1, width: '100%' }}>
+        <Stack gap="xl">
+          <WipFeatureBanner
+            title="Personalized Learning Paths & Roadmaps"
+            category="Curriculum Roadmaps"
+            description="Builds goal-driven, multi-course learning roadmaps scheduled across your weekly availability. Seamlessly combines AI-synthesized course tracks into sequential mastery milestones."
+            plannedServices={[
+              "Curriculum Multi-Track Planner",
+              "Weekly Study Pacing Engine",
+              "Milestone Dependency Resolver",
+              "Mastery Assessment Evaluator"
+            ]}
+          />
 
-        {/* Pathway Header & Pacing Control Bar */}
-        <div className="bg-white p-6 rounded-none border border-ctp-surface0 shadow-2xs space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ctp-surface0 pb-3">
-            <div>
-              <span className="text-[10px] font-mono font-bold text-ctp-mauve uppercase tracking-wider block">
-                Active Pathway Roadmap
-              </span>
-              <h2 className="text-base sm:text-xl font-bold text-ctp-text mt-0.5 uppercase">
-                Production AI & Distributed LLM Systems Masterpath
-              </h2>
-            </div>
+          {/* Pathway Header & Pacing Control Bar */}
+          <Paper p="lg" shadow="sm" radius="sm" withBorder>
+            <Stack gap="md">
+              <Flex justify="space-between" align="center" wrap="wrap" gap="sm" style={{ borderBottom: '1px solid #e9ecef', paddingBottom: '12px' }}>
+                <Box>
+                  <Text size="xs" fw={700} tt="uppercase" style={{ color: '#1b4d3e' }}>Active Pathway Roadmap</Text>
+                  <Title order={2} size="h4" tt="uppercase" mt={4}>Production AI & Distributed LLM Systems Masterpath</Title>
+                </Box>
+                <Badge color="teal" variant="light" radius="sm" size="lg" styles={{ root: { textTransform: 'uppercase' } }}>
+                  42% Overall Pathway Completion
+                </Badge>
+              </Flex>
 
-            <div className="flex items-center space-x-2">
-              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-none bg-ctp-green/10 text-ctp-green border border-ctp-green/20 uppercase">
-                42% Overall Pathway Completion
-              </span>
-            </div>
-          </div>
+              {/* Schedule Pacing & Time-to-Goal Controls */}
+              <Grid>
+                <Grid.Col span={{ base: 12, sm: 4 }}>
+                  <Paper p="md" bg="gray.0" withBorder radius="sm">
+                    <Text size="xs" fw={700} tt="uppercase" c="dimmed" mb="xs">Weekly Study Commitment</Text>
+                    <Group align="center">
+                      <Slider
+                        value={weeklyHours}
+                        onChange={setWeeklyHours}
+                        min={4}
+                        max={20}
+                        color="#1b4d3e"
+                        style={{ flex: 1 }}
+                        radius="sm"
+                      />
+                      <Text fw={700} size="md">{weeklyHours}h / wk</Text>
+                    </Group>
+                  </Paper>
+                </Grid.Col>
 
-          {/* Schedule Pacing & Time-to-Goal Controls */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs font-mono">
-            <div className="p-3 bg-ctp-base/50 rounded-none border border-ctp-surface0 space-y-1">
-              <span className="text-ctp-subtext0 block uppercase font-bold text-[10px]">Weekly Study Commitment</span>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="range"
-                  min="4"
-                  max="20"
-                  value={weeklyHours}
-                  onChange={(e) => setWeeklyHours(Number(e.target.value))}
-                  className="w-full accent-ctp-mauve cursor-pointer"
-                />
-                <span className="font-bold text-ctp-text shrink-0">{weeklyHours}h / wk</span>
-              </div>
-            </div>
+                <Grid.Col span={{ base: 12, sm: 4 }}>
+                  <Paper p="md" bg="gray.0" withBorder radius="sm">
+                    <Text size="xs" fw={700} tt="uppercase" c="dimmed" mb="xs">Target Completion Date</Text>
+                    <Text fw={700} size="md">Nov 14, 2026 (~{Math.round(96 / weeklyHours)} weeks)</Text>
+                  </Paper>
+                </Grid.Col>
 
-            <div className="p-3 bg-ctp-base/50 rounded-none border border-ctp-surface0 space-y-1">
-              <span className="text-ctp-subtext0 block uppercase font-bold text-[10px]">Target Completion Date</span>
-              <span className="font-bold text-ctp-text block text-xs sm:text-sm">
-                Nov 14, 2026 (~{Math.round(96 / weeklyHours)} weeks)
-              </span>
-            </div>
+                <Grid.Col span={{ base: 12, sm: 4 }}>
+                  <Paper p="md" bg="gray.0" withBorder radius="sm">
+                    <Text size="xs" fw={700} tt="uppercase" c="dimmed" mb="xs">Total Curriculum Depth</Text>
+                    <Text fw={700} size="md">4 Phases • 17 Modules • 51 Streams</Text>
+                  </Paper>
+                </Grid.Col>
+              </Grid>
+            </Stack>
+          </Paper>
 
-            <div className="p-3 bg-ctp-base/50 rounded-none border border-ctp-surface0 space-y-1">
-              <span className="text-ctp-subtext0 block uppercase font-bold text-[10px]">Total Curriculum Depth</span>
-              <span className="font-bold text-ctp-text block text-xs sm:text-sm">
-                4 Phases • 17 Modules • 51 Streams
-              </span>
-            </div>
-          </div>
-        </div>
+          {/* Milestone Sequence Roadmap */}
+          <Stack gap="lg">
+            <Flex justify="space-between" align="center" style={{ borderBottom: '1px solid #e9ecef', paddingBottom: '8px' }}>
+              <Title order={3} size="h5" tt="uppercase">Sequential Pathway Milestones</Title>
+              <Text size="xs" c="dimmed" tt="uppercase">Step-by-step progression</Text>
+            </Flex>
 
-        {/* Milestone Sequence Roadmap */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between border-b border-ctp-surface0 pb-2">
-            <h3 className="text-sm sm:text-base font-bold text-ctp-text uppercase">Sequential Pathway Milestones</h3>
-            <span className="text-[11px] font-mono text-ctp-subtext0 uppercase">Step-by-step progression</span>
-          </div>
+            <Stack gap="md">
+              {milestones.map((ms, index) => {
+                const statusProps = getStatusProps(ms.status);
+                return (
+                  <Paper
+                    key={ms.id}
+                    p="lg"
+                    shadow="sm"
+                    radius="sm"
+                    withBorder
+                    style={{
+                      borderLeft: ms.status !== 'upcoming' ? `4px solid ${statusProps.borderColor}` : '1px solid #e9ecef'
+                    }}
+                  >
+                    <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align={{ base: 'flex-start', md: 'center' }} gap="md">
+                      <Flex gap="md" align="flex-start" style={{ flex: 1 }}>
+                        <ThemeIcon
+                          size="lg"
+                          radius="sm"
+                          color={ms.status === 'completed' ? 'teal' : ms.status === 'in_progress' ? '#1b4d3e' : 'gray.3'}
+                          variant={ms.status === 'upcoming' ? 'outline' : 'filled'}
+                        >
+                          {ms.status === 'completed' ? <IconCheck size={16} stroke={3} /> : <Text size="sm" fw={700} c={ms.status === 'upcoming' ? 'dimmed' : 'white'}>{index + 1}</Text>}
+                        </ThemeIcon>
 
-          <div className="space-y-3">
-            {milestones.map((ms, index) => (
-              <div
-                key={ms.id}
-                className={`p-5 sm:p-6 rounded-none border transition-all bg-white shadow-2xs ${
-                  ms.status === 'in_progress'
-                    ? 'border-l-4 border-l-ctp-mauve border-y border-r border-ctp-surface0'
-                    : ms.status === 'completed'
-                      ? 'border-l-4 border-l-ctp-green border-y border-r border-ctp-surface0'
-                      : 'border border-ctp-surface0'
-                }`}
-              >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-start space-x-4 min-w-0">
-                    <div className={`w-8 h-8 rounded-none flex items-center justify-center font-bold font-mono text-xs shrink-0 shadow-2xs ${
-                      ms.status === 'completed'
-                        ? 'bg-ctp-green text-white'
-                        : ms.status === 'in_progress'
-                          ? 'bg-ctp-mauve text-white'
-                          : 'bg-ctp-base border border-ctp-surface1 text-ctp-subtext0'
-                    }`}>
-                      {ms.status === 'completed' ? (
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                      ) : (
-                        index + 1
-                      )}
-                    </div>
+                        <Stack gap="xs" style={{ flex: 1 }}>
+                          <Group gap="sm" wrap="wrap">
+                            <Title order={4} size="h6" tt="uppercase">{ms.title}</Title>
+                            <Badge
+                              color={statusProps.color}
+                              variant={ms.status === 'upcoming' ? 'outline' : 'light'}
+                              radius="sm"
+                              size="sm"
+                            >
+                              {statusProps.label}
+                            </Badge>
+                            <Text size="xs" c="dimmed">({ms.duration})</Text>
+                          </Group>
 
-                    <div className="space-y-1.5 min-w-0">
-                      <div className="flex items-center space-x-2 flex-wrap">
-                        <h4 className="text-xs sm:text-sm font-bold text-ctp-text uppercase">{ms.title}</h4>
-                        <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-none border uppercase tracking-wider ${
-                          ms.status === 'completed'
-                            ? 'bg-ctp-green/10 text-ctp-green border-ctp-green/25'
-                            : ms.status === 'in_progress'
-                              ? 'bg-ctp-mauve/15 text-ctp-mauve border-ctp-mauve/30'
-                              : 'bg-ctp-base text-ctp-subtext0 border-ctp-surface0'
-                        }`}>
-                          {ms.status.replace('_', ' ')}
-                        </span>
-                        <span className="text-xs font-mono text-ctp-subtext0">({ms.duration})</span>
-                      </div>
+                          <Text size="sm" c="dimmed" maw={800}>{ms.description}</Text>
 
-                      <p className="text-xs text-ctp-subtext1 leading-relaxed max-w-3xl">
-                        {ms.description}
-                      </p>
+                          <Group gap="xs" mt={4}>
+                            {ms.skillsAcquired.map((skill) => (
+                              <Badge key={skill} color="gray" variant="outline" radius="sm" size="xs">{skill}</Badge>
+                            ))}
+                          </Group>
+                        </Stack>
+                      </Flex>
 
-                      <div className="flex flex-wrap gap-1.5 pt-1 font-mono">
-                        {ms.skillsAcquired.map((skill) => (
-                          <span
-                            key={skill}
-                            className="text-[10px] font-bold uppercase text-ctp-subtext0 bg-ctp-base border border-ctp-surface0 px-1.5 py-0.5 rounded-none"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3 shrink-0 pt-2 md:pt-0">
-                    <button
-                      onClick={() => navigate('/generator')}
-                      className={`px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-none transition-colors shadow-2xs cursor-pointer flex items-center space-x-1.5 border ${
-                        ms.status === 'in_progress'
-                          ? 'bg-ctp-mauve hover:bg-[#13382c] text-white border-ctp-mauve'
-                          : 'bg-ctp-base hover:bg-ctp-mantle border-ctp-surface0 text-ctp-text'
-                      }`}
-                    >
-                      <span>{ms.status === 'in_progress' ? 'Resume in Studio' : 'Open in Studio'}</span>
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-    </div>
+                      <Box>
+                        <Button
+                          rightSection={ms.status === 'in_progress' ? <IconPlayerPlay size={16} /> : <IconChevronRight size={16} />}
+                          variant={ms.status === 'in_progress' ? 'filled' : 'outline'}
+                          color={ms.status === 'in_progress' ? '#1b4d3e' : 'gray'}
+                          radius="sm"
+                          size="sm"
+                          onClick={() => navigate('/generator')}
+                          styles={{ root: { textTransform: 'uppercase', fontWeight: 700 } }}
+                        >
+                          {ms.status === 'in_progress' ? 'Resume in Studio' : 'Open in Studio'}
+                        </Button>
+                      </Box>
+                    </Flex>
+                  </Paper>
+                );
+              })}
+            </Stack>
+          </Stack>
+        </Stack>
+      </Container>
+    </Box>
   );
 }

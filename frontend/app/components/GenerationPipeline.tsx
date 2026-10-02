@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Progress, Loader, ThemeIcon, Stack, Group, Text, Paper, Box } from '@mantine/core';
+import { IconCheck, IconLoader2 } from '@tabler/icons-react';
 
 const PIPELINE_STEPS = [
   { id: 'init', label: 'Initializing AI Curriculum Agent', description: 'Setting up model parameters and parsing constraints' },
@@ -33,94 +35,93 @@ export function GenerationPipeline({ onComplete }: GenerationPipelineProps) {
   }, []);
 
   return (
-    <div className="w-full bg-white text-ctp-text p-6 rounded-none">
-      <div className="text-center mb-5">
-        <div className="inline-flex items-center justify-center w-9 h-9 rounded-none bg-ctp-mauve/10 text-ctp-mauve mb-2.5 border border-ctp-mauve/25">
-          <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <line x1="12" y1="2" x2="12" y2="6"></line>
-            <line x1="12" y1="18" x2="12" y2="22"></line>
-            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
-            <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
-            <line x1="2" y1="12" x2="6" y2="12"></line>
-            <line x1="18" y1="12" x2="22" y2="12"></line>
-            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
-            <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
-          </svg>
-        </div>
-        <h3 className="text-base font-bold text-ctp-text tracking-tight uppercase">
-          Synthesizing Curriculum Pipeline
-        </h3>
-        <p className="text-xs text-ctp-subtext0 mt-0.5">
-          Ranking video candidates and sequencing course lectures
-        </p>
+    <Paper p="xl" radius="sm">
+      <Stack align="center" mb="xl">
+        <ThemeIcon size="xl" radius="sm" color="#1b4d3e" variant="light">
+          <IconLoader2 className="mantine-spin" size={24} />
+        </ThemeIcon>
+        <Stack gap={4} align="center">
+          <Text fw={700} tt="uppercase" size="md">
+            Synthesizing Curriculum Pipeline
+          </Text>
+          <Text size="xs" c="dimmed">
+            Ranking video candidates and sequencing course lectures
+          </Text>
+        </Stack>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-ctp-surface0 rounded-none h-1 mt-4 overflow-hidden">
-          <div 
-            className="bg-ctp-mauve h-1 rounded-none transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
+        <Progress 
+          value={progress} 
+          w="100%" 
+          mt="md" 
+          color="#1b4d3e" 
+          size="sm" 
+          striped 
+          animated 
+        />
+      </Stack>
 
-      <div className="space-y-2">
+      <Stack gap="sm">
         {PIPELINE_STEPS.map((step, index) => {
           const isCompleted = index < currentStep;
           const isActive = index === currentStep;
 
           return (
-            <div 
+            <Paper 
               key={step.id} 
-              className={`flex items-start p-3 rounded-none transition-colors border ${
-                isActive 
-                  ? 'bg-ctp-mauve/5 border-ctp-mauve/40' 
-                  : isCompleted 
-                    ? 'bg-ctp-green/5 border-ctp-green/30' 
-                    : 'bg-ctp-base/30 border-ctp-surface0 opacity-60'
-              }`}
+              p="sm" 
+              withBorder 
+              radius="sm"
+              style={{
+                borderColor: isActive ? '#1b4d3e' : isCompleted ? 'green' : undefined,
+                backgroundColor: isActive ? 'rgba(27, 77, 62, 0.05)' : isCompleted ? 'rgba(0, 128, 0, 0.05)' : undefined,
+                opacity: !isActive && !isCompleted ? 0.6 : 1
+              }}
             >
-              <div className="flex-shrink-0 mt-0.5">
-                {isCompleted ? (
-                  <div className="w-4 h-4 rounded-none bg-ctp-green flex items-center justify-center text-white">
-                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  </div>
-                ) : isActive ? (
-                  <div className="w-4 h-4 rounded-none border-2 border-ctp-mauve border-t-transparent animate-spin" />
-                ) : (
-                  <div className="w-4 h-4 rounded-none border border-ctp-surface1 bg-white flex items-center justify-center text-[9px] font-mono text-ctp-subtext0 font-bold">
-                    {index + 1}
-                  </div>
-                )}
-              </div>
+              <Group wrap="nowrap" align="flex-start">
+                <Box mt={2}>
+                  {isCompleted ? (
+                    <ThemeIcon color="green" size="sm" radius="xl">
+                      <IconCheck size={12} stroke={3} />
+                    </ThemeIcon>
+                  ) : isActive ? (
+                    <Loader color="#1b4d3e" size="sm" />
+                  ) : (
+                    <ThemeIcon color="gray" variant="outline" size="sm" radius="xl">
+                      <Text size="xs" fw={700}>{index + 1}</Text>
+                    </ThemeIcon>
+                  )}
+                </Box>
 
-              <div className="ml-3 flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className={`text-xs font-bold uppercase ${
-                    isCompleted ? 'text-ctp-text' : isActive ? 'text-ctp-mauve' : 'text-ctp-subtext0'
-                  }`}>
-                    {step.label}
-                  </p>
-                  {isActive && (
-                    <span className="text-[10px] font-mono font-bold uppercase text-ctp-mauve">
-                      Processing...
-                    </span>
-                  )}
-                  {isCompleted && (
-                    <span className="text-[10px] font-mono font-bold uppercase text-ctp-green">
-                      Completed
-                    </span>
-                  )}
-                </div>
-                <p className="text-[11px] text-ctp-subtext0 mt-0.5 leading-snug">
-                  {step.description}
-                </p>
-              </div>
-            </div>
+                <Box flex={1}>
+                  <Group justify="space-between" align="center" wrap="nowrap">
+                    <Text 
+                      size="sm" 
+                      fw={700} 
+                      tt="uppercase" 
+                      c={isCompleted ? 'dark' : isActive ? '#1b4d3e' : 'dimmed'}
+                    >
+                      {step.label}
+                    </Text>
+                    {isActive && (
+                      <Text size="xs" fw={700} tt="uppercase" c="#1b4d3e">
+                        Processing...
+                      </Text>
+                    )}
+                    {isCompleted && (
+                      <Text size="xs" fw={700} tt="uppercase" c="green">
+                        Completed
+                      </Text>
+                    )}
+                  </Group>
+                  <Text size="xs" c="dimmed" mt={2}>
+                    {step.description}
+                  </Text>
+                </Box>
+              </Group>
+            </Paper>
           );
         })}
-      </div>
-    </div>
+      </Stack>
+    </Paper>
   );
 }

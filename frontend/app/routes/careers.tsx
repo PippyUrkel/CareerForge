@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router';
 import { PlatformHeader } from '../components/PlatformHeader';
 import { WipFeatureBanner } from '../components/WipFeatureBanner';
+import { Box, Button, Group, Stack, Grid, Text, Title, Badge, Container, Flex, Divider, ThemeIcon, Paper } from '@mantine/core';
+import { IconTarget, IconArrowRight } from '@tabler/icons-react';
 
 export interface CareerTrack {
   id: string;
@@ -84,165 +86,163 @@ export default function CareerPathsRoute() {
   const activeTrack = tracks.find(t => t.id === activeTrackId) || tracks[0];
 
   return (
-    <div className="min-h-screen bg-ctp-base flex flex-col font-sans text-ctp-text antialiased">
+    <Box bg="gray.0" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-[1720px] mx-auto p-4 sm:p-6 lg:p-10 space-y-6">
-        <WipFeatureBanner
-          title="Career Path & Trajectory Recommendations"
-          category="Career Forecasting"
-          description="Synthesizes market compensation benchmarks, career transition patterns, and milestone progression ladders tailored to your current technical foundation."
-          plannedServices={[
-            "Career Horizon Model",
-            "Compensation Aggregator",
-            "Transition Milestone Planner",
-            "Adjacent Role Recommender"
-          ]}
-        />
+      <Container size="xl" py="xl" style={{ flex: 1, width: '100%' }}>
+        <Stack gap="xl">
+          <WipFeatureBanner
+            title="Career Path & Trajectory Recommendations"
+            category="Career Forecasting"
+            description="Synthesizes market compensation benchmarks, career transition patterns, and milestone progression ladders tailored to your current technical foundation."
+            plannedServices={[
+              "Career Horizon Model",
+              "Compensation Aggregator",
+              "Transition Milestone Planner",
+              "Adjacent Role Recommender"
+            ]}
+          />
 
-        {/* Current State vs Horizon Summary */}
-        <div className="p-6 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ctp-surface0 pb-3">
-            <div>
-              <span className="text-[10px] font-mono font-bold text-ctp-mauve uppercase tracking-wider block">
-                Current Career Benchmark
-              </span>
-              <h2 className="text-base sm:text-lg font-bold text-ctp-text mt-0.5 uppercase">
-                Software Engineer (AI / Backend Focus)
-              </h2>
-            </div>
-            <div className="flex items-center space-x-2 text-xs font-mono">
-              <span className="text-ctp-subtext0 uppercase">Estimated Market Horizon:</span>
-              <span className="font-bold text-ctp-mauve bg-ctp-mauve/10 border border-ctp-mauve/25 px-2.5 py-0.5 rounded-none uppercase">
-                12 to 36 Months
-              </span>
-            </div>
-          </div>
+          {/* Current State vs Horizon Summary */}
+          <Paper p="lg" shadow="sm" radius="sm" withBorder>
+            <Stack gap="md">
+              <Flex justify="space-between" align="center" wrap="wrap" gap="sm" style={{ borderBottom: '1px solid #e9ecef', paddingBottom: '12px' }}>
+                <Box>
+                  <Text size="xs" fw={700} tt="uppercase" style={{ color: '#1b4d3e' }}>Current Career Benchmark</Text>
+                  <Title order={2} size="h4" tt="uppercase" mt={4}>Software Engineer (AI / Backend Focus)</Title>
+                </Box>
+                <Group gap="xs">
+                  <Text size="xs" c="dimmed" tt="uppercase">Estimated Market Horizon:</Text>
+                  <Badge color="#1b4d3e" variant="light" radius="sm" size="md">12 to 36 Months</Badge>
+                </Group>
+              </Flex>
 
-          {/* Track Selection Tabs */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-            {tracks.map((track) => {
-              const isSelected = track.id === activeTrackId;
-              return (
-                <button
-                  key={track.id}
-                  onClick={() => setActiveTrackId(track.id)}
-                  className={`p-4 rounded-none border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                    isSelected
-                      ? 'bg-ctp-mauve/10 border-ctp-mauve shadow-2xs'
-                      : 'bg-ctp-base/40 border-ctp-surface0 hover:border-ctp-surface1'
-                  }`}
-                >
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono font-bold text-ctp-subtext0 uppercase tracking-wider block">
-                      {track.category}
-                    </span>
-                    <h3 className="text-sm font-bold text-ctp-text leading-snug uppercase">
-                      {track.title}
-                    </h3>
-                  </div>
+              {/* Track Selection Tabs */}
+              <Grid>
+                {tracks.map((track) => {
+                  const isSelected = track.id === activeTrackId;
+                  return (
+                    <Grid.Col span={{ base: 12, md: 4 }} key={track.id}>
+                      <Paper
+                        p="md"
+                        radius="sm"
+                        withBorder
+                        onClick={() => setActiveTrackId(track.id)}
+                        style={{
+                          cursor: 'pointer',
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          backgroundColor: isSelected ? 'rgba(27, 77, 62, 0.05)' : 'transparent',
+                          borderColor: isSelected ? '#1b4d3e' : '#e9ecef',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <Box>
+                          <Text size="xs" fw={700} c="dimmed" tt="uppercase">{track.category}</Text>
+                          <Title order={3} size="h6" tt="uppercase" mt={4} lh={1.2}>{track.title}</Title>
+                        </Box>
+                        <Group justify="space-between" mt="md" pt="sm" style={{ borderTop: '1px solid #e9ecef' }}>
+                          <Text size="xs" fw={700}>{track.timeline}</Text>
+                          <Text size="xs" fw={700} c="teal">{track.demandGrowth}</Text>
+                        </Group>
+                      </Paper>
+                    </Grid.Col>
+                  );
+                })}
+              </Grid>
+            </Stack>
+          </Paper>
 
-                  <div className="pt-3 mt-3 border-t border-ctp-surface0 flex items-center justify-between text-xs font-mono">
-                    <span className="font-bold text-ctp-text">{track.timeline}</span>
-                    <span className="text-[11px] text-ctp-green font-bold">{track.demandGrowth}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+          {/* Active Track Deep Dive */}
+          <Grid>
+            {/* Left: Progression Ladder & Milestones */}
+            <Grid.Col span={{ base: 12, lg: 8 }}>
+              <Paper p="lg" shadow="sm" radius="sm" withBorder h="100%">
+                <Stack gap="lg">
+                  <Flex justify="space-between" align="center" style={{ borderBottom: '1px solid #e9ecef', paddingBottom: '12px' }}>
+                    <Box>
+                      <Title order={3} size="h5" tt="uppercase">Milestone Progression Ladder</Title>
+                      <Text size="sm" c="dimmed" mt={2}>Actionable stepping stones for reaching {activeTrack.title}.</Text>
+                    </Box>
+                    <Badge variant="light" color="gray" radius="sm">3 Key Phases</Badge>
+                  </Flex>
 
-        {/* Active Track Deep Dive */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left: Progression Ladder & Milestones */}
-          <div className="lg:col-span-8 p-6 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-5">
-            <div className="flex items-center justify-between border-b border-ctp-surface0 pb-3">
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-ctp-text uppercase">
-                  Milestone Progression Ladder
-                </h3>
-                <p className="text-xs text-ctp-subtext0 mt-0.5">
-                  Actionable stepping stones for reaching {activeTrack.title}.
-                </p>
-              </div>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-none bg-ctp-mantle border border-ctp-surface0 text-ctp-subtext0 uppercase">
-                3 Key Phases
-              </span>
-            </div>
+                  <Stack gap="md">
+                    {activeTrack.milestones.map((milestone, idx) => (
+                      <Paper key={idx} p="md" radius="sm" bg="gray.0" withBorder style={{ borderLeft: '4px solid #1b4d3e' }}>
+                        <Flex gap="md" align="flex-start">
+                          <ThemeIcon size="md" color="#1b4d3e" radius="sm">
+                            <Text size="xs" fw={700}>{idx + 1}</Text>
+                          </ThemeIcon>
+                          <Box style={{ flex: 1 }}>
+                            <Flex justify="space-between" align="center">
+                              <Text size="sm" fw={700} tt="uppercase">Phase {idx + 1} Milestone</Text>
+                              <Text size="xs" fw={700} c="dimmed" tt="uppercase">Month {idx * 6} – {(idx + 1) * 6}</Text>
+                            </Flex>
+                            <Text size="sm" c="dimmed" mt={4}>{milestone}</Text>
+                          </Box>
+                        </Flex>
+                      </Paper>
+                    ))}
+                  </Stack>
 
-            <div className="space-y-3">
-              {activeTrack.milestones.map((milestone, idx) => (
-                <div key={idx} className="p-4 rounded-none bg-ctp-base/40 border-l-2 border-l-ctp-mauve border-y border-r border-ctp-surface0 flex items-start space-x-3.5">
-                  <div className="w-6 h-6 rounded-none bg-ctp-mauve text-white flex items-center justify-center font-bold font-mono text-xs shrink-0 mt-0.5 shadow-2xs">
-                    {idx + 1}
-                  </div>
-                  <div className="space-y-1 min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-ctp-text uppercase">
-                        Phase {idx + 1} Milestone
-                      </h4>
-                      <span className="text-[10px] font-mono text-ctp-subtext0 font-bold uppercase">
-                        Month {idx * 6} – {(idx + 1) * 6}
-                      </span>
-                    </div>
-                    <p className="text-xs text-ctp-subtext1 leading-relaxed">
-                      {milestone}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  {/* Core Competencies Tagged */}
+                  <Box pt="md" style={{ borderTop: '1px solid #e9ecef' }}>
+                    <Text size="xs" fw={700} tt="uppercase" mb="xs">Core Architectural Competencies</Text>
+                    <Group gap="xs">
+                      {activeTrack.keyCompetencies.map((comp) => (
+                        <Badge key={comp} color="#1b4d3e" variant="light" radius="sm" size="sm">{comp}</Badge>
+                      ))}
+                    </Group>
+                  </Box>
+                </Stack>
+              </Paper>
+            </Grid.Col>
 
-            {/* Core Competencies Tagged */}
-            <div className="pt-4 border-t border-ctp-surface0 space-y-2">
-              <span className="text-xs font-mono font-bold text-ctp-text block uppercase">Core Architectural Competencies</span>
-              <div className="flex flex-wrap gap-2">
-                {activeTrack.keyCompetencies.map((comp) => (
-                  <span
-                    key={comp}
-                    className="text-[11px] font-mono font-bold text-ctp-mauve bg-ctp-mauve/10 border border-ctp-mauve/25 px-2 py-0.5 rounded-none uppercase"
-                  >
-                    {comp}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
+            {/* Right: Market Compensation & Next Steps */}
+            <Grid.Col span={{ base: 12, lg: 4 }}>
+              <Paper p="lg" shadow="sm" radius="sm" withBorder h="100%">
+                <Stack gap="xl">
+                  <Title order={3} size="h5" tt="uppercase">Market Compensation Index</Title>
 
-          {/* Right: Market Compensation & Next Steps */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="p-6 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-4">
-              <h3 className="text-sm font-bold text-ctp-text uppercase">Market Compensation Index</h3>
+                  <Paper p="md" bg="gray.0" withBorder radius="sm">
+                    <Text size="xs" fw={700} tt="uppercase" c="dimmed">Salary Range (Target Band)</Text>
+                    <Title order={2} size="h3" mt={4}>{activeTrack.salaryRange}</Title>
+                    <Text size="xs" fw={700} tt="uppercase" c="teal" mt={4}>Top 15th percentile benchmark</Text>
+                  </Paper>
 
-              <div className="space-y-2 p-4 bg-ctp-base/50 rounded-none border border-ctp-surface0">
-                <span className="text-[10px] font-mono uppercase font-bold text-ctp-subtext0 block">Salary Range (Target Band)</span>
-                <span className="text-lg font-bold font-mono text-ctp-text block">{activeTrack.salaryRange}</span>
-                <span className="text-[10px] font-mono font-bold text-ctp-green uppercase block">Top 15th percentile benchmark</span>
-              </div>
+                  <Stack gap="sm" pt="sm" style={{ borderTop: '1px solid #e9ecef' }}>
+                    <Flex justify="space-between">
+                      <Text size="sm" c="dimmed" tt="uppercase">Role Transition Difficulty</Text>
+                      <Text size="sm" fw={700} tt="uppercase">{activeTrack.difficulty}</Text>
+                    </Flex>
+                    <Flex justify="space-between">
+                      <Text size="sm" c="dimmed" tt="uppercase">Target Time to Transition</Text>
+                      <Text size="sm" fw={700} tt="uppercase">{activeTrack.timeline}</Text>
+                    </Flex>
+                  </Stack>
 
-              <div className="space-y-2 pt-2 border-t border-ctp-surface0 text-xs font-mono">
-                <div className="flex justify-between text-ctp-subtext0">
-                  <span className="uppercase">Role Transition Difficulty</span>
-                  <span className="font-bold text-ctp-text uppercase">{activeTrack.difficulty}</span>
-                </div>
-                <div className="flex justify-between text-ctp-subtext0">
-                  <span className="uppercase">Target Time to Transition</span>
-                  <span className="font-bold text-ctp-text uppercase">{activeTrack.timeline}</span>
-                </div>
-              </div>
-
-              <div className="pt-3">
-                <Link
-                  to="/skills"
-                  className="w-full py-2.5 px-4 text-xs font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] rounded-none shadow-2xs transition-colors text-center block border border-ctp-mauve"
-                >
-                  Analyze Skill Gaps for this Role
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+                  <Box mt="lg">
+                    <Button
+                      component={Link}
+                      to="/skills"
+                      color="#1b4d3e"
+                      fullWidth
+                      radius="sm"
+                      size="md"
+                      styles={{ root: { textTransform: 'uppercase', fontWeight: 700 } }}
+                    >
+                      Analyze Skill Gaps for this Role
+                    </Button>
+                  </Box>
+                </Stack>
+              </Paper>
+            </Grid.Col>
+          </Grid>
+        </Stack>
+      </Container>
+    </Box>
   );
 }

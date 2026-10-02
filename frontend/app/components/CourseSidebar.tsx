@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from 'react';
+import { Box, TextInput, SegmentedControl, Progress, Accordion, Group, Text, Stack, Badge, Button, ActionIcon, Paper, Checkbox } from '@mantine/core';
+import { IconSearch, IconBook, IconPlayerPlay, IconCheck, IconX, IconChevronDown } from '@tabler/icons-react';
 
 export interface Video {
   id: string;
@@ -23,11 +25,6 @@ export interface CourseSidebarProps {
   onOpenLibrary?: () => void;
 }
 
-/**
- * CourseSidebar Component
- * Provides an interactive curriculum outline with real-time search,
- * completion progress tracking, filter pills, and collapsible module accordions.
- */
 export function CourseSidebar({ 
   modules, 
   activeVideoId, 
@@ -35,35 +32,21 @@ export function CourseSidebar({
   onOpenGenerator,
   onOpenLibrary
 }: CourseSidebarProps) {
-  // Search query & completion filter
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'remaining' | 'completed'>('all');
 
-  // Accordion state
-  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    modules.forEach(m => { initial[m.id] = true; });
-    return initial;
-  });
-
-  // Track completed videos in local state
+  const [expandedModules, setExpandedModules] = useState<string[]>(() => modules.map(m => m.id));
   const [completedVideos, setCompletedVideos] = useState<Record<string, boolean>>({});
-
-  const toggleModule = (moduleId: string) => {
-    setExpandedModules(prev => ({ ...prev, [moduleId]: !prev[moduleId] }));
-  };
 
   const toggleComplete = (videoId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setCompletedVideos(prev => ({ ...prev, [videoId]: !prev[videoId] }));
   };
 
-  // Metrics
   const totalVideos = modules.reduce((acc, m) => acc + m.videos.length, 0);
   const totalCompleted = Object.values(completedVideos).filter(Boolean).length;
   const progressPercent = totalVideos > 0 ? Math.round((totalCompleted / totalVideos) * 100) : 0;
 
-  // Filtered modules calculation
   const filteredModules = useMemo(() => {
     return modules.map(m => {
       const filteredVideos = m.videos.filter(v => {
@@ -76,276 +59,204 @@ export function CourseSidebar({
         if (statusFilter === 'remaining') return !isCompleted;
         return true;
       });
-
-      return {
-        ...m,
-        videos: filteredVideos
-      };
+      return { ...m, videos: filteredVideos };
     }).filter(m => m.videos.length > 0 || searchQuery === '');
   }, [modules, searchQuery, statusFilter, completedVideos]);
 
   if (modules.length === 0) {
     return (
-      <div className="flex flex-col h-full bg-white text-ctp-text">
-        <div className="p-4 border-b border-ctp-surface0 flex items-center justify-between bg-ctp-mantle/40">
-          <span className="font-bold text-xs uppercase text-ctp-text font-mono">Curriculum Syllabus</span>
-        </div>
-        <div className="flex-1 p-6 flex flex-col items-center justify-center text-center space-y-3">
-          <div className="w-10 h-10 rounded-none bg-ctp-mantle border border-ctp-surface0 text-ctp-mauve flex items-center justify-center">
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-            </svg>
-          </div>
-          <div>
-            <p className="font-bold text-xs uppercase text-ctp-text font-mono">No curriculum selected</p>
-            <p className="text-xs text-ctp-subtext0 mt-1 max-w-xs leading-relaxed">
+      <Stack h="100%" bg="white" gap={0}>
+        <Box p="md" style={{ borderBottom: '1px solid #e9ecef', backgroundColor: '#f8f9fa' }}>
+          <Text fw={700} size="xs" tt="uppercase" ff="monospace">Curriculum Syllabus</Text>
+        </Box>
+        <Stack flex={1} align="center" justify="center" p="xl" gap="md" style={{ textAlign: 'center' }}>
+          <ActionIcon size="xl" radius="sm" variant="default" color="#1b4d3e">
+            <IconBook size={24} />
+          </ActionIcon>
+          <Box>
+            <Text fw={700} size="xs" tt="uppercase" ff="monospace">No curriculum selected</Text>
+            <Text size="xs" c="dimmed" mt={4} maw={240}>
               Open a stored course from the database or generate a new AI curriculum.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-2 pt-1 font-mono">
+            </Text>
+          </Box>
+          <Group gap="sm" mt="xs">
             {onOpenLibrary && (
-              <button
-                onClick={onOpenLibrary}
-                className="text-xs font-bold uppercase text-ctp-text bg-ctp-base/80 hover:bg-ctp-surface0 border border-ctp-surface0 px-3.5 py-2 rounded-none transition-colors cursor-pointer"
-              >
+              <Button variant="default" radius="sm" size="xs" tt="uppercase" ff="monospace" onClick={onOpenLibrary}>
                 Browse Library
-              </button>
+              </Button>
             )}
-            <button
-              onClick={onOpenGenerator}
-              className="text-xs font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] px-3.5 py-2 rounded-none shadow-2xs transition-colors cursor-pointer border border-ctp-mauve"
-            >
+            <Button color="#1b4d3e" radius="sm" size="xs" tt="uppercase" lts={1} onClick={onOpenGenerator}>
               Generate Curriculum
-            </button>
-          </div>
-        </div>
-      </div>
+            </Button>
+          </Group>
+        </Stack>
+      </Stack>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-white text-ctp-text">
-      {/* Header with Curriculum Progress & Search */}
-      <div className="p-4 border-b border-ctp-surface0 sticky top-0 bg-white z-10 space-y-3">
-        {/* Title & Expand/Collapse Toggle */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <svg className="w-4 h-4 text-ctp-mauve" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-            </svg>
-            <h2 className="font-semibold text-sm text-ctp-text">Course Curriculum</h2>
-          </div>
-          <button 
+    <Stack h="100%" bg="white" gap={0}>
+      <Stack p="md" gap="sm" style={{ borderBottom: '1px solid #e9ecef', position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'white' }}>
+        <Group justify="space-between">
+          <Group gap="xs">
+            <IconBook size={16} color="#1b4d3e" />
+            <Text fw={600} size="sm">Course Curriculum</Text>
+          </Group>
+          <Button 
+            variant="transparent" 
+            size="xs" 
+            p={0} 
+            color="#1b4d3e"
             onClick={() => {
-              const allExpanded = Object.values(expandedModules).every(Boolean);
-              const next: Record<string, boolean> = {};
-              modules.forEach(m => { next[m.id] = !allExpanded; });
-              setExpandedModules(next);
+              if (expandedModules.length === modules.length) {
+                setExpandedModules([]);
+              } else {
+                setExpandedModules(modules.map(m => m.id));
+              }
             }}
-            className="text-xs text-ctp-mauve hover:underline font-medium cursor-pointer"
           >
-            {Object.values(expandedModules).every(Boolean) ? 'Collapse all' : 'Expand all'}
-          </button>
-        </div>
+            {expandedModules.length === modules.length ? 'Collapse all' : 'Expand all'}
+          </Button>
+        </Group>
 
-        {/* Progress Metric Card */}
-        <div className="space-y-1.5 bg-ctp-mantle/50 p-2.5 rounded-none border border-ctp-surface0">
-          <div className="flex justify-between items-center text-[10px] font-mono uppercase font-bold text-ctp-subtext0">
-            <span>{totalCompleted} of {totalVideos} lectures completed</span>
-            <span className="font-bold text-ctp-text">{progressPercent}%</span>
-          </div>
-          <div className="w-full bg-ctp-surface0 rounded-none h-1 overflow-hidden">
-            <div 
-              className="bg-ctp-green h-1 rounded-none transition-all duration-300"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-        </div>
+        <Paper p="xs" radius="sm" bg="#f8f9fa" withBorder>
+          <Group justify="space-between" mb={4}>
+            <Text size={10} ff="monospace" tt="uppercase" fw={700} c="dimmed">
+              {totalCompleted} of {totalVideos} lectures completed
+            </Text>
+            <Text size={10} fw={700}>{progressPercent}%</Text>
+          </Group>
+          <Progress value={progressPercent} color="#1b4d3e" size="sm" radius="sm" />
+        </Paper>
 
-        {/* Search & Filter Bar */}
-        <div className="space-y-2">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search lectures & topics..."
-              className="w-full pl-8 pr-7 py-1.5 text-xs bg-ctp-base/50 border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve placeholder:text-ctp-overlay0 font-mono"
-            />
-            <svg className="w-3.5 h-3.5 text-ctp-subtext0 absolute left-2.5 top-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2 top-1.5 text-xs text-ctp-subtext0 hover:text-ctp-text"
-              >
-                ✕
-              </button>
-            )}
-          </div>
+        <TextInput
+          placeholder="Search lectures & topics..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.currentTarget.value)}
+          leftSection={<IconSearch size={14} />}
+          rightSection={
+            searchQuery ? (
+              <ActionIcon size="sm" variant="transparent" c="dimmed" onClick={() => setSearchQuery('')}>
+                <IconX size={14} />
+              </ActionIcon>
+            ) : null
+          }
+          size="xs"
+          radius="sm"
+          ff="monospace"
+        />
 
-          {/* Filter Pills */}
-          <div className="flex space-x-1 text-[10px] font-mono">
-            <button
-              onClick={() => setStatusFilter('all')}
-              className={`px-2 py-0.5 rounded-none font-bold uppercase transition-colors cursor-pointer border ${
-                statusFilter === 'all'
-                  ? 'bg-ctp-mauve text-white border-ctp-mauve'
-                  : 'bg-ctp-base/70 text-ctp-subtext0 border-ctp-surface0 hover:text-ctp-text'
-              }`}
-            >
-              All ({totalVideos})
-            </button>
-            <button
-              onClick={() => setStatusFilter('remaining')}
-              className={`px-2 py-0.5 rounded-none font-bold uppercase transition-colors cursor-pointer border ${
-                statusFilter === 'remaining'
-                  ? 'bg-ctp-mauve text-white border-ctp-mauve'
-                  : 'bg-ctp-base/70 text-ctp-subtext0 border-ctp-surface0 hover:text-ctp-text'
-              }`}
-            >
-              Remaining ({totalVideos - totalCompleted})
-            </button>
-            <button
-              onClick={() => setStatusFilter('completed')}
-              className={`px-2 py-0.5 rounded-none font-bold uppercase transition-colors cursor-pointer border ${
-                statusFilter === 'completed'
-                  ? 'bg-ctp-mauve text-white border-ctp-mauve'
-                  : 'bg-ctp-base/70 text-ctp-subtext0 border-ctp-surface0 hover:text-ctp-text'
-              }`}
-            >
-              Completed ({totalCompleted})
-            </button>
-          </div>
-        </div>
-      </div>
+        <SegmentedControl
+          data={[
+            { label: `All (${totalVideos})`, value: 'all' },
+            { label: `Remaining (${totalVideos - totalCompleted})`, value: 'remaining' },
+            { label: `Completed (${totalCompleted})`, value: 'completed' },
+          ]}
+          value={statusFilter}
+          onChange={(val: string) => setStatusFilter(val as any)}
+          size="xs"
+          radius="sm"
+          color="#1b4d3e"
+          fullWidth
+          styles={{ label: { fontSize: 10, fontWeight: 700, textTransform: 'uppercase' } }}
+        />
+      </Stack>
 
-      {/* Accordion Module List */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar divide-y divide-ctp-surface0">
+      <Box style={{ flex: 1, overflowY: 'auto' }}>
         {filteredModules.length === 0 ? (
-          <div className="p-8 text-center text-xs text-ctp-subtext0 space-y-1 font-mono">
-            <p className="font-bold text-ctp-text uppercase">No matching lectures found</p>
-            <p>Try searching for a different keyword or reset filters.</p>
-          </div>
+          <Box p="xl" ta="center">
+            <Text size="xs" fw={700} tt="uppercase" ff="monospace">No matching lectures found</Text>
+            <Text size="xs" c="dimmed" ff="monospace" mt={4}>Try searching for a different keyword or reset filters.</Text>
+          </Box>
         ) : (
-          filteredModules.map((module, mIndex) => {
-            const isExpanded = expandedModules[module.id] ?? true;
-            const completedCount = module.videos.filter(v => completedVideos[v.id]).length;
+          <Accordion 
+            multiple 
+            value={expandedModules} 
+            onChange={setExpandedModules}
+            variant="separated"
+            radius={0}
+            styles={{
+              item: { border: 'none', borderBottom: '1px solid #e9ecef', backgroundColor: 'transparent' },
+              control: { backgroundColor: '#f8f9fa', '&:hover': { backgroundColor: '#f1f3f5' } },
+              content: { padding: 0 }
+            }}
+          >
+            {filteredModules.map((module, mIndex) => {
+              const completedCount = module.videos.filter(v => completedVideos[v.id]).length;
+              return (
+                <Accordion.Item key={module.id} value={module.id}>
+                  <Accordion.Control>
+                    <Box>
+                      <Text size={10} ff="monospace" fw={700} tt="uppercase" c="dimmed" lts={1}>
+                        Module {mIndex + 1}
+                      </Text>
+                      <Text size="sm" fw={700} tt="uppercase" mt={2} lineClamp={1}>
+                        {module.title}
+                      </Text>
+                      <Group gap="xs" mt={4}>
+                        <Text size={10} ff="monospace" c="dimmed">{completedCount}/{module.videos.length} completed</Text>
+                        <Text size={10} c="dimmed">•</Text>
+                        <Text size={10} ff="monospace" c="dimmed">{module.videos.length * 5} min</Text>
+                      </Group>
+                    </Box>
+                  </Accordion.Control>
+                  <Accordion.Panel>
+                    <Stack gap={0} style={{ borderTop: '1px solid #e9ecef' }}>
+                      {module.videos.map((video, vIndex) => {
+                        const isActive = activeVideoId === video.id;
+                        const isChecked = !!completedVideos[video.id];
 
-            return (
-              <div key={module.id} className="bg-white">
-                {/* Section Header */}
-                <button
-                  onClick={() => toggleModule(module.id)}
-                  className="w-full px-4 py-3 bg-ctp-mantle/60 hover:bg-ctp-surface0/50 flex items-start justify-between text-left transition-colors border-b border-ctp-surface0 cursor-pointer"
-                >
-                  <div className="pr-2 min-w-0">
-                    <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-ctp-subtext0">
-                      Module {mIndex + 1}
-                    </div>
-                    <h3 className="font-bold text-xs sm:text-sm text-ctp-text leading-tight mt-0.5 truncate uppercase">
-                      {module.title}
-                    </h3>
-                    <div className="text-[10px] font-mono text-ctp-subtext0 mt-1 flex items-center space-x-2">
-                      <span>{completedCount}/{module.videos.length} completed</span>
-                      <span>•</span>
-                      <span>{module.videos.length * 5} min</span>
-                    </div>
-                  </div>
-                  <svg
-                    className={`w-3.5 h-3.5 text-ctp-subtext0 transform transition-transform shrink-0 mt-1 ${
-                      isExpanded ? 'rotate-180' : ''
-                    }`}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </button>
-
-                {/* Lecture List */}
-                {isExpanded && (
-                  <div className="divide-y divide-ctp-surface0">
-                    {module.videos.map((video, vIndex) => {
-                      const isActive = activeVideoId === video.id;
-                      const isChecked = !!completedVideos[video.id];
-
-                      return (
-                        <div
-                          key={video.id}
-                          onClick={() => onVideoSelect(video)}
-                          className={`group px-4 py-2.5 cursor-pointer flex items-start justify-between transition-colors border-l-2 ${
-                            isActive 
-                              ? 'bg-ctp-mauve/10 border-ctp-mauve font-semibold text-ctp-text' 
-                              : isChecked
-                                ? 'bg-ctp-green/5 border-transparent hover:bg-ctp-mantle/60'
-                                : 'bg-white hover:bg-ctp-mantle/60 border-transparent'
-                          }`}
-                        >
-                          <div className="flex items-start space-x-2.5 min-w-0 pr-2">
-                            <button
-                              type="button"
-                              onClick={(e) => toggleComplete(video.id, e)}
-                              className={`mt-0.5 w-3.5 h-3.5 rounded-none flex items-center justify-center shrink-0 transition-colors border ${
-                                isChecked 
-                                  ? 'bg-ctp-green border-ctp-green text-white' 
-                                  : 'border-ctp-surface1 bg-white hover:border-ctp-mauve'
-                              }`}
-                              aria-label="Toggle completion"
-                              title={isChecked ? 'Mark incomplete' : 'Mark complete'}
-                            >
-                              {isChecked && (
-                                <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                                  <polyline points="20 6 9 17 4 12"></polyline>
-                                </svg>
-                              )}
-                            </button>
-
-                            <div className="min-w-0">
-                              <p className={`text-xs leading-snug line-clamp-2 ${
-                                isActive ? 'text-ctp-text font-bold' : isChecked ? 'text-ctp-subtext1 line-through opacity-80' : 'text-ctp-text'
-                              }`}>
-                                {vIndex + 1}. {video.title}
-                              </p>
-                              <div className="flex items-center space-x-2 text-[10px] font-mono text-ctp-subtext0 mt-1 font-normal">
-                                <span className="flex items-center space-x-1">
-                                  <svg className="w-3 h-3 shrink-0 text-ctp-overlay1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                                  </svg>
-                                  <span>{video.duration}</span>
-                                </span>
-                                {isActive && (
-                                  <span className="text-[9px] font-mono font-bold text-ctp-mauve px-1 py-0.2 rounded-none bg-ctp-mauve/15 border border-ctp-mauve/25 uppercase">
-                                    Active
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Lesson Resource Indicator */}
-                          <div className="shrink-0 ml-2 mt-0.5">
-                            <span className="inline-flex items-center text-[9px] font-mono uppercase font-bold text-ctp-subtext0 bg-ctp-base border border-ctp-surface0 rounded-none px-1.5 py-0.5 group-hover:border-ctp-surface1 transition-colors">
-                              Stream
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })
+                        return (
+                          <Box
+                            key={video.id}
+                            onClick={() => onVideoSelect(video)}
+                            style={{ 
+                              cursor: 'pointer',
+                              borderLeft: `2px solid ${isActive ? '#1b4d3e' : 'transparent'}`,
+                              backgroundColor: isActive ? 'rgba(27, 77, 62, 0.05)' : isChecked ? '#f8f9fa' : 'white',
+                              borderBottom: '1px solid #f1f3f5'
+                            }}
+                            p="sm"
+                          >
+                            <Group wrap="nowrap" align="flex-start" gap="sm">
+                              <Checkbox
+                                checked={isChecked}
+                                onChange={(e) => toggleComplete(video.id, e as any)}
+                                onClick={(e) => e.stopPropagation()}
+                                color="#1b4d3e"
+                                radius="sm"
+                                size="xs"
+                                mt={2}
+                              />
+                              <Box style={{ flex: 1, minWidth: 0 }}>
+                                <Text size="xs" fw={isActive ? 700 : 500} td={isChecked ? 'line-through' : 'none'} c={isChecked ? 'dimmed' : 'black'} lineClamp={2}>
+                                  {vIndex + 1}. {video.title}
+                                </Text>
+                                <Group gap="xs" mt={4}>
+                                  <Group gap={4}>
+                                    <IconPlayerPlay size={12} color="gray" />
+                                    <Text size={10} ff="monospace" c="dimmed">{video.duration}</Text>
+                                  </Group>
+                                  {isActive && (
+                                    <Badge color="#1b4d3e" variant="light" size="xs" radius="sm">Active</Badge>
+                                  )}
+                                </Group>
+                              </Box>
+                              <Badge variant="outline" color="gray" radius="sm" size="xs" ff="monospace" lts={1}>
+                                Stream
+                              </Badge>
+                            </Group>
+                          </Box>
+                        );
+                      })}
+                    </Stack>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              );
+            })}
+          </Accordion>
         )}
-      </div>
-    </div>
+      </Box>
+    </Stack>
   );
 }
-

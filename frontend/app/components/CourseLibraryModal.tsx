@@ -1,4 +1,32 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Modal,
+  TextInput,
+  SegmentedControl,
+  SimpleGrid,
+  Paper,
+  Badge,
+  Group,
+  Stack,
+  Text,
+  Title,
+  Button,
+  ActionIcon,
+  Loader,
+  Divider,
+  Box,
+  Center,
+  Code
+} from '@mantine/core';
+import {
+  IconDatabase,
+  IconSearch,
+  IconPlus,
+  IconTrash,
+  IconChevronRight,
+  IconX,
+  IconBook
+} from '@tabler/icons-react';
 
 export interface StoredCourseItem {
   id?: number;
@@ -83,8 +111,6 @@ export function CourseLibraryModal({
     });
   }, [courses, searchQuery, difficultyFilter]);
 
-  if (!isOpen) return null;
-
   const formatDuration = (sec?: number) => {
     if (!sec) return '0 min';
     const mins = Math.round(sec / 60);
@@ -107,270 +133,258 @@ export function CourseLibraryModal({
     }
   };
 
-  const getDifficultyBadge = (difficulty?: string) => {
+  const getDifficultyColor = (difficulty?: string) => {
     const diff = (difficulty || '').toLowerCase();
-    if (diff === 'beginner') {
-      return 'bg-ctp-green/10 text-ctp-green border-ctp-green/25';
-    }
-    if (diff === 'advanced') {
-      return 'bg-ctp-maroon/10 text-ctp-maroon border-ctp-maroon/25';
-    }
-    return 'bg-ctp-teal/10 text-ctp-teal border-ctp-teal/25';
+    if (diff === 'beginner') return 'teal';
+    if (diff === 'advanced') return 'red';
+    return 'blue';
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-ctp-text/35 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fadeIn">
-      <div className="relative w-full max-w-5xl xl:max-w-6xl bg-white rounded-none shadow-xl overflow-hidden border border-ctp-surface0 flex flex-col max-h-[90vh]">
-        {/* Modal Top Header */}
-        <div className="p-5 sm:p-6 border-b border-ctp-surface0 bg-white shrink-0 flex items-center justify-between">
-          <div className="flex items-center space-x-3 min-w-0">
-            <div className="w-9 h-9 rounded-none bg-ctp-mauve text-white border border-ctp-mauve flex items-center justify-center shrink-0 shadow-2xs">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-              </svg>
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h3 className="text-base sm:text-lg font-bold text-ctp-text uppercase">
-                  Course Database & Library
-                </h3>
-                <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-none bg-ctp-mantle border border-ctp-surface0 text-ctp-subtext0 uppercase">
-                  {courses.length} Stored
-                </span>
-              </div>
-              <p className="text-xs text-ctp-subtext0 mt-0.5">
-                Load or switch between AI-synthesized curriculums stored in <code className="font-mono text-ctp-mauve">careerforge.db</code>
-              </p>
-            </div>
-          </div>
+    <Modal
+      opened={isOpen}
+      onClose={onClose}
+      size="xl"
+      withCloseButton={false}
+      padding={0}
+      radius="sm"
+    >
+      {/* Modal Top Header */}
+      <Group justify="space-between" align="center" p="md" style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
+        <Group gap="sm">
+          <ActionIcon size="lg" variant="filled" color="#1b4d3e" radius="sm">
+            <IconDatabase size={18} />
+          </ActionIcon>
+          <Stack gap={0}>
+            <Group gap="xs">
+              <Title order={4} tt="uppercase" c="dark.8">Course Database & Library</Title>
+              <Badge variant="outline" color="gray" size="sm" radius="sm">
+                {courses.length} Stored
+              </Badge>
+            </Group>
+            <Text size="xs" c="dimmed">
+              Load or switch between AI-synthesized curriculums stored in <Code color="#1b4d3e">careerforge.db</Code>
+            </Text>
+          </Stack>
+        </Group>
+        
+        <Group gap="sm">
+          <Button
+            variant="filled"
+            color="#1b4d3e"
+            size="xs"
+            radius="sm"
+            leftSection={<IconPlus size={14} />}
+            onClick={() => {
+              onClose();
+              onOpenGenerator();
+            }}
+            tt="uppercase"
+            display={{ base: 'none', sm: 'flex' }}
+          >
+            New Course
+          </Button>
+          <ActionIcon variant="subtle" color="gray" onClick={onClose}>
+            <IconX size={18} />
+          </ActionIcon>
+        </Group>
+      </Group>
 
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => {
-                onClose();
-                onOpenGenerator();
-              }}
-              className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-none text-xs font-bold uppercase tracking-wider bg-ctp-mauve hover:bg-[#13382c] text-white shadow-2xs transition-colors cursor-pointer border border-ctp-mauve"
-            >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              <span>New Course</span>
-            </button>
+      {/* Search & Filter Controls Bar */}
+      <Box p="md" bg="gray.0" style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
+        <Group justify="space-between" align="center">
+          <TextInput
+            placeholder="Search saved courses by title, topic, or audience..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.currentTarget.value)}
+            leftSection={<IconSearch size={16} />}
+            rightSection={
+              searchQuery ? (
+                <ActionIcon onClick={() => setSearchQuery('')} variant="transparent" c="dimmed">
+                  <IconX size={14} />
+                </ActionIcon>
+              ) : null
+            }
+            style={{ flex: 1, minWidth: '250px' }}
+            radius="sm"
+            size="sm"
+          />
+          <SegmentedControl
+            value={difficultyFilter}
+            onChange={(val: any) => setDifficultyFilter(val)}
+            data={[
+              { label: 'ALL TRACKS', value: 'all' },
+              { label: 'BEGINNER', value: 'beginner' },
+              { label: 'INTERMEDIATE', value: 'intermediate' },
+              { label: 'ADVANCED', value: 'advanced' },
+            ]}
+            color="#1b4d3e"
+            radius="sm"
+            size="sm"
+            styles={{
+              label: { fontWeight: 700, fontSize: '11px' }
+            }}
+          />
+        </Group>
+      </Box>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-ctp-subtext0 hover:text-ctp-text p-1.5 rounded-none hover:bg-ctp-mantle transition-colors cursor-pointer"
-              aria-label="Close modal"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Search & Filter Controls Bar */}
-        <div className="p-4 sm:px-6 border-b border-ctp-surface0 bg-ctp-base/40 shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search saved courses by title, topic, or audience..."
-              className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-white border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve placeholder:text-ctp-overlay0 shadow-2xs font-mono"
-            />
-            <svg className="w-4 h-4 text-ctp-subtext0 absolute left-3 top-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-2 text-xs text-ctp-subtext0 hover:text-ctp-text"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          <div className="flex space-x-1.5 text-xs shrink-0 overflow-x-auto font-mono">
-            {(['all', 'beginner', 'intermediate', 'advanced'] as const).map((level) => (
-              <button
-                key={level}
-                onClick={() => setDifficultyFilter(level)}
-                className={`px-3 py-1.5 rounded-none font-bold uppercase transition-colors cursor-pointer whitespace-nowrap border ${
-                  difficultyFilter === level
-                    ? 'bg-ctp-mauve text-white border-ctp-mauve shadow-2xs'
-                    : 'bg-white border-ctp-surface0 text-ctp-subtext0 hover:text-ctp-text'
-                }`}
-              >
-                {level === 'all' ? 'All Tracks' : level}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Course Cards Grid */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar space-y-4">
-          {isLoading ? (
-            <div className="py-16 text-center text-ctp-subtext0 space-y-3 font-mono">
-              <div className="w-8 h-8 mx-auto border-2 border-ctp-mauve border-t-transparent animate-spin" />
-              <p className="text-xs uppercase">Fetching courses from database...</p>
-            </div>
-          ) : filteredCourses.length === 0 ? (
-            <div className="py-16 text-center text-ctp-subtext0 space-y-3 bg-ctp-base/30 rounded-none border border-ctp-surface0 p-8">
-              <div className="w-10 h-10 rounded-none bg-white border border-ctp-surface0 text-ctp-mauve flex items-center justify-center mx-auto shadow-2xs">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                </svg>
-              </div>
-              <h4 className="text-sm font-bold text-ctp-text uppercase">No courses match your query</h4>
-              <p className="text-xs max-w-sm mx-auto">
+      {/* Course Cards Grid */}
+      <Box p="md" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+        {isLoading ? (
+          <Center py={40}>
+            <Stack align="center" gap="sm">
+              <Loader color="#1b4d3e" />
+              <Text size="sm" tt="uppercase" c="dimmed" fw={700}>Fetching courses from database...</Text>
+            </Stack>
+          </Center>
+        ) : filteredCourses.length === 0 ? (
+          <Center py={40}>
+            <Paper withBorder p="xl" radius="sm" bg="gray.0" style={{ textAlign: 'center', maxWidth: '400px' }}>
+              <ActionIcon size="xl" variant="outline" color="#1b4d3e" radius="sm" mx="auto" mb="md">
+                <IconBook size={24} />
+              </ActionIcon>
+              <Title order={5} tt="uppercase" mb="xs" c="dark.8">No courses match your query</Title>
+              <Text size="xs" c="dimmed" mb="md">
                 {searchQuery || difficultyFilter !== 'all'
                   ? 'Try adjusting your search criteria or resetting difficulty filters.'
                   : 'Generate your first AI curriculum to store it in the database.'}
-              </p>
-              <button
+              </Text>
+              <Button
                 onClick={() => {
                   onClose();
                   onOpenGenerator();
                 }}
-                className="mt-2 text-xs font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] px-4 py-2 rounded-none shadow-2xs transition-colors cursor-pointer border border-ctp-mauve"
+                color="#1b4d3e"
+                radius="sm"
+                tt="uppercase"
+                size="xs"
               >
                 Generate New Course
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredCourses.map((course) => {
-                const isActive = course.id === activeCourseId || course.generation_id === activeCourseId;
+              </Button>
+            </Paper>
+          </Center>
+        ) : (
+          <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+            {filteredCourses.map((course) => {
+              const isActive = course.id === activeCourseId || course.generation_id === activeCourseId;
 
-                return (
-                  <div
-                    key={course.id || course.generation_id}
-                    className={`p-5 rounded-none border transition-all flex flex-col justify-between group ${
-                      isActive
-                        ? 'bg-ctp-mauve/5 border-ctp-mauve ring-1 ring-ctp-mauve/30 shadow-2xs'
-                        : 'bg-white border-ctp-surface0 hover:border-ctp-mauve hover:shadow-2xs'
-                    }`}
-                  >
-                    <div className="space-y-3">
-                      {/* Card Header & Badges */}
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center space-x-1.5 flex-wrap">
-                          <span className={`px-2 py-0.5 rounded-none text-[10px] font-mono font-bold border uppercase ${getDifficultyBadge(course.difficulty)}`}>
-                            {course.difficulty || 'beginner'}
-                          </span>
-                          <span className="text-[10px] font-mono font-bold text-ctp-subtext0 bg-ctp-base border border-ctp-surface0 px-2 py-0.5 rounded-none uppercase">
-                            {course.topic}
-                          </span>
-                        </div>
-
-                        {isActive && (
-                          <span className="text-[10px] font-mono font-bold text-ctp-mauve bg-ctp-mauve/15 border border-ctp-mauve/30 px-2 py-0.5 rounded-none shrink-0 uppercase">
-                            Active
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Title & Description */}
-                      <div>
-                        <h4 className="text-sm sm:text-base font-bold text-ctp-text group-hover:text-ctp-mauve transition-colors leading-snug uppercase">
-                          {course.course_title}
-                        </h4>
-                        {course.description && (
-                          <p className="text-xs text-ctp-subtext1 line-clamp-2 mt-1 leading-relaxed">
-                            {course.description}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Course Metric Pills */}
-                      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-ctp-surface0 text-xs">
-                        <div className="p-2 rounded-none bg-ctp-base/50 text-center border border-ctp-surface0">
-                          <span className="text-[10px] font-mono uppercase text-ctp-subtext0 block font-bold">Modules</span>
-                          <span className="font-bold text-ctp-text">{course.module_count}</span>
-                        </div>
-                        <div className="p-2 rounded-none bg-ctp-base/50 text-center border border-ctp-surface0">
-                          <span className="text-[10px] font-mono uppercase text-ctp-subtext0 block font-bold">Lectures</span>
-                          <span className="font-bold text-ctp-text">{course.video_count}</span>
-                        </div>
-                        <div className="p-2 rounded-none bg-ctp-base/50 text-center border border-ctp-surface0">
-                          <span className="text-[10px] font-mono uppercase text-ctp-subtext0 block font-bold">Runtime</span>
-                          <span className="font-bold text-ctp-text">{formatDuration(course.total_duration_seconds)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Footer Actions */}
-                    <div className="pt-4 mt-3 border-t border-ctp-surface0 flex items-center justify-between text-xs font-mono">
-                      <span className="text-[11px] text-ctp-subtext0">
-                        Created {formatDate(course.created_at)}
-                      </span>
-
-                      <div className="flex items-center space-x-2">
-                        {onDeleteCourse && (
-                          <button
-                            onClick={() => {
-                              if (confirm(`Delete course "${course.course_title}" from database?`)) {
-                                onDeleteCourse(course.id || course.generation_id);
-                              }
-                            }}
-                            className="p-1.5 rounded-none text-ctp-subtext0 hover:text-ctp-red hover:bg-ctp-red/10 transition-colors cursor-pointer"
-                            title="Delete course from database"
-                          >
-                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <polyline points="3 6 5 6 21 6"></polyline>
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                          </button>
-                        )}
-
-                        <button
+              return (
+                <Paper
+                  key={course.id || course.generation_id}
+                  withBorder
+                  p="md"
+                  radius="sm"
+                  shadow={isActive ? 'xs' : 'none'}
+                  style={{
+                    borderColor: isActive ? '#1b4d3e' : undefined,
+                    backgroundColor: isActive ? 'rgba(27, 77, 62, 0.03)' : undefined,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    transition: 'border-color 0.2s, box-shadow 0.2s',
+                  }}
+                >
+                  <Stack gap="sm">
+                    {/* Card Header & Badges */}
+                    <Group justify="space-between" align="center">
+                      <Group gap="xs">
+                        <Badge color={getDifficultyColor(course.difficulty)} variant="outline" radius="sm" size="xs">
+                          {course.difficulty || 'beginner'}
+                        </Badge>
+                        <Badge color="gray" variant="light" radius="sm" size="xs">
+                          {course.topic}
+                        </Badge>
+                      </Group>
+                      {isActive && (
+                        <Badge color="#1b4d3e" variant="light" radius="sm" size="xs">
+                          Active
+                        </Badge>
+                      )}
+                    </Group>
+                    
+                    {/* Title & Description */}
+                    <Box>
+                      <Title order={6} tt="uppercase" c={isActive ? '#1b4d3e' : 'dark.8'} lineClamp={2}>
+                        {course.course_title}
+                      </Title>
+                      {course.description && (
+                        <Text size="xs" c="dimmed" lineClamp={2} mt={4} style={{ lineHeight: 1.5 }}>
+                          {course.description}
+                        </Text>
+                      )}
+                    </Box>
+                    
+                    {/* Course Metric Pills */}
+                    <SimpleGrid cols={3} spacing="xs" mt="xs">
+                      <Paper withBorder p={8} radius="sm" bg="gray.0" style={{ textAlign: 'center' }}>
+                        <Text size="10px" tt="uppercase" c="dimmed" fw={700}>Modules</Text>
+                        <Text fw={700} size="sm" c="dark.8">{course.module_count}</Text>
+                      </Paper>
+                      <Paper withBorder p={8} radius="sm" bg="gray.0" style={{ textAlign: 'center' }}>
+                        <Text size="10px" tt="uppercase" c="dimmed" fw={700}>Lectures</Text>
+                        <Text fw={700} size="sm" c="dark.8">{course.video_count}</Text>
+                      </Paper>
+                      <Paper withBorder p={8} radius="sm" bg="gray.0" style={{ textAlign: 'center' }}>
+                        <Text size="10px" tt="uppercase" c="dimmed" fw={700}>Runtime</Text>
+                        <Text fw={700} size="sm" c="dark.8">{formatDuration(course.total_duration_seconds)}</Text>
+                      </Paper>
+                    </SimpleGrid>
+                  </Stack>
+                  
+                  <Divider my="md" />
+                  
+                  {/* Footer Actions */}
+                  <Group justify="space-between" align="center">
+                    <Text size="xs" c="dimmed">
+                      Created {formatDate(course.created_at)}
+                    </Text>
+                    <Group gap="xs">
+                      {onDeleteCourse && (
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
                           onClick={() => {
-                            onSelectCourse(course.id || course.generation_id);
-                            onClose();
+                            if (window.confirm(`Delete course "${course.course_title}" from database?`)) {
+                              onDeleteCourse(course.id || course.generation_id);
+                            }
                           }}
-                          className={`px-3 py-1.5 rounded-none text-xs font-bold uppercase tracking-wider transition-colors shadow-2xs cursor-pointer flex items-center space-x-1 border ${
-                            isActive
-                              ? 'bg-ctp-mauve/20 text-ctp-mauve border-ctp-mauve/30'
-                              : 'bg-ctp-mauve hover:bg-[#13382c] text-white border-ctp-mauve'
-                          }`}
+                          title="Delete course from database"
                         >
-                          <span>{isActive ? 'Loaded' : 'Open Course'}</span>
-                          {!isActive && (
-                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                              <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                          <IconTrash size={16} />
+                        </ActionIcon>
+                      )}
+                      <Button
+                        size="xs"
+                        radius="sm"
+                        variant={isActive ? 'light' : 'filled'}
+                        color="#1b4d3e"
+                        onClick={() => {
+                          onSelectCourse(course.id || course.generation_id);
+                          onClose();
+                        }}
+                        rightSection={!isActive ? <IconChevronRight size={14} /> : null}
+                        tt="uppercase"
+                      >
+                        {isActive ? 'Loaded' : 'Open Course'}
+                      </Button>
+                    </Group>
+                  </Group>
+                </Paper>
+              );
+            })}
+          </SimpleGrid>
+        )}
+      </Box>
 
-        {/* Modal Bottom Footer */}
-        <div className="p-4 border-t border-ctp-surface0 bg-ctp-mantle/50 shrink-0 flex items-center justify-between text-xs text-ctp-subtext0 font-mono">
-          <span>Connected to database: <code className="text-ctp-text font-bold">backend/careerforge.db</code></span>
-          <button
-            onClick={onClose}
-            className="px-3.5 py-1.5 rounded-none border border-ctp-surface0 bg-white hover:bg-ctp-mantle text-ctp-text font-bold uppercase transition-colors cursor-pointer"
-          >
-            Close Library
-          </button>
-        </div>
-      </div>
-    </div>
+      {/* Modal Bottom Footer */}
+      <Group justify="space-between" align="center" p="md" bg="gray.0" style={{ borderTop: '1px solid var(--mantine-color-gray-3)' }}>
+        <Text size="xs" c="dimmed">
+          Connected to database: <Text span fw={700} c="dark.8">backend/careerforge.db</Text>
+        </Text>
+        <Button variant="default" size="xs" radius="sm" tt="uppercase" onClick={onClose}>
+          Close Library
+        </Button>
+      </Group>
+    </Modal>
   );
 }

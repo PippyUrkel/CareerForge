@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
+import { Paper, Group, Badge, Text, Title, Anchor, Stack, Flex, Divider } from '@mantine/core';
+import { IconAlertTriangle } from '@tabler/icons-react';
 
 export interface WipFeatureBannerProps {
   title: string;
@@ -9,62 +11,63 @@ export interface WipFeatureBannerProps {
   plannedServices?: string[];
 }
 
-/**
- * WipFeatureBanner renders a crisp architectural notice on sketched feature pages,
- * with sharp geometric framing and clear technical indicators.
- */
 export function WipFeatureBanner({
   title,
   category,
   description,
-  badgeLabel = "WIP // SPECIFICATION PREVIEW",
+  badgeLabel = 'WIP // SPECIFICATION PREVIEW',
   plannedServices = []
 }: WipFeatureBannerProps) {
   return (
-    <div className="w-full bg-white p-5 sm:p-6 border-l-4 border-l-ctp-peach border-y border-r border-ctp-surface0 rounded-none shadow-2xs space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center space-x-1.5 text-[10px] font-mono font-bold text-ctp-peach bg-ctp-peach/10 border border-ctp-peach/30 px-2 py-0.5 rounded-none uppercase tracking-wider">
-            <span className="w-1.5 h-1.5 bg-ctp-peach" />
-            <span>{badgeLabel}</span>
-          </span>
-          <span className="text-[10px] font-mono uppercase text-ctp-subtext0 font-semibold px-2 py-0.5 rounded-none bg-ctp-base border border-ctp-surface0">
-            {category}
-          </span>
+    <Paper 
+      shadow="sm" 
+      radius="sm" 
+      p="lg" 
+      withBorder 
+      style={{ borderLeft: '4px solid #d97706', backgroundColor: '#ffffff' }}
+    >
+      <Stack gap="md">
+        <Group justify="space-between" align="flex-start">
+          <Group gap="xs">
+            <Badge color="orange" variant="light" leftSection={<IconAlertTriangle size={14} />}>
+              {badgeLabel}
+            </Badge>
+            <Badge color="gray" variant="light">
+              {category}
+            </Badge>
+          </Group>
+          <Anchor component={Link} to="/generator" size="sm" fw={500} style={{ color: '#1b4d3e' }}>
+            Active Course Studio →
+          </Anchor>
+        </Group>
+
+        <div>
+          <Title order={3} size="h4" mb="xs" c="dark.9">
+            {title}
+          </Title>
+          <Text size="sm" c="dimmed" lh={1.5}>
+            {description}
+          </Text>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Link
-            to="/generator"
-            className="text-xs font-semibold text-ctp-mauve hover:text-[#13382c] hover:underline flex items-center space-x-1"
-          >
-            <span>Active Course Studio →</span>
-          </Link>
-        </div>
-      </div>
-
-      <div className="space-y-1">
-        <h1 className="text-lg sm:text-xl font-bold text-ctp-text tracking-tight uppercase">
-          {title}
-        </h1>
-        <p className="text-xs sm:text-sm text-ctp-subtext1 leading-relaxed max-w-3xl">
-          {description}
-        </p>
-      </div>
-
-      {plannedServices.length > 0 && (
-        <div className="pt-3 border-t border-ctp-surface0 flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-[11px] font-mono text-ctp-subtext0 font-bold uppercase">Subsystems:</span>
-          {plannedServices.map((svc) => (
-            <span
-              key={svc}
-              className="text-[11px] font-mono text-ctp-subtext1 bg-ctp-base border border-ctp-surface0 px-2 py-0.5 rounded-none"
-            >
-              {svc}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
+        {plannedServices.length > 0 && (
+          <>
+            <Divider />
+            <div>
+              <Text size="xs" fw={600} tt="uppercase" c="dimmed" mb="xs">
+                Planned Subsystems
+              </Text>
+              <Flex gap="xs" wrap="wrap">
+                {plannedServices.map((service, index) => (
+                  <Badge key={index} variant="outline" color="gray" size="sm" fw="normal">
+                    {service}
+                  </Badge>
+                ))}
+              </Flex>
+            </div>
+          </>
+        )}
+      </Stack>
+    </Paper>
   );
 }

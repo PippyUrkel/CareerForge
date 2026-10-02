@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router';
+import { Box, Group, Text, Badge, Button, UnstyledButton, Divider, Anchor } from '@mantine/core';
+import { IconStack2, IconDatabase, IconPlus } from '@tabler/icons-react';
 
 export interface PlatformHeaderProps {
   onOpenGenerator?: () => void;
@@ -30,91 +32,147 @@ export function PlatformHeader({
   ];
 
   return (
-    <header className="h-14 bg-white border-b border-ctp-surface0 text-ctp-text flex items-center justify-between px-4 sm:px-6 lg:px-10 shrink-0 z-30 sticky top-0">
-      {/* Left: Brand & Navigation */}
-      <div className="flex items-center space-x-4 sm:space-x-6 min-w-0 flex-1">
-        {/* Brand */}
-        <Link to="/" className="flex items-center space-x-2.5 shrink-0 group">
-          <div className="w-7 h-7 rounded-xs bg-ctp-mauve flex items-center justify-center text-white border border-ctp-mauve shadow-2xs group-hover:bg-[#13382c] transition-colors">
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          <span className="font-bold text-sm sm:text-base tracking-tight text-ctp-text uppercase">
-            CareerForge
-          </span>
-        </Link>
-
-        <div className="hidden lg:block h-4 w-px bg-ctp-surface1 shrink-0" />
-
-        {/* Navigation Items (Sharp Architectural Tabs) */}
-        <nav className="hidden md:flex items-center space-x-1 overflow-x-auto custom-scrollbar text-xs h-14">
-          {navItems.map((item) => {
-            const isActive = currentPath === item.path || (item.path !== '/' && currentPath.startsWith(item.path) && (item.path !== '/jobs' || currentPath === '/jobs'));
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`h-full px-3 inline-flex items-center space-x-1.5 whitespace-nowrap font-medium border-b-2 transition-colors ${
-                  isActive
-                    ? 'border-ctp-mauve text-ctp-mauve font-bold bg-ctp-base/40'
-                    : 'border-transparent text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-base/30'
-                }`}
+    <Box 
+      component="header" 
+      h={56} 
+      bg="white" 
+      pos="sticky" 
+      top={0} 
+      style={{ 
+        zIndex: 30, 
+        borderBottom: '1px solid var(--mantine-color-gray-3)' 
+      }}
+      px={{ base: 'md', sm: 'xl', lg: 40 }}
+      display="flex"
+    >
+      <Group justify="space-between" h="100%" w="100%" wrap="nowrap">
+        {/* Left: Brand & Navigation */}
+        <Group wrap="nowrap" flex={1} h="100%" gap="lg">
+          {/* Brand */}
+          <Anchor component={Link} to="/" underline="never" c="black">
+            <Group gap="sm" wrap="nowrap">
+              <Box 
+                bg="#1b4d3e" 
+                w={28} 
+                h={28} 
+                c="white"
+                style={{ 
+                  borderRadius: 'var(--mantine-radius-sm)', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  boxShadow: 'var(--mantine-shadow-xs)'
+                }}
               >
-                <span>{item.label}</span>
-                {item.isWip && (
-                  <span className="text-[9px] font-mono font-bold px-1 py-0.2 rounded-none bg-ctp-peach/10 text-ctp-peach border border-ctp-peach/30 uppercase tracking-wider">
-                    WIP
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+                <IconStack2 size={16} stroke={2.5} />
+              </Box>
+              <Text fw={700} size="sm" tt="uppercase" lts={-0.5}>
+                CareerForge
+              </Text>
+            </Group>
+          </Anchor>
 
-      {/* Right: Actions */}
-      <div className="flex items-center space-x-2 shrink-0">
-        {onOpenLibrary && (
-          <button
-            onClick={onOpenLibrary}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xs text-xs font-semibold text-ctp-text bg-white hover:bg-ctp-mantle border border-ctp-surface0 hover:border-ctp-surface1 transition-colors cursor-pointer shadow-2xs"
-            title="Open database of saved courses"
-          >
-            <svg className="w-3.5 h-3.5 text-ctp-mauve" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-            </svg>
-            <span className="hidden sm:inline">Library</span>
-            {savedCoursesCount !== undefined && savedCoursesCount > 0 && (
-              <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-none bg-ctp-mauve/15 text-ctp-mauve border border-ctp-mauve/25">
-                {savedCoursesCount}
-              </span>
-            )}
-          </button>
-        )}
+          <Divider orientation="vertical" h={16} display={{ base: 'none', lg: 'block' }} />
 
-        {onOpenGenerator ? (
-          <button
-            onClick={onOpenGenerator}
-            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xs text-xs font-semibold bg-ctp-mauve hover:bg-[#13382c] active:bg-[#0c241c] text-white transition-colors shadow-2xs cursor-pointer border border-ctp-mauve"
+          {/* Navigation Items */}
+          <Group 
+            component="nav" 
+            gap={4} 
+            h="100%" 
+            wrap="nowrap" 
+            display={{ base: 'none', md: 'flex' }}
+            style={{ overflowX: 'auto' }}
           >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            <span>New Course</span>
-          </button>
-        ) : (
-          <Link
-            to="/generator"
-            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xs text-xs font-semibold bg-ctp-mauve hover:bg-[#13382c] active:bg-[#0c241c] text-white transition-colors shadow-2xs border border-ctp-mauve"
-          >
-            <span>Course Studio</span>
-          </Link>
-        )}
-      </div>
-    </header>
+            {navItems.map((item) => {
+              const isActive = currentPath === item.path || (item.path !== '/' && currentPath.startsWith(item.path) && (item.path !== '/jobs' || currentPath === '/jobs'));
+              return (
+                <UnstyledButton
+                  key={item.path}
+                  component={Link}
+                  to={item.path}
+                  h="100%"
+                  px="sm"
+                  display="inline-flex"
+                  style={{
+                    alignItems: 'center',
+                    borderBottom: isActive ? '2px solid #1b4d3e' : '2px solid transparent',
+                    color: isActive ? '#1b4d3e' : 'var(--mantine-color-gray-6)',
+                    backgroundColor: isActive ? 'var(--mantine-color-gray-0)' : 'transparent',
+                    transition: 'background-color 0.2s',
+                  }}
+                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                    if (!isActive) e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-0)';
+                    if (!isActive) e.currentTarget.style.color = 'var(--mantine-color-dark-8)';
+                  }}
+                  onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                    if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
+                    if (!isActive) e.currentTarget.style.color = 'var(--mantine-color-gray-6)';
+                  }}
+                >
+                  <Group gap={6} wrap="nowrap">
+                    <Text size="xs" fw={isActive ? 700 : 500}>{item.label}</Text>
+                    {item.isWip && (
+                      <Badge 
+                        size="xs" 
+                        variant="light" 
+                        color="orange" 
+                        radius="sm"
+                        style={{ fontSize: 9, padding: '0 4px', height: 16 }}
+                      >
+                        WIP
+                      </Badge>
+                    )}
+                  </Group>
+                </UnstyledButton>
+              );
+            })}
+          </Group>
+        </Group>
+
+        {/* Right: Actions */}
+        <Group gap="sm" wrap="nowrap">
+          {onOpenLibrary && (
+            <Button
+              variant="default"
+              size="xs"
+              radius="sm"
+              leftSection={<IconDatabase size={14} color="#1b4d3e" />}
+              onClick={onOpenLibrary}
+              rightSection={
+                savedCoursesCount !== undefined && savedCoursesCount > 0 ? (
+                  <Badge size="xs" color="#1b4d3e" radius="sm" variant="light" h={18} px={4}>
+                    {savedCoursesCount}
+                  </Badge>
+                ) : undefined
+              }
+            >
+              Library
+            </Button>
+          )}
+
+          {onOpenGenerator ? (
+            <Button
+              size="xs"
+              radius="sm"
+              color="#1b4d3e"
+              onClick={onOpenGenerator}
+              leftSection={<IconPlus size={14} />}
+            >
+              New Course
+            </Button>
+          ) : (
+            <Button
+              component={Link}
+              to="/generator"
+              size="xs"
+              radius="sm"
+              color="#1b4d3e"
+            >
+              Course Studio
+            </Button>
+          )}
+        </Group>
+      </Group>
+    </Box>
   );
 }

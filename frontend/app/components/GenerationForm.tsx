@@ -1,4 +1,6 @@
 import React from 'react';
+import { Paper, TextInput, Select, NumberInput, Button, Stack, Grid, Text, Group } from '@mantine/core';
+import { IconSparkles } from '@tabler/icons-react';
 
 interface GenerationFormProps {
   onSubmit: (formData: FormData) => void;
@@ -12,120 +14,93 @@ export function GenerationForm({ onSubmit, isGenerating }: GenerationFormProps) 
   };
 
   return (
-    <div className="bg-white p-6 rounded-none border border-ctp-surface0 shadow-2xs text-ctp-text">
-      <h2 className="text-lg font-bold mb-4 text-ctp-text border-b border-ctp-surface0 pb-3 flex items-center space-x-2 uppercase">
-        <span className="text-ctp-mauve">✦</span>
-        <span>Course Configuration</span>
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
-            Course Title
-          </label>
-          <input
+    <Paper p="xl" shadow="sm" radius="sm" withBorder bg="white">
+      <Group mb="lg" pb="sm" style={{ borderBottom: '1px solid #eee' }}>
+        <IconSparkles size={20} color="#1b4d3e" />
+        <Text size="lg" fw={700} c="#1b4d3e">
+          Course Configuration
+        </Text>
+      </Group>
+
+      <form onSubmit={handleSubmit}>
+        <Stack gap="md">
+          <TextInput
             name="course_title"
-            type="text"
+            label="Course Title"
             required
             placeholder="e.g., Python Fundamentals"
             defaultValue="Python Fundamentals"
-            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve placeholder:text-ctp-overlay0"
           />
-        </div>
 
-        <div>
-          <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
-            Topic & Skills
-          </label>
-          <input
+          <TextInput
             name="topic"
-            type="text"
+            label="Topic & Skills"
             required
             placeholder="e.g., Python Programming"
             defaultValue="Python Programming"
-            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve placeholder:text-ctp-overlay0"
           />
-        </div>
 
-        <div>
-          <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
-            Difficulty
-          </label>
-          <select
+          <Select
             name="difficulty"
+            label="Difficulty"
             defaultValue="beginner"
-            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve cursor-pointer"
-          >
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-            <option value="expert">Expert</option>
-          </select>
-        </div>
+            data={[
+              { value: 'beginner', label: 'Beginner' },
+              { value: 'intermediate', label: 'Intermediate' },
+              { value: 'advanced', label: 'Advanced' },
+              { value: 'expert', label: 'Expert' },
+            ]}
+          />
 
-        <div>
-          <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
-            Target Audience
-          </label>
-          <input
+          <TextInput
             name="target_audience"
-            type="text"
+            label="Target Audience"
+            required
             placeholder="e.g., undergraduate students"
             defaultValue="undergraduate students"
-            required
-            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve placeholder:text-ctp-overlay0"
           />
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
-              Target Modules
-            </label>
-            <input
-              name="target_modules"
-              type="number"
-              min="1"
-              max="20"
-              defaultValue="6"
-              className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve font-mono"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
-              Videos / Module
-            </label>
-            <input
-              name="videos_per_module"
-              type="number"
-              min="1"
-              max="10"
-              defaultValue="3"
-              className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve font-mono"
-            />
-          </div>
-        </div>
+          <Grid>
+            <Grid.Col span={6}>
+              <NumberInput
+                name="target_modules"
+                label="Target Modules"
+                min={1}
+                max={20}
+                defaultValue={6}
+              />
+            </Grid.Col>
+            <Grid.Col span={6}>
+              <NumberInput
+                name="videos_per_module"
+                label="Videos / Module"
+                min={1}
+                max={10}
+                defaultValue={3}
+              />
+            </Grid.Col>
+          </Grid>
 
-        <div>
-          <label className="block text-xs font-mono font-bold text-ctp-subtext1 uppercase tracking-wider mb-1">
-            Target Duration (sec)
-          </label>
-          <input
+          <NumberInput
             name="target_duration_seconds"
-            type="number"
-            min="30"
-            defaultValue="600"
-            className="w-full px-3.5 py-2.5 bg-ctp-base/50 text-ctp-text text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve font-mono"
+            label="Target Duration (sec)"
+            min={30}
+            defaultValue={600}
           />
-        </div>
 
-        <button
-          type="submit"
-          disabled={isGenerating}
-          className="w-full mt-4 bg-ctp-mauve text-white py-2.5 px-4 rounded-none font-bold uppercase tracking-wider hover:bg-[#13382c] active:bg-[#0c241c] focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed transition-all shadow-2xs border border-ctp-mauve cursor-pointer"
-        >
-          {isGenerating ? "Generating Curriculum..." : "Generate AI Course"}
-        </button>
+          <Button
+            type="submit"
+            loading={isGenerating}
+            fullWidth
+            mt="md"
+            leftSection={<IconSparkles size={16} />}
+            style={{ backgroundColor: '#1b4d3e' }}
+            radius="sm"
+          >
+            {isGenerating ? "Generating Curriculum..." : "Generate AI Course"}
+          </Button>
+        </Stack>
       </form>
-    </div>
+    </Paper>
   );
 }

@@ -2,6 +2,23 @@ import React from 'react';
 import { Link } from 'react-router';
 import { PlatformHeader } from '../components/PlatformHeader';
 import { WipFeatureBanner } from '../components/WipFeatureBanner';
+import {
+  Box,
+  Container,
+  Paper,
+  Group,
+  Stack,
+  Text,
+  Title,
+  Grid,
+  SimpleGrid,
+  Divider,
+  Progress,
+  Anchor,
+  Badge,
+  Flex
+} from '@mantine/core';
+import { IconArrowRight } from '@tabler/icons-react';
 
 export default function AnalyticsRoute() {
   const weeklyStudyHours = [
@@ -17,10 +34,10 @@ export default function AnalyticsRoute() {
   const maxHours = Math.max(...weeklyStudyHours.map(d => d.hours));
 
   const skillDomains = [
-    { domain: 'AI & LLM Architecture', percentage: 78, color: 'bg-ctp-mauve' },
-    { domain: 'Backend Engineering & Systems', percentage: 92, color: 'bg-ctp-green' },
-    { domain: 'Vector Databases & Storage', percentage: 65, color: 'bg-ctp-teal' },
-    { domain: 'MLOps & Tracing', percentage: 48, color: 'bg-ctp-peach' }
+    { domain: 'AI & LLM Architecture', percentage: 78, color: 'grape' },
+    { domain: 'Backend Engineering & Systems', percentage: 92, color: 'green' },
+    { domain: 'Vector Databases & Storage', percentage: 65, color: 'teal' },
+    { domain: 'MLOps & Tracing', percentage: 48, color: 'orange' }
   ];
 
   const recentMilestones = [
@@ -31,150 +48,198 @@ export default function AnalyticsRoute() {
   ];
 
   return (
-    <div className="min-h-screen bg-ctp-base flex flex-col font-sans text-ctp-text antialiased">
+    <Box style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-[1720px] mx-auto p-4 sm:p-6 lg:p-10 space-y-6">
-        <WipFeatureBanner
-          title="Talent Analytics & Telemetry Dashboard"
-          category="Telemetry & Growth"
-          description="Real-time telemetry tracking your educational velocity, competency acquisition curves, market readiness indices, and verified assessment milestones."
-          plannedServices={[
-            "Learning Velocity Aggregator",
-            "Skill Graph Vectorizer",
-            "Market Readiness Predictor",
-            "Telemetry Time-Series Service"
-          ]}
-        />
+      <Container size="xl" py="xl">
+        <Stack gap="xl">
+          <WipFeatureBanner
+            title="Talent Analytics & Telemetry Dashboard"
+            category="Telemetry & Growth"
+            description="Real-time telemetry tracking your educational velocity, competency acquisition curves, market readiness indices, and verified assessment milestones."
+            plannedServices={[
+              "Learning Velocity Aggregator",
+              "Skill Graph Vectorizer",
+              "Market Readiness Predictor",
+              "Telemetry Time-Series Service"
+            ]}
+          />
 
-        {/* Top 4 KPI Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-1">
-            <span className="text-[10px] font-mono uppercase font-bold text-ctp-subtext0 block">Learning Velocity</span>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold font-mono text-ctp-mauve">22.0h</span>
-              <span className="text-xs font-mono font-bold text-ctp-green">+18% vs last week</span>
-            </div>
-            <span className="text-[10px] font-mono text-ctp-subtext0 block uppercase">7 study sessions recorded</span>
-          </div>
+          {/* Top 4 KPI Metrics Grid */}
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
+            <Paper shadow="sm" p="lg" withBorder radius="sm">
+              <Stack gap="xs">
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase">Learning Velocity</Text>
+                <Group align="baseline" gap="xs">
+                  <Text size="xl" fw={700} c="#1b4d3e" style={{ fontSize: 24 }}>22.0h</Text>
+                  <Text size="sm" fw={700} c="green.7">+18% vs last week</Text>
+                </Group>
+                <Text size="xs" c="dimmed" tt="uppercase">7 study sessions recorded</Text>
+              </Stack>
+            </Paper>
 
-          <div className="p-5 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-1">
-            <span className="text-[10px] font-mono uppercase font-bold text-ctp-subtext0 block">Acquired Skills</span>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold font-mono text-ctp-sapphire">18 Skills</span>
-              <span className="text-xs font-mono font-bold text-ctp-green">+4 new this month</span>
-            </div>
-            <span className="text-[10px] font-mono text-ctp-subtext0 block uppercase">100% verified by benchmarks</span>
-          </div>
+            <Paper shadow="sm" p="lg" withBorder radius="sm">
+              <Stack gap="xs">
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase">Acquired Skills</Text>
+                <Group align="baseline" gap="xs">
+                  <Text size="xl" fw={700} c="blue.7" style={{ fontSize: 24 }}>18 Skills</Text>
+                  <Text size="sm" fw={700} c="green.7">+4 new this month</Text>
+                </Group>
+                <Text size="xs" c="dimmed" tt="uppercase">100% verified by benchmarks</Text>
+              </Stack>
+            </Paper>
 
-          <div className="p-5 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-1">
-            <span className="text-[10px] font-mono uppercase font-bold text-ctp-subtext0 block">Market Readiness Index</span>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold font-mono text-ctp-teal">92%</span>
-              <span className="text-xs font-mono font-bold text-ctp-green">Top Tier Fit</span>
-            </div>
-            <span className="text-[10px] font-mono text-ctp-subtext0 block uppercase">Target: Senior AI Systems Eng</span>
-          </div>
+            <Paper shadow="sm" p="lg" withBorder radius="sm">
+              <Stack gap="xs">
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase">Market Readiness Index</Text>
+                <Group align="baseline" gap="xs">
+                  <Text size="xl" fw={700} c="teal.7" style={{ fontSize: 24 }}>92%</Text>
+                  <Text size="sm" fw={700} c="green.7">Top Tier Fit</Text>
+                </Group>
+                <Text size="xs" c="dimmed" tt="uppercase">Target: Senior AI Systems Eng</Text>
+              </Stack>
+            </Paper>
 
-          <div className="p-5 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-1">
-            <span className="text-[10px] font-mono uppercase font-bold text-ctp-subtext0 block">Courses Synthesized</span>
-            <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold font-mono text-ctp-peach">10 Tracks</span>
-              <span className="text-xs font-mono text-ctp-subtext0">in database</span>
-            </div>
-            <span className="text-[10px] font-mono text-ctp-subtext0 block uppercase">Saved in careerforge.db</span>
-          </div>
-        </div>
+            <Paper shadow="sm" p="lg" withBorder radius="sm">
+              <Stack gap="xs">
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase">Courses Synthesized</Text>
+                <Group align="baseline" gap="xs">
+                  <Text size="xl" fw={700} c="orange.7" style={{ fontSize: 24 }}>10 Tracks</Text>
+                  <Text size="sm" c="dimmed">in database</Text>
+                </Group>
+                <Text size="xs" c="dimmed" tt="uppercase">Saved in careerforge.db</Text>
+              </Stack>
+            </Paper>
+          </SimpleGrid>
 
-        {/* Charts & Analytics Visual Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left: Weekly Study Distribution (Visual Chart) */}
-          <div className="lg:col-span-7 p-6 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-5">
-            <div className="flex items-center justify-between border-b border-ctp-surface0 pb-3">
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-ctp-text uppercase">Weekly Study Hours Distribution</h3>
-                <p className="text-xs text-ctp-subtext0 mt-0.5">Hours spent watching synthesized lectures and completing modules.</p>
-              </div>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-none bg-ctp-mantle border border-ctp-surface0 text-ctp-subtext0 uppercase">
-                Last 7 Days
-              </span>
-            </div>
+          {/* Charts & Analytics Visual Grid */}
+          <Grid>
+            {/* Left: Weekly Study Distribution (Visual Chart) */}
+            <Grid.Col span={{ base: 12, lg: 7 }}>
+              <Paper shadow="sm" p="xl" withBorder radius="sm" style={{ height: '100%' }}>
+                <Stack gap="lg" style={{ height: '100%' }}>
+                  <Group justify="space-between" align="flex-start">
+                    <Box>
+                      <Title order={5} tt="uppercase">Weekly Study Hours Distribution</Title>
+                      <Text size="sm" c="dimmed" mt={4}>
+                        Hours spent watching synthesized lectures and completing modules.
+                      </Text>
+                    </Box>
+                    <Badge variant="light" color="gray" radius="sm">
+                      Last 7 Days
+                    </Badge>
+                  </Group>
+                  
+                  <Divider />
 
-            {/* Custom Bar Graph */}
-            <div className="h-48 flex items-end justify-between gap-3 pt-6 px-2 border-b border-ctp-surface0 pb-2">
-              {weeklyStudyHours.map((item) => {
-                const heightPercent = Math.round((item.hours / maxHours) * 100);
-                return (
-                  <div key={item.day} className="flex-1 flex flex-col items-center gap-2 group">
-                    <span className="text-[10px] font-mono font-bold text-ctp-subtext0 group-hover:text-ctp-mauve transition-colors">
-                      {item.hours}h
-                    </span>
-                    <div className="w-full bg-ctp-base/80 rounded-none h-36 flex items-end p-1 border border-ctp-surface0">
-                      <div
-                        className="w-full bg-ctp-mauve rounded-none transition-all duration-500 group-hover:bg-[#13382c]"
-                        style={{ height: `${heightPercent}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-mono font-bold text-ctp-subtext0 uppercase">{item.day}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                  <Flex align="flex-end" justify="space-between" gap="md" style={{ height: 200 }} pt="md">
+                    {weeklyStudyHours.map((item) => {
+                      const heightPercent = Math.round((item.hours / maxHours) * 100);
+                      return (
+                        <Stack key={item.day} gap="sm" align="center" style={{ flex: 1 }}>
+                          <Text size="xs" fw={700} c="dimmed">{item.hours}h</Text>
+                          <Box
+                            w="100%"
+                            h={140}
+                            bg="gray.1"
+                            style={{
+                              borderRadius: 4,
+                              display: 'flex',
+                              alignItems: 'flex-end',
+                              padding: 4,
+                              border: '1px solid #e9ecef'
+                            }}
+                          >
+                            <Box
+                              w="100%"
+                              bg="#1b4d3e"
+                              style={{
+                                height: `${heightPercent}%`,
+                                borderRadius: 2,
+                                transition: 'height 0.5s ease'
+                              }}
+                            />
+                          </Box>
+                          <Text size="xs" fw={700} c="dimmed" tt="uppercase">{item.day}</Text>
+                        </Stack>
+                      );
+                    })}
+                  </Flex>
+                </Stack>
+              </Paper>
+            </Grid.Col>
 
-          {/* Right: Domain Distribution & Skill Balance */}
-          <div className="lg:col-span-5 p-6 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-5">
-            <div className="border-b border-ctp-surface0 pb-3">
-              <h3 className="text-sm sm:text-base font-bold text-ctp-text uppercase">Domain Competency Balance</h3>
-              <p className="text-xs text-ctp-subtext0 mt-0.5">Knowledge distribution across technical disciplines.</p>
-            </div>
+            {/* Right: Domain Distribution & Skill Balance */}
+            <Grid.Col span={{ base: 12, lg: 5 }}>
+              <Paper shadow="sm" p="xl" withBorder radius="sm" style={{ height: '100%' }}>
+                <Stack gap="lg">
+                  <Box>
+                    <Title order={5} tt="uppercase">Domain Competency Balance</Title>
+                    <Text size="sm" c="dimmed" mt={4}>
+                      Knowledge distribution across technical disciplines.
+                    </Text>
+                  </Box>
+                  
+                  <Divider />
 
-            <div className="space-y-4">
-              {skillDomains.map((domain) => (
-                <div key={domain.domain} className="space-y-1.5">
-                  <div className="flex justify-between text-xs font-mono">
-                    <span className="font-bold text-ctp-text uppercase">{domain.domain}</span>
-                    <span className="font-bold text-ctp-subtext0">{domain.percentage}%</span>
-                  </div>
-                  <div className="w-full bg-ctp-surface0 rounded-none h-1.5 overflow-hidden">
-                    <div
-                      className={`h-1.5 rounded-none ${domain.color}`}
-                      style={{ width: `${domain.percentage}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+                  <Stack gap="md">
+                    {skillDomains.map((domain) => (
+                      <Box key={domain.domain}>
+                        <Group justify="space-between" mb={8}>
+                          <Text size="sm" fw={700} tt="uppercase">{domain.domain}</Text>
+                          <Text size="sm" fw={700} c="dimmed">{domain.percentage}%</Text>
+                        </Group>
+                        <Progress 
+                          value={domain.percentage} 
+                          color={domain.color} 
+                          size="md" 
+                          radius="sm" 
+                        />
+                      </Box>
+                    ))}
+                  </Stack>
+                </Stack>
+              </Paper>
+            </Grid.Col>
+          </Grid>
 
-        {/* Recent Platform Milestones Feed */}
-        <div className="p-6 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between border-b border-ctp-surface0 pb-3">
-            <h3 className="text-sm sm:text-base font-bold text-ctp-text uppercase">Recent Milestone Timeline</h3>
-            <Link to="/generator" className="text-xs font-bold text-ctp-mauve hover:underline uppercase">
-              Synthesize New Module →
-            </Link>
-          </div>
+          {/* Recent Platform Milestones Feed */}
+          <Paper shadow="sm" p="xl" withBorder radius="sm">
+            <Stack gap="lg">
+              <Group justify="space-between" align="center">
+                <Title order={5} tt="uppercase">Recent Milestone Timeline</Title>
+                <Anchor component={Link} to="/generator" color="#1b4d3e" fw={700} size="sm">
+                  <Group gap="xs">
+                    Synthesize New Module <IconArrowRight size={16} />
+                  </Group>
+                </Anchor>
+              </Group>
 
-          <div className="divide-y divide-ctp-surface0">
-            {recentMilestones.map((item, idx) => (
-              <div key={idx} className="py-3.5 flex items-center justify-between gap-3 text-xs font-mono">
-                <div className="flex items-center space-x-3 min-w-0">
-                  <div className="w-2 h-2 rounded-none bg-ctp-mauve shrink-0" />
-                  <span className="font-bold text-ctp-text truncate uppercase">{item.title}</span>
-                </div>
-                <div className="flex items-center space-x-3 shrink-0 text-ctp-subtext0">
-                  <span className="px-1.5 py-0.2 rounded-none bg-ctp-base border border-ctp-surface0 text-[10px] font-bold uppercase">
-                    {item.category}
-                  </span>
-                  <span>{item.date}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-    </div>
+              <Divider />
+
+              <Stack gap={0} style={{ divideY: '1px solid #e9ecef' }}>
+                {recentMilestones.map((item, idx) => (
+                  <Box key={idx} py="md" style={{ borderBottom: idx < recentMilestones.length - 1 ? '1px solid #e9ecef' : 'none' }}>
+                    <Group justify="space-between" wrap="nowrap">
+                      <Group gap="sm">
+                        <Box w={8} h={8} bg="#1b4d3e" style={{ borderRadius: '50%' }} />
+                        <Text size="sm" fw={700} tt="uppercase" truncate>{item.title}</Text>
+                      </Group>
+                      
+                      <Group gap="xs">
+                        <Badge variant="outline" color="gray" size="sm" radius="sm">
+                          {item.category}
+                        </Badge>
+                        <Text size="sm" c="dimmed">{item.date}</Text>
+                      </Group>
+                    </Group>
+                  </Box>
+                ))}
+              </Stack>
+            </Stack>
+          </Paper>
+        </Stack>
+      </Container>
+    </Box>
   );
 }

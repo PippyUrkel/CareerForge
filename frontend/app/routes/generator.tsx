@@ -332,7 +332,7 @@ export default function GeneratorPage() {
         onOpenLibrary={() => setIsLibraryOpen(true)}
         savedCoursesCount={savedCourses.length}
         mainContent={
-          <div className="flex-1 flex flex-col w-full">
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%' }}>
             {/* Top Video Streaming Canvas */}
             <VideoPlayer 
               video={activeVideo} 
@@ -384,5 +384,3 @@ export default function GeneratorPage() {
     </>
   );
 }
-
-

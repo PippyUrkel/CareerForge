@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Modal, TextInput, Select, NumberInput, Button, Group, Stack, Text, ThemeIcon, Divider, SegmentedControl, Grid, Paper, Box } from '@mantine/core';
+import { IconStar, IconX } from '@tabler/icons-react';
 import { GenerationPipeline } from './GenerationPipeline';
 
 export interface GenerationModalProps {
@@ -18,22 +20,22 @@ export function GenerationModal({
   const [topic, setTopic] = useState('Python Programming');
   const [difficulty, setDifficulty] = useState('beginner');
   const [targetAudience, setTargetAudience] = useState('undergraduate students');
-  const [targetModules, setTargetModules] = useState(6);
-  const [videosPerModule, setVideosPerModule] = useState(3);
-  const [durationSeconds, setDurationSeconds] = useState(600);
+  const [targetModules, setTargetModules] = useState<number | string>(6);
+  const [videosPerModule, setVideosPerModule] = useState<number | string>(3);
+  const [durationSeconds, setDurationSeconds] = useState<number | string>(600);
+  const [preset, setPreset] = useState<string>('standard');
 
-  if (!isOpen) return null;
-
-  const applyPreset = (preset: 'crash' | 'standard' | 'deep') => {
-    if (preset === 'crash') {
+  const applyPreset = (val: string) => {
+    setPreset(val);
+    if (val === 'crash') {
       setTargetModules(3);
       setVideosPerModule(2);
       setDurationSeconds(300);
-    } else if (preset === 'standard') {
+    } else if (val === 'standard') {
       setTargetModules(6);
       setVideosPerModule(3);
       setDurationSeconds(600);
-    } else if (preset === 'deep') {
+    } else if (val === 'deep') {
       setTargetModules(9);
       setVideosPerModule(4);
       setDurationSeconds(900);
@@ -42,214 +44,183 @@ export function GenerationModal({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit(new FormData(e.currentTarget));
+    const formData = new FormData();
+    formData.append('course_title', courseTitle);
+    formData.append('topic', topic);
+    formData.append('difficulty', difficulty);
+    formData.append('target_audience', targetAudience);
+    formData.append('target_modules', targetModules.toString());
+    formData.append('videos_per_module', videosPerModule.toString());
+    formData.append('target_duration_seconds', durationSeconds.toString());
+    onSubmit(formData);
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-ctp-text/35 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fadeIn">
-      <div className="relative w-full max-w-lg bg-white rounded-none shadow-xl overflow-hidden border border-ctp-surface0">
-        {/* If generating, display the pipeline view */}
-        {isGenerating ? (
-          <div className="bg-white">
-            <GenerationPipeline />
-          </div>
-        ) : (
-          <div className="p-6">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-ctp-surface0">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-none bg-ctp-mauve text-white border border-ctp-mauve flex items-center justify-center">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-ctp-text uppercase">
-                    AI Curriculum Generator
-                  </h3>
-                  <p className="text-xs text-ctp-subtext0">
-                    Define course taxonomy and video sourcing constraints
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-ctp-subtext0 hover:text-ctp-text p-1.5 rounded-none hover:bg-ctp-mantle transition-colors cursor-pointer"
-                aria-label="Close modal"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-
-            {/* Quick Presets */}
-            <div className="mb-4 p-2.5 bg-ctp-base/50 rounded-none border border-ctp-surface0 flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase text-ctp-subtext0">Scope Presets:</span>
-              <div className="flex space-x-1.5 text-[10px] font-mono">
-                <button
-                  type="button"
-                  onClick={() => applyPreset('crash')}
-                  className={`px-2 py-0.5 rounded-none font-bold uppercase transition-colors cursor-pointer border ${
-                    targetModules === 3 ? 'bg-ctp-mauve text-white border-ctp-mauve shadow-2xs' : 'bg-white border border-ctp-surface0 text-ctp-subtext1 hover:border-ctp-surface1'
-                  }`}
-                >
-                  Quick (3 Mod)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyPreset('standard')}
-                  className={`px-2 py-0.5 rounded-none font-bold uppercase transition-colors cursor-pointer border ${
-                    targetModules === 6 ? 'bg-ctp-mauve text-white border-ctp-mauve shadow-2xs' : 'bg-white border border-ctp-surface0 text-ctp-subtext1 hover:border-ctp-surface1'
-                  }`}
-                >
-                  Standard (6 Mod)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyPreset('deep')}
-                  className={`px-2 py-0.5 rounded-none font-bold uppercase transition-colors cursor-pointer border ${
-                    targetModules === 9 ? 'bg-ctp-mauve text-white border-ctp-mauve shadow-2xs' : 'bg-white border border-ctp-surface0 text-ctp-subtext1 hover:border-ctp-surface1'
-                  }`}
-                >
-                  Masterclass (9 Mod)
-                </button>
-              </div>
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-3.5">
+    <Modal
+      opened={isOpen}
+      onClose={onClose}
+      withCloseButton={false}
+      padding={0}
+      size="lg"
+      radius="sm"
+    >
+      {isGenerating ? (
+        <GenerationPipeline />
+      ) : (
+        <Box p="md">
+          {/* Header */}
+          <Group justify="space-between" align="flex-start" mb="md">
+            <Group gap="sm">
+              <ThemeIcon size="lg" radius="sm" color="#1b4d3e">
+                <IconStar size={20} />
+              </ThemeIcon>
               <div>
-                <label className="block text-xs font-mono font-bold uppercase text-ctp-subtext1 mb-1">
-                  Course Title
-                </label>
-                <input
-                  name="course_title"
-                  type="text"
-                  required
-                  value={courseTitle}
-                  onChange={(e) => setCourseTitle(e.target.value)}
-                  placeholder="e.g., Python Fundamentals"
-                  className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve transition-colors placeholder:text-ctp-overlay0"
-                />
+                <Text fw={700} tt="uppercase" size="sm">
+                  AI Curriculum Generator
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Define course taxonomy and video sourcing constraints
+                </Text>
               </div>
+            </Group>
+            <Button
+              variant="subtle"
+              color="gray"
+              px={8}
+              onClick={onClose}
+              aria-label="Close modal"
+            >
+              <IconX size={20} />
+            </Button>
+          </Group>
 
-              <div>
-                <label className="block text-xs font-mono font-bold uppercase text-ctp-subtext1 mb-1">
-                  Topic & Domain Area
-                </label>
-                <input
-                  name="topic"
-                  type="text"
-                  required
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  placeholder="e.g., Python Programming"
-                  className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve transition-colors placeholder:text-ctp-overlay0"
-                />
-              </div>
+          <Divider mb="md" />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-mono font-bold uppercase text-ctp-subtext1 mb-1">
-                    Difficulty Level
-                  </label>
-                  <select
+          {/* Quick Presets */}
+          <Paper withBorder p="sm" radius="sm" mb="md" bg="gray.0">
+            <Group justify="space-between">
+              <Text size="xs" fw={700} tt="uppercase" c="dimmed" ff="monospace">
+                Scope Presets:
+              </Text>
+              <SegmentedControl
+                size="xs"
+                radius="sm"
+                value={preset}
+                onChange={applyPreset}
+                data={[
+                  { label: 'Quick (3 Mod)', value: 'crash' },
+                  { label: 'Standard (6 Mod)', value: 'standard' },
+                  { label: 'Masterclass (9 Mod)', value: 'deep' }
+                ]}
+                color="#1b4d3e"
+              />
+            </Group>
+          </Paper>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit}>
+            <Stack gap="sm">
+              <TextInput
+                label={<Text size="xs" fw={700} tt="uppercase" c="dimmed" mb={4}>Course Title</Text>}
+                name="course_title"
+                required
+                value={courseTitle}
+                onChange={(e) => setCourseTitle(e.currentTarget.value)}
+                placeholder="e.g., Python Fundamentals"
+                radius="sm"
+              />
+
+              <TextInput
+                label={<Text size="xs" fw={700} tt="uppercase" c="dimmed" mb={4}>Topic & Domain Area</Text>}
+                name="topic"
+                required
+                value={topic}
+                onChange={(e) => setTopic(e.currentTarget.value)}
+                placeholder="e.g., Python Programming"
+                radius="sm"
+              />
+
+              <Grid>
+                <Grid.Col span={{ base: 12, sm: 6 }}>
+                  <Select
+                    label={<Text size="xs" fw={700} tt="uppercase" c="dimmed" mb={4}>Difficulty Level</Text>}
                     name="difficulty"
                     value={difficulty}
-                    onChange={(e) => setDifficulty(e.target.value)}
-                    className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve transition-colors cursor-pointer"
-                  >
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
-                    <option value="expert">Expert</option>
-                  </select>
-                </div>
+                    onChange={(val) => setDifficulty(val || 'beginner')}
+                    data={[
+                      { value: 'beginner', label: 'Beginner' },
+                      { value: 'intermediate', label: 'Intermediate' },
+                      { value: 'advanced', label: 'Advanced' },
+                      { value: 'expert', label: 'Expert' }
+                    ]}
+                    radius="sm"
+                  />
+                </Grid.Col>
 
-                <div>
-                  <label className="block text-xs font-mono font-bold uppercase text-ctp-subtext1 mb-1">
-                    Target Audience
-                  </label>
-                  <input
+                <Grid.Col span={{ base: 12, sm: 6 }}>
+                  <TextInput
+                    label={<Text size="xs" fw={700} tt="uppercase" c="dimmed" mb={4}>Target Audience</Text>}
                     name="target_audience"
-                    type="text"
                     required
                     value={targetAudience}
-                    onChange={(e) => setTargetAudience(e.target.value)}
+                    onChange={(e) => setTargetAudience(e.currentTarget.value)}
                     placeholder="e.g., undergraduate students"
-                    className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve transition-colors placeholder:text-ctp-overlay0"
+                    radius="sm"
                   />
-                </div>
-              </div>
+                </Grid.Col>
+              </Grid>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-mono font-bold uppercase text-ctp-subtext1 mb-1">
-                    Modules Count
-                  </label>
-                  <input
+              <Grid>
+                <Grid.Col span={{ base: 12, sm: 4 }}>
+                  <NumberInput
+                    label={<Text size="xs" fw={700} tt="uppercase" c="dimmed" mb={4}>Modules Count</Text>}
                     name="target_modules"
-                    type="number"
-                    min="1"
-                    max="20"
+                    min={1}
+                    max={20}
                     value={targetModules}
-                    onChange={(e) => setTargetModules(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve transition-colors font-mono"
+                    onChange={(val) => setTargetModules(val)}
+                    radius="sm"
                   />
-                </div>
+                </Grid.Col>
 
-                <div>
-                  <label className="block text-xs font-mono font-bold uppercase text-ctp-subtext1 mb-1">
-                    Videos / Module
-                  </label>
-                  <input
+                <Grid.Col span={{ base: 12, sm: 4 }}>
+                  <NumberInput
+                    label={<Text size="xs" fw={700} tt="uppercase" c="dimmed" mb={4}>Videos / Module</Text>}
                     name="videos_per_module"
-                    type="number"
-                    min="1"
-                    max="10"
+                    min={1}
+                    max={10}
                     value={videosPerModule}
-                    onChange={(e) => setVideosPerModule(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve transition-colors font-mono"
+                    onChange={(val) => setVideosPerModule(val)}
+                    radius="sm"
                   />
-                </div>
+                </Grid.Col>
 
-                <div>
-                  <label className="block text-xs font-mono font-bold uppercase text-ctp-subtext1 mb-1">
-                    Duration (s)
-                  </label>
-                  <input
+                <Grid.Col span={{ base: 12, sm: 4 }}>
+                  <NumberInput
+                    label={<Text size="xs" fw={700} tt="uppercase" c="dimmed" mb={4}>Duration (s)</Text>}
                     name="target_duration_seconds"
-                    type="number"
-                    min="30"
+                    min={30}
                     value={durationSeconds}
-                    onChange={(e) => setDurationSeconds(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-ctp-base/40 text-ctp-text text-xs sm:text-sm border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve transition-colors font-mono"
+                    onChange={(val) => setDurationSeconds(val)}
+                    radius="sm"
                   />
-                </div>
-              </div>
+                </Grid.Col>
+              </Grid>
+            </Stack>
 
-              <div className="pt-4 flex items-center justify-end space-x-2.5 border-t border-ctp-surface0">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-3.5 py-1.5 text-xs font-mono font-bold uppercase text-ctp-subtext0 hover:text-ctp-text hover:bg-ctp-mantle rounded-none transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] active:bg-[#0c241c] rounded-none shadow-2xs transition-colors cursor-pointer flex items-center space-x-1.5 border border-ctp-mauve"
-                >
-                  <span>Generate Curriculum</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-      </div>
-    </div>
+            <Divider my="md" />
+
+            <Group justify="flex-end" gap="sm">
+              <Button variant="subtle" color="gray" onClick={onClose} radius="sm">
+                <Text size="xs" fw={700} tt="uppercase">Cancel</Text>
+              </Button>
+              <Button type="submit" color="#1b4d3e" radius="sm">
+                <Text size="xs" fw={700} tt="uppercase">Generate Curriculum</Text>
+              </Button>
+            </Group>
+          </form>
+        </Box>
+      )}
+    </Modal>
   );
 }

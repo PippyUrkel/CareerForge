@@ -2,6 +2,22 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { PlatformHeader } from '../components/PlatformHeader';
 import { WipFeatureBanner } from '../components/WipFeatureBanner';
+import {
+  Box,
+  Container,
+  Paper,
+  Group,
+  Stack,
+  Text,
+  Title,
+  Badge,
+  Button,
+  Grid,
+  Divider,
+  Progress,
+  Flex
+} from '@mantine/core';
+import { IconCheck, IconArrowRight, IconAlertCircle } from '@tabler/icons-react';
 
 export interface RankedJobMatch {
   id: string;
@@ -70,174 +86,228 @@ export default function JobMatchingRoute() {
   const activeJob = rankedJobs.find(j => j.id === selectedJobId) || rankedJobs[0];
 
   return (
-    <div className="min-h-screen bg-ctp-base flex flex-col font-sans text-ctp-text antialiased">
+    <Box style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-[1720px] mx-auto p-4 sm:p-6 lg:p-10 space-y-6">
-        <WipFeatureBanner
-          title="AI Job Matching & Multi-Signal Ranking"
-          category="Semantic Matching"
-          description="Performs dense vector cosine matching, cross-encoder re-ranking, and qualification overlap analysis between your verified competencies and aggregated job postings."
-          plannedServices={[
-            "Candidate Vector Projector",
-            "Multi-Signal Job Ranker",
-            "Cross-Encoder Re-scoring Model",
-            "Targeted Course Bridge"
-          ]}
-        />
+      <Container size="xl" py="xl">
+        <Stack gap="xl">
+          <WipFeatureBanner
+            title="AI Job Matching & Multi-Signal Ranking"
+            category="Semantic Matching"
+            description="Performs dense vector cosine matching, cross-encoder re-ranking, and qualification overlap analysis between your verified competencies and aggregated job postings."
+            plannedServices={[
+              "Candidate Vector Projector",
+              "Multi-Signal Job Ranker",
+              "Cross-Encoder Re-scoring Model",
+              "Targeted Course Bridge"
+            ]}
+          />
 
-        {/* Top Summary Bar */}
-        <div className="bg-white p-5 rounded-none border border-ctp-surface0 shadow-2xs flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-none bg-ctp-mauve text-white flex items-center justify-center font-mono font-bold text-sm shadow-2xs border border-ctp-mauve">
-              94%
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-ctp-text uppercase">
-                Top Candidate Match Score
-              </h3>
-              <p className="text-xs text-ctp-subtext0">
-                Calculated against 1,240 live tech job descriptions across 4 aggregated sources.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Link
-              to="/skills"
-              className="px-3.5 py-1.5 text-xs font-mono font-bold uppercase text-ctp-text bg-ctp-base hover:bg-ctp-mantle border border-ctp-surface0 rounded-none transition-colors"
-            >
-              View Skill Gap Matrix
-            </Link>
-          </div>
-        </div>
-
-        {/* Two-Column Layout: Left (Ranked Job Cards) + Right (Score Breakdown & Gap Closer) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left: Ranked Job Cards */}
-          <div className="lg:col-span-7 space-y-3.5">
-            <div className="flex items-center justify-between text-xs text-ctp-subtext0 font-mono border-b border-ctp-surface0 pb-2">
-              <span className="font-bold text-ctp-text uppercase">Ranked Listings ({rankedJobs.length})</span>
-              <span className="uppercase">Sorted by Dense Cosine Fit</span>
-            </div>
-
-            {rankedJobs.map((job) => {
-              const isSelected = job.id === selectedJobId;
-              return (
-                <div
-                  key={job.id}
-                  onClick={() => setSelectedJobId(job.id)}
-                  className={`p-5 rounded-none border transition-all cursor-pointer space-y-3 ${
-                    isSelected
-                      ? 'bg-white border-l-4 border-l-ctp-mauve border-y border-r border-ctp-mauve shadow-2xs'
-                      : 'bg-white border border-ctp-surface0 hover:border-ctp-surface1 shadow-2xs'
-                  }`}
+          <Paper shadow="sm" p="lg" withBorder radius="sm">
+            <Group justify="space-between" align="center">
+              <Group>
+                <Flex
+                  align="center"
+                  justify="center"
+                  w={40}
+                  h={40}
+                  bg="#1b4d3e"
+                  c="white"
+                  style={{ borderRadius: 4, fontWeight: 700 }}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <span className="text-xs font-mono font-bold text-ctp-mauve uppercase">{job.company}</span>
-                      <h4 className="text-sm sm:text-base font-bold text-ctp-text mt-0.5 uppercase">
-                        {job.title}
-                      </h4>
-                      <p className="text-xs font-mono text-ctp-subtext0 mt-0.5">{job.location} • {job.source}</p>
-                    </div>
+                  94%
+                </Flex>
+                <Box>
+                  <Title order={5} tt="uppercase">
+                    Top Candidate Match Score
+                  </Title>
+                  <Text size="sm" c="dimmed">
+                    Calculated against 1,240 live tech job descriptions across 4 aggregated sources.
+                  </Text>
+                </Box>
+              </Group>
 
-                    <div className="text-right shrink-0">
-                      <span className="text-base sm:text-lg font-extrabold font-mono text-ctp-mauve block">
-                        {job.matchScore}%
-                      </span>
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-ctp-green block">
-                        Strong Fit
-                      </span>
-                    </div>
-                  </div>
+              <Button
+                component={Link}
+                to="/skills"
+                variant="default"
+                radius="sm"
+                tt="uppercase"
+              >
+                View Skill Gap Matrix
+              </Button>
+            </Group>
+          </Paper>
 
-                  <div className="pt-2 border-t border-ctp-surface0 flex items-center justify-between text-xs font-mono">
-                    <span className="font-bold text-ctp-green">{job.salary}</span>
-                    <span className="text-[10px] text-ctp-subtext0 uppercase">
-                      {job.missingKeywords.length === 0 ? 'All skills matched' : `${job.missingKeywords.length} gap identified`}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <Grid>
+            {/* Left: Ranked Job Cards */}
+            <Grid.Col span={{ base: 12, lg: 7 }}>
+              <Stack gap="md">
+                <Group justify="space-between" pb="xs">
+                  <Text size="sm" fw={700} tt="uppercase">
+                    Ranked Listings ({rankedJobs.length})
+                  </Text>
+                  <Text size="sm" c="dimmed" tt="uppercase">
+                    Sorted by Dense Cosine Fit
+                  </Text>
+                </Group>
+                <Divider />
 
-          {/* Right: Detailed Match Deconstruction & Course Bridge */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="p-6 bg-white rounded-none border border-ctp-surface0 shadow-2xs space-y-4 sticky top-20">
-              <div className="flex items-center justify-between pb-3 border-b border-ctp-surface0">
-                <div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-ctp-subtext0 block">
-                    Match Decomposition
-                  </span>
-                  <h3 className="text-sm font-bold text-ctp-text uppercase">
-                    {activeJob.title}
-                  </h3>
-                </div>
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-none bg-ctp-mauve/15 text-ctp-mauve border border-ctp-mauve/25 uppercase">
-                  {activeJob.matchScore}% Fit
-                </span>
-              </div>
+                {rankedJobs.map((job) => {
+                  const isSelected = job.id === selectedJobId;
+                  return (
+                    <Paper
+                      key={job.id}
+                      p="lg"
+                      shadow={isSelected ? 'md' : 'sm'}
+                      withBorder
+                      radius="sm"
+                      style={{
+                        cursor: 'pointer',
+                        borderColor: isSelected ? '#1b4d3e' : undefined,
+                        borderLeftWidth: isSelected ? 4 : 1,
+                        transition: 'all 0.2s ease',
+                      }}
+                      onClick={() => setSelectedJobId(job.id)}
+                    >
+                      <Stack gap="md">
+                        <Group justify="space-between" align="flex-start" wrap="nowrap">
+                          <Box>
+                            <Text size="sm" fw={700} color="#1b4d3e" tt="uppercase">
+                              {job.company}
+                            </Text>
+                            <Title order={5} mt={4}>{job.title}</Title>
+                            <Text size="sm" c="dimmed" mt={4}>
+                              {job.location} • {job.source}
+                            </Text>
+                          </Box>
+                          
+                          <Stack gap={0} align="flex-end">
+                            <Text size="xl" fw={800} color="#1b4d3e">
+                              {job.matchScore}%
+                            </Text>
+                            <Text size="xs" fw={700} c="green.8" tt="uppercase">
+                              Strong Fit
+                            </Text>
+                          </Stack>
+                        </Group>
 
-              {/* Multi-Signal Breakdown Metrics */}
-              <div className="space-y-2 text-xs font-mono">
-                <div className="flex justify-between items-center text-ctp-subtext0">
-                  <span className="uppercase">Dense Semantic Cosine Similarity</span>
-                  <strong className="text-ctp-text">{Math.round(activeJob.cosineSimilarity * 100)}%</strong>
-                </div>
-                <div className="flex justify-between items-center text-ctp-subtext0">
-                  <span className="uppercase">Keyword & Skill Intersect</span>
-                  <strong className="text-ctp-text">{Math.round(activeJob.keywordScore * 100)}%</strong>
-                </div>
-                <div className="flex justify-between items-center text-ctp-subtext0">
-                  <span className="uppercase">Seniority & Domain Experience</span>
-                  <strong className="text-ctp-text">{Math.round(activeJob.experienceScore * 100)}%</strong>
-                </div>
-              </div>
+                        <Divider />
 
-              {/* Matched Skills */}
-              <div className="space-y-1.5 pt-2 border-t border-ctp-surface0">
-                <span className="text-[10px] font-mono uppercase font-bold text-ctp-subtext0 block">Verified Qualifications</span>
-                <div className="flex flex-wrap gap-1.5 font-mono">
-                  {activeJob.matchedKeywords.map((kw) => (
-                    <span key={kw} className="text-[10px] font-bold uppercase text-ctp-green bg-ctp-green/10 border border-ctp-green/20 px-1.5 py-0.5 rounded-none">
-                      ✓ {kw}
-                    </span>
-                  ))}
-                </div>
-              </div>
+                        <Group justify="space-between">
+                          <Text size="sm" fw={700} c="green.8">
+                            {job.salary}
+                          </Text>
+                          <Text size="xs" c="dimmed" tt="uppercase">
+                            {job.missingKeywords.length === 0 ? 'All skills matched' : `${job.missingKeywords.length} gap identified`}
+                          </Text>
+                        </Group>
+                      </Stack>
+                    </Paper>
+                  );
+                })}
+              </Stack>
+            </Grid.Col>
 
-              {/* Missing Skills with 1-Click Course Generator Bridge */}
-              {activeJob.missingKeywords.length > 0 && (
-                <div className="space-y-2 pt-2 border-t border-ctp-surface0">
-                  <span className="text-[10px] font-mono uppercase font-bold text-ctp-red block">Missing Competencies</span>
-                  <div className="space-y-2">
-                    {activeJob.missingKeywords.map((kw) => (
-                      <div key={kw} className="p-3 rounded-none bg-ctp-red/5 border border-ctp-red/20 flex items-center justify-between gap-2">
-                        <span className="text-xs font-mono font-bold text-ctp-red uppercase">{kw}</span>
-                        <button
-                          onClick={() => navigate('/generator')}
-                          className="px-2.5 py-1 rounded-none text-[10px] font-mono font-bold uppercase bg-ctp-mauve hover:bg-[#13382c] text-white shadow-2xs transition-colors cursor-pointer border border-ctp-mauve"
-                        >
-                          Generate Course
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            {/* Right: Detailed Match Deconstruction & Course Bridge */}
+            <Grid.Col span={{ base: 12, lg: 5 }}>
+              <Box style={{ position: 'sticky', top: 80 }}>
+                <Paper shadow="sm" p="xl" withBorder radius="sm">
+                  <Stack gap="lg">
+                    <Group justify="space-between" align="flex-start">
+                      <Box>
+                        <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={4}>
+                          Match Decomposition
+                        </Text>
+                        <Title order={5}>{activeJob.title}</Title>
+                      </Box>
+                      <Badge color="#1b4d3e" variant="light" size="lg" radius="sm">
+                        {activeJob.matchScore}% Fit
+                      </Badge>
+                    </Group>
 
-              {/* Direct Apply Button */}
-              <div className="pt-2">
-                <button className="w-full py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] rounded-none shadow-2xs transition-colors cursor-pointer border border-ctp-mauve">
-                  Submit Direct Application
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+                    <Divider />
+
+                    <Stack gap="xs">
+                      <Group justify="space-between">
+                        <Text size="sm" c="dimmed" tt="uppercase">Dense Semantic Cosine Similarity</Text>
+                        <Text size="sm" fw={700}>{Math.round(activeJob.cosineSimilarity * 100)}%</Text>
+                      </Group>
+                      <Group justify="space-between">
+                        <Text size="sm" c="dimmed" tt="uppercase">Keyword & Skill Intersect</Text>
+                        <Text size="sm" fw={700}>{Math.round(activeJob.keywordScore * 100)}%</Text>
+                      </Group>
+                      <Group justify="space-between">
+                        <Text size="sm" c="dimmed" tt="uppercase">Seniority & Domain Experience</Text>
+                        <Text size="sm" fw={700}>{Math.round(activeJob.experienceScore * 100)}%</Text>
+                      </Group>
+                    </Stack>
+
+                    <Divider />
+
+                    <Stack gap="xs">
+                      <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                        Verified Qualifications
+                      </Text>
+                      <Group gap="xs">
+                        {activeJob.matchedKeywords.map((kw) => (
+                          <Badge
+                            key={kw}
+                            variant="light"
+                            color="green"
+                            size="sm"
+                            leftSection={<IconCheck size={12} />}
+                            radius="sm"
+                          >
+                            {kw}
+                          </Badge>
+                        ))}
+                      </Group>
+                    </Stack>
+
+                    {activeJob.missingKeywords.length > 0 && (
+                      <>
+                        <Divider />
+                        <Stack gap="xs">
+                          <Text size="xs" fw={700} c="red.8" tt="uppercase">
+                            Missing Competencies
+                          </Text>
+                          <Stack gap="xs">
+                            {activeJob.missingKeywords.map((kw) => (
+                              <Paper key={kw} withBorder p="sm" bg="red.0" radius="sm">
+                                <Group justify="space-between">
+                                  <Group gap="xs">
+                                    <IconAlertCircle size={16} color="red" />
+                                    <Text size="sm" fw={700} c="red.8">{kw}</Text>
+                                  </Group>
+                                  <Button
+                                    size="xs"
+                                    color="#1b4d3e"
+                                    radius="sm"
+                                    onClick={() => navigate('/generator')}
+                                  >
+                                    Generate Course
+                                  </Button>
+                                </Group>
+                              </Paper>
+                            ))}
+                          </Stack>
+                        </Stack>
+                      </>
+                    )}
+
+                    <Divider />
+
+                    <Button fullWidth size="md" color="#1b4d3e" radius="sm">
+                      Submit Direct Application
+                    </Button>
+                  </Stack>
+                </Paper>
+              </Box>
+            </Grid.Col>
+          </Grid>
+        </Stack>
+      </Container>
+    </Box>
   );
 }

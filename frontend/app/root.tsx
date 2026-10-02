@@ -6,9 +6,40 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { MantineProvider, createTheme, ColorSchemeScript } from "@mantine/core";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+
+const theme = createTheme({
+  primaryColor: "forest",
+  colors: {
+    forest: [
+      "#e8f5f0",
+      "#c5e4d8",
+      "#95d5b2",
+      "#52b788",
+      "#40916c",
+      "#2d6a4f",
+      "#1b4d3e",
+      "#13382c",
+      "#0c241c",
+      "#061210",
+    ],
+  },
+  fontFamily:
+    '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
+  headings: {
+    fontFamily:
+      '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
+  },
+  defaultRadius: "sm",
+  shadows: {
+    xs: "0 1px 2px rgba(0, 0, 0, 0.05)",
+    sm: "0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04)",
+    md: "0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.04)",
+  },
+});
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -29,11 +60,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <ColorSchemeScript forceColorScheme="light" />
         <Meta />
         <Links />
       </head>
       <body>
-        {children}
+        <MantineProvider theme={theme} forceColorScheme="light">
+          {children}
+        </MantineProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -62,11 +96,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
+    <main style={{ paddingTop: 64, padding: 16, maxWidth: 960, margin: "0 auto" }}>
       <h1>{message}</h1>
       <p>{details}</p>
       {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
+        <pre style={{ width: "100%", padding: 16, overflowX: "auto" }}>
           <code>{stack}</code>
         </pre>
       )}

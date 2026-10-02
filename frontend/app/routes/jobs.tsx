@@ -2,6 +2,23 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router';
 import { PlatformHeader } from '../components/PlatformHeader';
 import { WipFeatureBanner } from '../components/WipFeatureBanner';
+import {
+  Box,
+  Container,
+  Paper,
+  TextInput,
+  Group,
+  Stack,
+  Text,
+  Badge,
+  Button,
+  Checkbox,
+  SegmentedControl,
+  Anchor,
+  Title,
+  Divider,
+} from '@mantine/core';
+import { IconSearch, IconArrowRight } from '@tabler/icons-react';
 
 export interface AggregatedJob {
   id: string;
@@ -83,137 +100,132 @@ export default function JobAggregatorRoute() {
   }, [rawJobs, searchQuery, sourceFilter, remoteOnly]);
 
   return (
-    <div className="min-h-screen bg-ctp-base flex flex-col font-sans text-ctp-text antialiased">
+    <Box style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
       <PlatformHeader />
 
-      <main className="flex-1 w-full max-w-[1720px] mx-auto p-4 sm:p-6 lg:p-10 space-y-6">
-        {/* WIP Feature Banner */}
-        <WipFeatureBanner
-          title="Multi-Source Job Aggregator & Real-Time Index"
-          category="Market Intelligence"
-          description="Continuously ingests and normalizes technical job listings across global developer boards, API partners, and ATS feeds into a structured search index."
-          plannedServices={[
-            "Multi-Platform Ingestion Worker",
-            "Job Taxonomy Normalizer",
-            "Salary Benchmarking Model",
-            "ATS Direct Feed Connector"
-          ]}
-        />
+      <Container size="xl" py="xl">
+        <Stack gap="xl">
+          <WipFeatureBanner
+            title="Multi-Source Job Aggregator & Real-Time Index"
+            category="Market Intelligence"
+            description="Continuously ingests and normalizes technical job listings across global developer boards, API partners, and ATS feeds into a structured search index."
+            plannedServices={[
+              "Multi-Platform Ingestion Worker",
+              "Job Taxonomy Normalizer",
+              "Salary Benchmarking Model",
+              "ATS Direct Feed Connector"
+            ]}
+          />
 
-        {/* Search & Ingestion Filter Bar */}
-        <div className="bg-white p-5 rounded-none border border-ctp-surface0 shadow-2xs space-y-3">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search aggregated jobs by role, company, or technology (e.g., PyTorch, Kubernetes, vLLM)..."
-              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-ctp-base/40 border border-ctp-surface0 rounded-none focus:outline-none focus:border-ctp-mauve font-mono"
-            />
-            <svg className="w-4 h-4 text-ctp-subtext0 absolute left-3 top-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 font-mono">
-            <div className="flex flex-wrap items-center gap-1.5 text-xs">
-              <span className="text-ctp-subtext0 font-bold mr-1 text-[10px] uppercase">Aggregated Source:</span>
-              {(['All', 'LinkedIn', 'Indeed', 'RemoteOK', 'YCombinator'] as const).map((src) => (
-                <button
-                  key={src}
-                  onClick={() => setSourceFilter(src)}
-                  className={`px-2.5 py-0.5 rounded-none font-bold uppercase transition-colors cursor-pointer border ${
-                    sourceFilter === src
-                      ? 'bg-ctp-mauve text-white border-ctp-mauve shadow-2xs'
-                      : 'bg-ctp-base/80 border border-ctp-surface0 text-ctp-subtext0 hover:text-ctp-text'
-                  }`}
-                >
-                  {src}
-                </button>
-              ))}
-            </div>
-
-            <label className="flex items-center space-x-2 text-xs text-ctp-text font-bold uppercase cursor-pointer">
-              <input
-                type="checkbox"
-                checked={remoteOnly}
-                onChange={(e) => setRemoteOnly(e.target.checked)}
-                className="rounded-none text-ctp-mauve focus:ring-ctp-mauve"
+          <Paper shadow="sm" p="lg" withBorder radius="sm">
+            <Stack gap="md">
+              <TextInput
+                placeholder="Search aggregated jobs by role, company, or technology (e.g., PyTorch, Kubernetes, vLLM)..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.currentTarget.value)}
+                leftSection={<IconSearch size={16} />}
+                size="md"
               />
-              <span>Remote Postings Only</span>
-            </label>
-          </div>
-        </div>
 
-        {/* Job Listings Stream */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs text-ctp-subtext0 font-mono border-b border-ctp-surface0 pb-2">
-            <span className="uppercase font-bold">Showing {filteredJobs.length} Aggregated Postings</span>
-            <Link to="/jobs/matching" className="font-bold text-ctp-mauve hover:underline uppercase">
-              Rank by My AI Match Score →
-            </Link>
-          </div>
+              <Group justify="space-between" align="center">
+                <Group gap="sm" align="center">
+                  <Text size="sm" fw={700} c="dimmed">
+                    Aggregated Source:
+                  </Text>
+                  <SegmentedControl
+                    value={sourceFilter}
+                    onChange={(val: any) => setSourceFilter(val)}
+                    data={['All', 'LinkedIn', 'Indeed', 'RemoteOK', 'YCombinator']}
+                    size="sm"
+                    color="#1b4d3e"
+                  />
+                </Group>
+                
+                <Checkbox
+                  label="Remote Postings Only"
+                  checked={remoteOnly}
+                  onChange={(e) => setRemoteOnly(e.currentTarget.checked)}
+                  color="#1b4d3e"
+                  fw={700}
+                />
+              </Group>
+            </Stack>
+          </Paper>
 
-          <div className="grid grid-cols-1 gap-3.5">
+          <Stack gap="md">
+            <Group justify="space-between" align="flex-end">
+              <Text size="sm" fw={700} c="dimmed" tt="uppercase">
+                Showing {filteredJobs.length} Aggregated Postings
+              </Text>
+              <Anchor component={Link} to="/jobs/matching" color="#1b4d3e" fw={700} size="sm">
+                <Group gap="xs">
+                  Rank by My AI Match Score <IconArrowRight size={16} />
+                </Group>
+              </Anchor>
+            </Group>
+            <Divider />
+
             {filteredJobs.map((job) => (
-              <div
-                key={job.id}
-                className="p-5 bg-white rounded-none border border-ctp-surface0 hover:border-ctp-mauve shadow-2xs transition-all space-y-3 flex flex-col justify-between"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center space-x-2 flex-wrap font-mono">
-                      <span className="text-xs font-bold text-ctp-mauve uppercase">{job.company}</span>
-                      <span className="text-ctp-subtext0 text-xs">•</span>
-                      <span className="text-xs text-ctp-subtext0">{job.location}</span>
-                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-none bg-ctp-base border border-ctp-surface0 text-ctp-subtext0 uppercase">
-                        {job.source}
-                      </span>
-                    </div>
+              <Paper key={job.id} shadow="sm" p="lg" withBorder radius="sm">
+                <Stack gap="md">
+                  <Group justify="space-between" align="flex-start" wrap="nowrap">
+                    <Stack gap="xs">
+                      <Group gap="sm">
+                        <Text size="sm" fw={700} color="#1b4d3e">
+                          {job.company}
+                        </Text>
+                        <Text size="sm" c="dimmed">•</Text>
+                        <Text size="sm" c="dimmed">
+                          {job.location}
+                        </Text>
+                        <Badge variant="outline" color="gray" size="sm">
+                          {job.source}
+                        </Badge>
+                      </Group>
 
-                    <h4 className="text-sm sm:text-base font-bold text-ctp-text leading-snug uppercase">
-                      {job.title}
-                    </h4>
+                      <Title order={4}>{job.title}</Title>
 
-                    <span className="text-xs font-mono font-bold text-ctp-green block">
-                      {job.salary}
-                    </span>
-                  </div>
+                      <Text size="sm" fw={700} color="#2d6a4f">
+                        {job.salary}
+                      </Text>
+                    </Stack>
 
-                  <div className="flex items-center space-x-2 shrink-0">
-                    <Link
-                      to="/jobs/matching"
-                      className="px-3 py-1.5 text-xs font-mono font-bold uppercase text-ctp-mauve bg-ctp-mauve/10 border border-ctp-mauve/25 rounded-none hover:bg-ctp-mauve/20 transition-colors"
-                    >
-                      Analyze Match
-                    </Link>
-                    <button className="px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-white bg-ctp-mauve hover:bg-[#13382c] rounded-none shadow-2xs transition-colors cursor-pointer border border-ctp-mauve">
-                      Apply Direct
-                    </button>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-ctp-surface0 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
-                  <div className="flex flex-wrap gap-1.5">
-                    {job.techStack.map((tech) => (
-                      <span
-                        key={tech}
-                        className="text-[10px] font-bold uppercase text-ctp-subtext0 bg-ctp-base border border-ctp-surface0 px-1.5 py-0.5 rounded-none"
+                    <Group gap="sm">
+                      <Button
+                        component={Link}
+                        to="/jobs/matching"
+                        variant="light"
+                        color="#1b4d3e"
+                        radius="sm"
                       >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-ctp-subtext0 uppercase">
-                    Indexed {job.postedAt}
-                  </span>
-                </div>
-              </div>
+                        Analyze Match
+                      </Button>
+                      <Button color="#1b4d3e" radius="sm">
+                        Apply Direct
+                      </Button>
+                    </Group>
+                  </Group>
+
+                  <Divider />
+
+                  <Group justify="space-between">
+                    <Group gap="xs">
+                      {job.techStack.map((tech) => (
+                        <Badge key={tech} variant="default" size="sm" fw={600}>
+                          {tech}
+                        </Badge>
+                      ))}
+                    </Group>
+                    <Text size="xs" c="dimmed" tt="uppercase">
+                      Indexed {job.postedAt}
+                    </Text>
+                  </Group>
+                </Stack>
+              </Paper>
             ))}
-          </div>
-        </div>
-      </main>
-    </div>
+          </Stack>
+        </Stack>
+      </Container>
+    </Box>
   );
 }
