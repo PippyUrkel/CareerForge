@@ -75,8 +75,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { AuthProvider } from "./context/AuthContext";
+import { AuthModal } from "./components/AuthModal";
+import { OnboardingModal } from "./components/OnboardingModal";
+
 export default function App() {
-  return <Outlet />;
+  return (
+    <AuthProvider>
+      <Outlet />
+      <AuthModal />
+      <OnboardingModal />
+    </AuthProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

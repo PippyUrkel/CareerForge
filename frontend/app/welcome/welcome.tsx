@@ -14,6 +14,7 @@ import {
   Divider,
   ThemeIcon,
   Flex,
+  Anchor,
 } from "@mantine/core";
 import {
   IconArrowRight,
@@ -35,9 +36,12 @@ import {
   IconSparkles,
   IconRoute,
   IconChartDots3,
+  IconLayoutDashboard,
+  IconStack2,
 } from "@tabler/icons-react";
 import { PlatformHeader } from "../components/PlatformHeader";
 import { ImagePathEffect } from "../components/ImagePathEffect";
+import { useAuth } from "../context/AuthContext";
 
 /* ──────────────────────────────────────────────────────────────
    Career icon data – each icon is an easily-replaceable <img>
@@ -71,6 +75,17 @@ const careerIcons: CareerIcon[] = [
 ];
 
 const platformFeatures = [
+  {
+    title: "User Dashboard & Saved Courses",
+    path: "/dashboard",
+    category: "Talent Profile",
+    description:
+      "Access your generated course catalog, review active learning goals, track skill profiles, and launch saved curricula.",
+    status: "Active",
+    isWip: false,
+    icon: IconLayoutDashboard,
+    ctaText: "Open Dashboard",
+  },
   {
     title: "AI Course Generator & Studio",
     path: "/generator",
@@ -151,6 +166,8 @@ const platformFeatures = [
 ];
 
 export function Welcome() {
+  const { user, profile, openAuthModal, openOnboardingModal } = useAuth();
+
   return (
     <Box
       style={{
@@ -227,36 +244,148 @@ export function Welcome() {
                 vector job matching, and career trajectory forecasting.
               </Text>
 
+              {/* Onboarding Callout Banner if user logged in but not onboarded */}
+              {user && !profile?.onboardingCompleted && (
+                <Paper
+                  p="sm"
+                  px="md"
+                  radius="sm"
+                  mt="sm"
+                  style={{
+                    backgroundColor: "#e8f5f0",
+                    border: "1px solid #c5e4d8",
+                    width: "100%",
+                    maxWidth: 580,
+                  }}
+                >
+                  <Group justify="space-between" wrap="nowrap">
+                    <Group gap="xs" wrap="nowrap">
+                      <ThemeIcon size={26} radius="sm" color="forest" variant="filled">
+                        <IconSparkles size={14} />
+                      </ThemeIcon>
+                      <Box ta="left">
+                        <Text size="xs" fw={700} c="#1b4d3e">
+                          Complete Career Onboarding
+                        </Text>
+                        <Text size="11px" c="dimmed">
+                          Set your target role and verified skills to calibrate curriculum generation.
+                        </Text>
+                      </Box>
+                    </Group>
+                    <Button
+                      size="xs"
+                      color="forest"
+                      radius="sm"
+                      onClick={openOnboardingModal}
+                    >
+                      Start Onboarding
+                    </Button>
+                  </Group>
+                </Paper>
+              )}
+
+              {/* Calibrated Profile Badge if user logged in and onboarded */}
+              {user && profile?.onboardingCompleted && (
+                <Paper
+                  p="xs"
+                  px="md"
+                  radius="sm"
+                  mt="sm"
+                  style={{
+                    backgroundColor: "#e8f5f0",
+                    border: "1px solid #c5e4d8",
+                    width: "100%",
+                    maxWidth: 580,
+                  }}
+                >
+                  <Group justify="space-between" wrap="nowrap">
+                    <Group gap="xs">
+                      <Badge variant="filled" color="forest" size="xs">
+                        Active Profile
+                      </Badge>
+                      <Text size="xs" fw={600} c="#1b4d3e">
+                        {profile.targetRole || "Technical Specialist"} · {profile.targetCareer}
+                      </Text>
+                    </Group>
+                    <Anchor
+                      component={Link}
+                      to="/dashboard"
+                      size="xs"
+                      fw={700}
+                      c="forest"
+                    >
+                      View Dashboard →
+                    </Anchor>
+                  </Group>
+                </Paper>
+              )}
+
+              {/* Smart Action Buttons */}
               <Group gap="sm" mt="md">
-                <Button
-                  component={Link}
-                  to="/generator"
-                  size="sm"
-                  color="forest"
-                  rightSection={<IconArrowRight size={16} />}
-                  radius="sm"
-                >
-                  Launch Course Studio
-                </Button>
-                <Button
-                  component={Link}
-                  to="/skills"
-                  variant="default"
-                  size="sm"
-                  radius="sm"
-                >
-                  Skill Gap Matrix
-                </Button>
-                <Button
-                  component={Link}
-                  to="/jobs/matching"
-                  variant="subtle"
-                  size="sm"
-                  color="gray"
-                  radius="sm"
-                >
-                  AI Job Matches
-                </Button>
+                {!user ? (
+                  <>
+                    <Button
+                      size="sm"
+                      color="forest"
+                      rightSection={<IconArrowRight size={16} />}
+                      radius="sm"
+                      onClick={() => openAuthModal("signup")}
+                    >
+                      Get Started
+                    </Button>
+                    <Button
+                      component={Link}
+                      to="/generator"
+                      variant="default"
+                      size="sm"
+                      radius="sm"
+                    >
+                      Launch Course Studio
+                    </Button>
+                    <Button
+                      variant="subtle"
+                      size="sm"
+                      color="gray"
+                      radius="sm"
+                      onClick={() => openAuthModal("login")}
+                    >
+                      Sign In
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      component={Link}
+                      to="/dashboard"
+                      size="sm"
+                      color="forest"
+                      rightSection={<IconArrowRight size={16} />}
+                      radius="sm"
+                    >
+                      Go to Dashboard
+                    </Button>
+                    <Button
+                      component={Link}
+                      to="/generator"
+                      variant="default"
+                      size="sm"
+                      radius="sm"
+                    >
+                      Course Studio
+                    </Button>
+                    {!profile?.onboardingCompleted && (
+                      <Button
+                        variant="light"
+                        color="forest"
+                        size="sm"
+                        radius="sm"
+                        onClick={openOnboardingModal}
+                      >
+                        Onboarding Wizard
+                      </Button>
+                    )}
+                  </>
+                )}
               </Group>
             </Stack>
           </Paper>
@@ -357,6 +486,62 @@ export function Welcome() {
           </Box>
         </Stack>
       </Container>
+
+      {/* ═══════════════════════ FOOTER ═══════════════════════ */}
+      <Box
+        component="footer"
+        py="lg"
+        mt="auto"
+        style={{
+          borderTop: "1px solid var(--cf-border)",
+          backgroundColor: "var(--cf-surface)",
+        }}
+      >
+        <Container size="xl">
+          <Flex
+            justify="space-between"
+            align="center"
+            direction={{ base: "column", sm: "row" }}
+            gap="sm"
+          >
+            <Group gap="xs">
+              <Box
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: 4,
+                  backgroundColor: "#1b4d3e",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                }}
+              >
+                <IconStack2 size={12} stroke={2.5} />
+              </Box>
+              <Text size="xs" fw={700} tt="uppercase" lts={-0.3} c="var(--cf-text)">
+                CareerForge
+              </Text>
+              <Text size="xs" c="dimmed">
+                — Autonomous AI Talent & Learning Platform
+              </Text>
+            </Group>
+
+            <Group gap="md">
+              <Text size="xs" c="dimmed">
+                Powered by Appwrite & FastAPI
+              </Text>
+              <Divider orientation="vertical" h={12} />
+              <Link to="/generator" style={{ fontSize: "12px", color: "var(--cf-text-muted)", textDecoration: "none" }}>
+                Course Studio
+              </Link>
+              <Link to="/dashboard" style={{ fontSize: "12px", color: "var(--cf-text-muted)", textDecoration: "none" }}>
+                Dashboard
+              </Link>
+            </Group>
+          </Flex>
+        </Container>
+      </Box>
     </Box>
   );
 }

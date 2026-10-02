@@ -1,11 +1,19 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import type { Route } from "./+types/generator";
+import { useSearchParams } from "react-router";
 import { StudioLayout } from "../components/UdemyLayout";
 import { CourseSidebar, type Module, type Video } from "../components/CourseSidebar";
 import { VideoPlayer } from "../components/VideoPlayer";
 import { CourseOverview } from "../components/CourseOverview";
 import { GenerationModal } from "../components/GenerationModal";
 import { CourseLibraryModal, type StoredCourseItem } from "../components/CourseLibraryModal";
+import { useAuth } from "../context/AuthContext";
+import {
+  listUserCourses,
+  saveUserCourse,
+  deleteUserCourse,
+  type AppwriteCourseDocument,
+} from "../services/appwrite";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -93,7 +101,7 @@ const DEFAULT_MODULES: Module[] = [
 ];
 
 /**
- * Transforms an API course response from the backend into frontend Module and CourseMeta structures.
+ * Transforms an API course response into frontend Module and CourseMeta structures.
  */
 function formatApiCourse(apiCourse: any) {
   const mappedModules: Module[] = (apiCourse.modules || []).map((m: any, mIndex: number) => ({
@@ -137,12 +145,17 @@ function formatApiCourse(apiCourse: any) {
 }
 
 export default function GeneratorPage() {
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const initialCourseId = searchParams.get("courseId");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoadingLibrary, setIsLoadingLibrary] = useState(false);
 
   const [savedCourses, setSavedCourses] = useState<StoredCourseItem[]>([]);
+  const [appwriteCourseDocs, setAppwriteCourseDocs] = useState<AppwriteCourseDocument[]>([]);
   const [activeCourseId, setActiveCourseId] = useState<string>('');
 
   const [modules, setModules] = useState<Module[]>(DEFAULT_MODULES);
@@ -156,35 +169,47 @@ export default function GeneratorPage() {
 
   const totalLectures = modules.reduce((acc, m) => acc + m.videos.length, 0);
 
-  // Fetch list of saved courses from careerforge.db on mount
-  const fetchSavedCourses = useCallback(async (autoLoadFirst: boolean = false) => {
-    setIsLoadingLibrary(true);
-    try {
-      const response = await fetch('http://localhost:8000/api/courses');
-      if (response.ok) {
-        const data = await response.json();
-        const coursesList: StoredCourseItem[] = data.courses || [];
-        setSavedCourses(coursesList);
-
-        if (autoLoadFirst && coursesList.length > 0) {
-          const firstCourse = coursesList[0];
-          await loadCourseById(firstCourse.id ?? firstCourse.generation_id);
-        }
-      }
-    } catch (err) {
-      console.warn("Could not connect to backend course database:", err);
-    } finally {
-      setIsLoadingLibrary(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchSavedCourses(true);
-  }, [fetchSavedCourses]);
-
-  // Load a specific course from the database by ID
-  const loadCourseById = async (courseIdOrGenId: string | number) => {
+  // Load a specific course from Appwrite documents or backend by ID
+  const loadCourseById = useCallback(async (courseIdOrGenId: string | number) => {
     const idStr = String(courseIdOrGenId);
+
+    // 1. Check if course document exists in cached Appwrite documents
+    const matchingAppwriteDoc = appwriteCourseDocs.find(
+      (c) => c.$id === idStr || c.courseId === idStr
+    );
+
+    if (matchingAppwriteDoc) {
+      try {
+        let parsedModules = [];
+        try {
+          parsedModules = JSON.parse(matchingAppwriteDoc.modules || "[]");
+        } catch {
+          parsedModules = [];
+        }
+
+        const apiFormat = {
+          course_title: matchingAppwriteDoc.title,
+          description: matchingAppwriteDoc.description,
+          difficulty: matchingAppwriteDoc.difficulty,
+          target_audience: matchingAppwriteDoc.targetAudience,
+          modules: parsedModules,
+        };
+
+        const { mappedModules, meta } = formatApiCourse(apiFormat);
+        setModules(mappedModules);
+        setCourseMeta(meta);
+        setActiveCourseId(matchingAppwriteDoc.courseId || idStr);
+
+        if (mappedModules.length > 0 && mappedModules[0].videos.length > 0) {
+          setActiveVideo(mappedModules[0].videos[0]);
+        }
+        return;
+      } catch (err) {
+        console.warn("Could not parse Appwrite course doc, falling back to API:", err);
+      }
+    }
+
+    // 2. Fallback to backend API
     try {
       const response = await fetch(`http://localhost:8000/api/courses/${idStr}`);
       if (!response.ok) {
@@ -205,35 +230,123 @@ export default function GeneratorPage() {
     } catch (err) {
       console.error("Error loading course from database:", err);
     }
-  };
+  }, [appwriteCourseDocs]);
 
-  // Delete a course from the database
-  const handleDeleteCourse = async (courseIdOrGenId: string | number) => {
-    const idStr = String(courseIdOrGenId);
+  // Fetch list of saved courses (from Appwrite if authenticated, or backend API)
+  const fetchSavedCourses = useCallback(async (autoLoadId?: string | null) => {
+    setIsLoadingLibrary(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/courses/${idStr}`, {
-        method: 'DELETE'
-      });
+      // 1. If user is authenticated, query their own courses in Appwrite
+      if (user) {
+        const appwriteDocs = await listUserCourses(user.$id);
+        setAppwriteCourseDocs(appwriteDocs);
+
+        if (appwriteDocs.length > 0) {
+          const mappedCourses: StoredCourseItem[] = appwriteDocs.map((doc) => {
+            let mCount = 0;
+            let vCount = 0;
+            let totalDur = 0;
+            try {
+              const pMods = JSON.parse(doc.modules || "[]");
+              mCount = pMods.length;
+              vCount = pMods.reduce((acc: number, m: any) => acc + (m.videos?.length || 0), 0);
+              totalDur = pMods.reduce((acc: number, m: any) => 
+                acc + (m.videos || []).reduce((vAcc: number, v: any) => vAcc + (v.duration_seconds || 0), 0), 0);
+            } catch {
+              // ignore
+            }
+
+            return {
+              id: doc.$id as any,
+              generation_id: doc.courseId,
+              course_title: doc.title,
+              topic: doc.topic,
+              difficulty: doc.difficulty,
+              target_audience: doc.targetAudience,
+              module_count: mCount,
+              video_count: vCount,
+              total_duration_seconds: totalDur,
+              created_at: doc.$createdAt,
+              description: doc.description,
+            };
+          });
+
+          setSavedCourses(mappedCourses);
+
+          if (autoLoadId) {
+            await loadCourseById(autoLoadId);
+          } else if (mappedCourses.length > 0 && !activeCourseId) {
+            await loadCourseById(mappedCourses[0].generation_id || mappedCourses[0].id!);
+          }
+          return;
+        }
+      }
+
+      // 2. Fallback to backend database
+      const response = await fetch("http://localhost:8000/api/courses");
       if (response.ok) {
-        const updated = savedCourses.filter(c => String(c.id) !== idStr && c.generation_id !== idStr);
-        setSavedCourses(updated);
-        if (activeCourseId === idStr && updated.length > 0) {
-          loadCourseById(updated[0].id ?? updated[0].generation_id);
+        const data = await response.json();
+        const coursesList: StoredCourseItem[] = data.courses || [];
+        setSavedCourses(coursesList);
+
+        if (autoLoadId) {
+          await loadCourseById(autoLoadId);
+        } else if (coursesList.length > 0 && !activeCourseId) {
+          const firstCourse = coursesList[0];
+          await loadCourseById(firstCourse.id ?? firstCourse.generation_id);
         }
       }
     } catch (err) {
-      console.error("Failed to delete course:", err);
+      console.warn("Could not connect to course database:", err);
+    } finally {
+      setIsLoadingLibrary(false);
+    }
+  }, [user, activeCourseId, loadCourseById]);
+
+  useEffect(() => {
+    fetchSavedCourses(initialCourseId);
+  }, [user, initialCourseId]); // refetch when auth state or target course changes
+
+  // Delete a course
+  const handleDeleteCourse = async (courseIdOrGenId: string | number) => {
+    const idStr = String(courseIdOrGenId);
+
+    // If doc exists in Appwrite, delete it from Appwrite
+    const matchingAppwriteDoc = appwriteCourseDocs.find(
+      (c) => c.$id === idStr || c.courseId === idStr
+    );
+    if (matchingAppwriteDoc) {
+      try {
+        await deleteUserCourse(matchingAppwriteDoc.$id);
+      } catch (appwriteErr) {
+        console.warn("Could not delete from Appwrite:", appwriteErr);
+      }
+    }
+
+    // Also attempt deleting from backend database
+    try {
+      await fetch(`http://localhost:8000/api/courses/${idStr}`, { method: "DELETE" });
+    } catch {
+      // ignore
+    }
+
+    const updated = savedCourses.filter(
+      (c) => String(c.id) !== idStr && c.generation_id !== idStr
+    );
+    setSavedCourses(updated);
+    if (activeCourseId === idStr && updated.length > 0) {
+      loadCourseById(updated[0].id ?? updated[0].generation_id);
     }
   };
 
   // Flattened video list for sequential Next / Previous navigation
   const allVideos = useMemo(() => {
-    return modules.flatMap(m => m.videos);
+    return modules.flatMap((m) => m.videos);
   }, [modules]);
 
   const currentVideoIndex = useMemo(() => {
     if (!activeVideo) return -1;
-    return allVideos.findIndex(v => v.id === activeVideo.id);
+    return allVideos.findIndex((v) => v.id === activeVideo.id);
   }, [allVideos, activeVideo]);
 
   const hasPrevious = currentVideoIndex > 0;
@@ -251,33 +364,36 @@ export default function GeneratorPage() {
     }
   };
 
+  // SUBMIT HANDLER: calls the SACRED existing course generation pipeline, then persists to Appwrite
   const handleSubmit = async (formData: FormData) => {
     setIsGenerating(true);
 
-    const title = (formData.get('course_title') as string) || 'Custom AI Course';
-    const topic = (formData.get('topic') as string) || '';
-    const difficulty = (formData.get('difficulty') as string) || 'beginner';
-    const targetAudience = (formData.get('target_audience') as string) || 'undergraduate students';
+    const title = (formData.get("course_title") as string) || "Custom AI Course";
+    const topic = (formData.get("topic") as string) || "";
+    const difficulty = (formData.get("difficulty") as string) || "beginner";
+    const targetAudience = (formData.get("target_audience") as string) || "undergraduate students";
 
     const payload = {
       course_title: title,
       difficulty,
       module_config: {
-        target_modules: Number(formData.get('target_modules')) || 6
+        target_modules: Number(formData.get("target_modules")) || 6,
       },
       target_audience: targetAudience,
       topic,
+      user_id: user?.$id, // Associate with Appwrite user if authenticated
       video_config: {
-        target_duration_seconds: Number(formData.get('target_duration_seconds')) || 600,
-        videos_per_module: Number(formData.get('videos_per_module')) || 3
-      }
+        target_duration_seconds: Number(formData.get("target_duration_seconds")) || 600,
+        videos_per_module: Number(formData.get("videos_per_module")) || 3,
+      },
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/courses/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      // 1. Call EXISTING SACRED pipeline
+      const response = await fetch("http://localhost:8000/api/courses/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -286,7 +402,7 @@ export default function GeneratorPage() {
           const errData = await response.json();
           if (errData?.detail) {
             errorMsg = Array.isArray(errData.detail)
-              ? errData.detail.map((d: any) => `${d.loc?.join('.')}: ${d.msg}`).join(', ')
+              ? errData.detail.map((d: any) => `${d.loc?.join(".")}: ${d.msg}`).join(", ")
               : String(errData.detail);
           }
         } catch {
@@ -296,29 +412,50 @@ export default function GeneratorPage() {
       }
 
       const data = await response.json();
-      
+
       if (data.course && data.course.modules) {
         const { mappedModules, meta } = formatApiCourse(data.course);
 
         setModules(mappedModules);
         setCourseMeta(meta);
-        setActiveCourseId(data.generation_id || '');
+        setActiveCourseId(data.generation_id || "");
 
         if (mappedModules.length > 0 && mappedModules[0].videos.length > 0) {
           setActiveVideo(mappedModules[0].videos[0]);
         }
 
-        // Close the popup dialog smoothly after generation completes
+        // 2. Persist to Appwrite if user is authenticated
+        if (user) {
+          try {
+            await saveUserCourse(user.$id, {
+              courseId: data.generation_id,
+              title: data.course.course_title || title,
+              description: data.course.description || topic,
+              difficulty: data.course.difficulty || difficulty,
+              topic: topic || data.course.course_title,
+              targetAudience: data.course.target_audience || targetAudience,
+              language: data.course.language || "en",
+              learningObjectives: data.course.learning_objectives || [],
+              prerequisites: data.course.prerequisites || [],
+              modules: data.course.modules || [],
+              metadata: data.metadata || {},
+            });
+          } catch (appwriteErr) {
+            console.warn("Could not save to Appwrite:", appwriteErr);
+          }
+        }
+
+        // Close dialog smoothly after generation completes
         setIsModalOpen(false);
 
-        // Refresh database course list
-        fetchSavedCourses(false);
+        // Refresh course library
+        fetchSavedCourses();
       } else {
         throw new Error("Invalid response format from server");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to generate modules:", error);
-      alert("Failed to generate modules. Check console or verify your backend is running.");
+      alert(`Failed to generate modules: ${error?.message || "Check backend connection."}`);
     } finally {
       setIsGenerating(false);
     }
@@ -343,7 +480,7 @@ export default function GeneratorPage() {
               hasNext={hasNext}
             />
 
-            {/* Course Overview & Learning Workspace Below Player (Full Width) */}
+            {/* Course Overview & Learning Workspace Below Player */}
             <CourseOverview 
               activeVideo={activeVideo}
               courseMeta={courseMeta}
@@ -370,7 +507,7 @@ export default function GeneratorPage() {
         isGenerating={isGenerating}
       />
 
-      {/* Database Stored Course Library Modal */}
+      {/* Database / Appwrite Stored Course Library Modal */}
       <CourseLibraryModal
         isOpen={isLibraryOpen}
         onClose={() => setIsLibraryOpen(false)}

@@ -129,6 +129,21 @@ async def generate_course(
 
     try:
         response = await pipeline.generate(request)
+        if request.user_id:
+            try:
+                from app.db.appwrite_service import save_course_to_appwrite
+
+                course_payload = response.course.model_dump(mode="json")
+                meta_payload = response.metadata.model_dump(mode="json") if response.metadata else None
+                await save_course_to_appwrite(
+                    generation_id=response.generation_id,
+                    course_data=course_payload,
+                    user_id=request.user_id,
+                    metadata_data=meta_payload,
+                    settings=settings,
+                )
+            except Exception as appwrite_err:
+                logger.warning("Could not persist course to Appwrite: %s", appwrite_err)
     except LLMError as exc:
         logger.error("LLM error during course generation: %s", exc)
         raise HTTPException(

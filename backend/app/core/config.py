@@ -62,6 +62,29 @@ class AppSettings(BaseSettings):
     # Redis Configuration (optional caching)
     redis_url: str = Field(default="", description="Redis URL for caching")
 
+    # Appwrite Configuration
+    appwrite_endpoint: str = Field(
+        default="http://localhost/v1", description="Appwrite API endpoint"
+    )
+    appwrite_project_id: str = Field(
+        default="6abfe1b1000b09b7c5b6", description="Appwrite project ID"
+    )
+    appwrite_api_key: str = Field(
+        default="", description="Appwrite server API key"
+    )
+    appwrite_database_id: str = Field(
+        default="careerforge_db", description="Appwrite Database ID"
+    )
+    appwrite_courses_collection_id: str = Field(
+        default="courses", description="Appwrite Courses Collection ID"
+    )
+    appwrite_profiles_collection_id: str = Field(
+        default="profiles", description="Appwrite Profiles Collection ID"
+    )
+    appwrite_bucket_id: str = Field(
+        default="resumes", description="Appwrite Storage Bucket ID"
+    )
+
     # Application Settings
     debug: bool = Field(default=False, description="Debug mode")
     log_level: str = Field(default="INFO", description="Logging level")

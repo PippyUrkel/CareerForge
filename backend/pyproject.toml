@@ -17,6 +17,7 @@ dependencies = [
     "isodate>=0.7.0",
     "python-dotenv>=1.1.0",
     "openai>=1.82.0",
+    "appwrite==16.0.0",
 ]
 
 [dependency-groups]

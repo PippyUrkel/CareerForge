@@ -1,7 +1,28 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router';
-import { Box, Group, Text, Badge, Button, UnstyledButton, Divider, Anchor } from '@mantine/core';
-import { IconStack2, IconDatabase, IconPlus } from '@tabler/icons-react';
+import {
+  Box,
+  Group,
+  Text,
+  Badge,
+  Button,
+  UnstyledButton,
+  Divider,
+  Anchor,
+  Menu,
+  ActionIcon,
+  Avatar,
+} from '@mantine/core';
+import {
+  IconStack2,
+  IconDatabase,
+  IconPlus,
+  IconUser,
+  IconLayoutDashboard,
+  IconLogout,
+  IconSparkles,
+} from '@tabler/icons-react';
+import { useAuth } from '../context/AuthContext';
 
 export interface PlatformHeaderProps {
   onOpenGenerator?: () => void;
@@ -20,6 +41,7 @@ export function PlatformHeader({
 }: PlatformHeaderProps) {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { user, profile, logout, openAuthModal } = useAuth();
 
   const navItems = [
     { path: '/generator', label: 'Course Studio', isWip: false },
@@ -30,6 +52,10 @@ export function PlatformHeader({
     { path: '/jobs/matching', label: 'Job Matching', isWip: true },
     { path: '/analytics', label: 'Analytics', isWip: true },
   ];
+
+  if (user) {
+    navItems.unshift({ path: '/dashboard', label: 'Dashboard', isWip: false });
+  }
 
   return (
     <Box 
@@ -170,6 +196,86 @@ export function PlatformHeader({
             >
               Course Studio
             </Button>
+          )}
+
+          {/* User Auth Section */}
+          {user ? (
+            <Menu shadow="md" width={200} position="bottom-end">
+              <Menu.Target>
+                <UnstyledButton
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '4px 8px',
+                    borderRadius: 4,
+                    border: '1px solid var(--cf-border)',
+                    backgroundColor: 'var(--cf-surface)',
+                  }}
+                >
+                  <Avatar size={24} radius="sm" color="forest">
+                    {(profile?.name || user.name || 'U').charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Text size="xs" fw={700} c="var(--cf-text)" visibleFrom="sm" maw={110} truncate>
+                    {profile?.name || user.name || 'Account'}
+                  </Text>
+                </UnstyledButton>
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Label>
+                  <Text size="xs" fw={700} c="var(--cf-text)">
+                    {profile?.name || user.name}
+                  </Text>
+                  <Text size="10px" c="dimmed" truncate>
+                    {user.email}
+                  </Text>
+                </Menu.Label>
+                <Menu.Divider />
+                <Menu.Item
+                  component={Link}
+                  to="/dashboard"
+                  leftSection={<IconLayoutDashboard size={14} />}
+                >
+                  User Dashboard
+                </Menu.Item>
+                <Menu.Item
+                  component={Link}
+                  to="/generator"
+                  leftSection={<IconSparkles size={14} />}
+                >
+                  Course Studio
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Item
+                  color="red"
+                  leftSection={<IconLogout size={14} />}
+                  onClick={logout}
+                >
+                  Sign Out
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          ) : (
+            <Group gap={6} wrap="nowrap">
+              <Button
+                variant="subtle"
+                size="xs"
+                radius="sm"
+                color="gray"
+                onClick={() => openAuthModal("login")}
+              >
+                Sign In
+              </Button>
+              <Button
+                color="forest"
+                size="xs"
+                radius="sm"
+                onClick={() => openAuthModal("signup")}
+              >
+                Get Started
+              </Button>
+            </Group>
           )}
         </Group>
       </Group>
