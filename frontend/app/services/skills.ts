@@ -274,3 +274,81 @@ export async function bridgeComprehensiveToCourse(
   }
   return await res.json();
 }
+
+
+// ==========================================
+// ESCO CAREER RECOMMENDATION API
+// ==========================================
+
+export interface EscoStudentSkill {
+  uri: string;
+  label: string;
+  confidence: number;
+  match_method: string;
+}
+
+export interface EscoMissingSkill {
+  uri: string;
+  label: string;
+  importance: string;
+}
+
+export interface EscoCareerRecommendation {
+  occupation_uri: string;
+  title: string;
+  description: string;
+  match_score: number;
+  occupation_coverage: number;
+  student_skill_relevance: number;
+  matched_skills: EscoStudentSkill[];
+  missing_skills: EscoMissingSkill[];
+  required_skill_count: number;
+  explanation: string;
+}
+
+export interface EscoRecommendationResponse {
+  recommendations: EscoCareerRecommendation[];
+  input_skills: string[];
+}
+
+export async function recommendEscoCareers(
+  skills: string[],
+  limit: number = 10
+): Promise<EscoRecommendationResponse> {
+  const res = await fetch(`${BACKEND_URL}/api/esco/recommend`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ skills, limit }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Career recommendation failed (${res.status})`);
+  }
+
+  return await res.json();
+}
+
+export async function fetchEscoSkillGap(
+  occupationUri: string,
+  skills: string[]
+): Promise<any> {
+  const params = new URLSearchParams({
+    occupation_uri: occupationUri,
+  });
+
+  const res = await fetch(
+    `${BACKEND_URL}/api/esco/skill-gap?${params.toString()}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skills, limit: 10 }),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Skill-gap analysis failed (${res.status})`);
+  }
+
+  return await res.json();
+}
+

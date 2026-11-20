@@ -1,246 +1,424 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router';
-import { PlatformHeader } from '../components/PlatformHeader';
-import { WipFeatureBanner } from '../components/WipFeatureBanner';
-import { Box, Button, Group, Stack, Grid, Text, Title, Badge, Container, Flex, Divider, ThemeIcon, Paper } from '@mantine/core';
-import { IconTarget, IconArrowRight } from '@tabler/icons-react';
 
-export interface CareerTrack {
-  id: string;
-  title: string;
-  category: string;
-  timeline: string;
-  salaryRange: string;
-  demandGrowth: string;
-  difficulty: 'Moderate' | 'High' | 'Aggressive';
-  milestones: string[];
-  keyCompetencies: string[];
-}
+import React, { useState } from 'react';
+import { PlatformHeader } from '../components/PlatformHeader';
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Container,
+  Divider,
+  Grid,
+  Group,
+  Loader,
+  Paper,
+  Progress,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+} from '@mantine/core';
+import {
+  IconAlertCircle,
+  IconBrain,
+  IconCheck,
+  IconRefresh,
+  IconTarget,
+} from '@tabler/icons-react';
+
+import {
+  recommendEscoCareers,
+  fetchEscoSkillGap,
+  type EscoCareerRecommendation,
+} from '../services/skills';
 
 export default function CareerPathsRoute() {
-  const [activeTrackId, setActiveTrackId] = useState<string>('ai-architect');
+  const [skillsInput, setSkillsInput] = useState(
+    'Python, SQL, Data analysis, Machine learning, Power BI, Statistical analysis'
+  );
 
-  const tracks: CareerTrack[] = [
-    {
-      id: 'ai-architect',
-      title: 'Principal AI Systems Architect',
-      category: 'Individual Contributor Track',
-      timeline: '18 – 24 Months',
-      salaryRange: '$220k – $310k',
-      demandGrowth: '+42% YoY Market Demand',
-      difficulty: 'Aggressive',
-      milestones: [
-        "Master distributed vector index clustering & high-throughput inference serving.",
-        "Author end-to-end evaluation harnesses (RAG Triad & automated red-teaming).",
-        "Lead production deployment of multi-agent LLM systems with latency budgets."
-      ],
-      keyCompetencies: [
-        "Vector Architecture",
-        "MLOps & Tracing",
-        "Cost/Token Optimization",
-        "System Reliability"
-      ]
-    },
-    {
-      id: 'staff-eng',
-      title: 'Staff Backend Infrastructure Engineer',
-      category: 'System Architecture Track',
-      timeline: '12 – 18 Months',
-      salaryRange: '$190k – $260k',
-      demandGrowth: '+28% YoY Market Demand',
-      difficulty: 'High',
-      milestones: [
-        "Migrate monolith micro-services into event-driven streaming pipelines.",
-        "Implement zero-trust OAuth2 / OIDC authentication fabric across services.",
-        "Establish automated chaos engineering & high-availability benchmarks."
-      ],
-      keyCompetencies: [
-        "Distributed Systems",
-        "Kafka / Event Streams",
-        "PostgreSQL Internals",
-        "Kubernetes & Terraform"
-      ]
-    },
-    {
-      id: 'ai-product-lead',
-      title: 'AI Engineering Team Lead',
-      category: 'Leadership & Management Track',
-      timeline: '24 – 36 Months',
-      salaryRange: '$210k – $280k',
-      demandGrowth: '+35% YoY Market Demand',
-      difficulty: 'Moderate',
-      milestones: [
-        "Lead cross-functional agile sprints bridging ML research and product engineering.",
-        "Establish AI safety, compliance, and hallucination reduction roadmaps.",
-        "Architect technical hiring rubrics and mentor senior IC engineers."
-      ],
-      keyCompetencies: [
-        "Technical Strategy",
-        "AI Governance",
-        "Sprint Velocity",
-        "Cross-Team Execution"
-      ]
+  const [recommendations, setRecommendations] = useState<
+    EscoCareerRecommendation[]
+  >([]);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const [selectedCareer, setSelectedCareer] =
+    useState<EscoCareerRecommendation | null>(null);
+
+  const [gapData, setGapData] = useState<any>(null);
+  const [gapLoading, setGapLoading] = useState(false);
+
+  const handleRecommend = async () => {
+    const skills = skillsInput
+      .split(',')
+      .map((skill) => skill.trim())
+      .filter(Boolean);
+
+    if (skills.length === 0) {
+      setError('Please enter at least one skill.');
+      return;
     }
-  ];
 
-  const activeTrack = tracks.find(t => t.id === activeTrackId) || tracks[0];
+    try {
+      setLoading(true);
+      setError('');
+      setSelectedCareer(null);
+      setGapData(null);
+
+      const result = await recommendEscoCareers(skills, 12);
+      setRecommendations(result.recommendations || []);
+
+      if (!result.recommendations?.length) {
+        setError('No matching careers found. Try adding more skills.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Unable to generate career recommendations.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSkillGap = async (career: EscoCareerRecommendation) => {
+    try {
+      setSelectedCareer(career);
+      setGapLoading(true);
+      setGapData(null);
+      setError('');
+
+      const skills = skillsInput
+        .split(',')
+        .map((skill) => skill.trim())
+        .filter(Boolean);
+
+      const result = await fetchEscoSkillGap(career.occupation_uri, skills);
+      setGapData(result);
+    } catch (err: any) {
+      setError(err.message || 'Unable to load skill-gap analysis.');
+    } finally {
+      setGapLoading(false);
+    }
+  };
 
   return (
-    <Box bg="gray.0" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box bg="gray.0" style={{ minHeight: '100vh' }}>
       <PlatformHeader />
 
-      <Container size="xl" py="xl" style={{ flex: 1, width: '100%' }}>
+      <Container size="xl" py="xl">
         <Stack gap="xl">
-          <WipFeatureBanner
-            title="Career Path & Trajectory Recommendations"
-            category="Career Forecasting"
-            description="Synthesizes market compensation benchmarks, career transition patterns, and milestone progression ladders tailored to your current technical foundation."
-            plannedServices={[
-              "Career Horizon Model",
-              "Compensation Aggregator",
-              "Transition Milestone Planner",
-              "Adjacent Role Recommender"
-            ]}
-          />
 
-          {/* Current State vs Horizon Summary */}
-          <Paper p="lg" shadow="sm" radius="sm" withBorder>
+          <Box>
+            <Badge color="teal" variant="light" mb="sm">
+              AI-POWERED CAREER INTELLIGENCE
+            </Badge>
+            <Title order={1}>Career Recommendations</Title>
+            <Text c="dimmed" mt="xs">
+              Discover career opportunities based on your existing skills
+              using the European Skills, Competences, Qualifications and
+              Occupations (ESCO) classification.
+            </Text>
+          </Box>
+
+          <Paper p="lg" radius="md" withBorder>
             <Stack gap="md">
-              <Flex justify="space-between" align="center" wrap="wrap" gap="sm" style={{ borderBottom: '1px solid #e9ecef', paddingBottom: '12px' }}>
-                <Box>
-                  <Text size="xs" fw={700} tt="uppercase" style={{ color: '#1b4d3e' }}>Current Career Benchmark</Text>
-                  <Title order={2} size="h4" tt="uppercase" mt={4}>Software Engineer (AI / Backend Focus)</Title>
-                </Box>
-                <Group gap="xs">
-                  <Text size="xs" c="dimmed" tt="uppercase">Estimated Market Horizon:</Text>
-                  <Badge color="#1b4d3e" variant="light" radius="sm" size="md">12 to 36 Months</Badge>
-                </Group>
-              </Flex>
+              <Group gap="xs">
+                <IconBrain size={22} color="#1b4d3e" />
+                <Title order={3}>Your Skill Profile</Title>
+              </Group>
 
-              {/* Track Selection Tabs */}
-              <Grid>
-                {tracks.map((track) => {
-                  const isSelected = track.id === activeTrackId;
-                  return (
-                    <Grid.Col span={{ base: 12, md: 4 }} key={track.id}>
-                      <Paper
-                        p="md"
-                        radius="sm"
-                        withBorder
-                        onClick={() => setActiveTrackId(track.id)}
-                        style={{
-                          cursor: 'pointer',
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          backgroundColor: isSelected ? 'rgba(27, 77, 62, 0.05)' : 'transparent',
-                          borderColor: isSelected ? '#1b4d3e' : '#e9ecef',
-                          transition: 'all 0.2s ease',
-                        }}
-                      >
-                        <Box>
-                          <Text size="xs" fw={700} c="dimmed" tt="uppercase">{track.category}</Text>
-                          <Title order={3} size="h6" tt="uppercase" mt={4} lh={1.2}>{track.title}</Title>
-                        </Box>
-                        <Group justify="space-between" mt="md" pt="sm" style={{ borderTop: '1px solid #e9ecef' }}>
-                          <Text size="xs" fw={700}>{track.timeline}</Text>
-                          <Text size="xs" fw={700} c="teal">{track.demandGrowth}</Text>
-                        </Group>
-                      </Paper>
-                    </Grid.Col>
-                  );
-                })}
-              </Grid>
+              <Text size="sm" c="dimmed">
+                Enter your skills separated by commas. You can edit the
+                sample skills below.
+              </Text>
+
+              <TextInput
+                label="Skills"
+                placeholder="Python, SQL, Data analysis..."
+                value={skillsInput}
+                onChange={(event) => setSkillsInput(event.currentTarget.value)}
+                size="md"
+              />
+
+              <Group justify="space-between">
+                <Text size="xs" c="dimmed">
+                  Separate individual skills using commas.
+                </Text>
+
+                <Button
+                  color="teal"
+                  leftSection={<IconTarget size={17} />}
+                  onClick={handleRecommend}
+                  loading={loading}
+                >
+                  Find My Careers
+                </Button>
+              </Group>
             </Stack>
           </Paper>
 
-          {/* Active Track Deep Dive */}
-          <Grid>
-            {/* Left: Progression Ladder & Milestones */}
-            <Grid.Col span={{ base: 12, lg: 8 }}>
-              <Paper p="lg" shadow="sm" radius="sm" withBorder h="100%">
-                <Stack gap="lg">
-                  <Flex justify="space-between" align="center" style={{ borderBottom: '1px solid #e9ecef', paddingBottom: '12px' }}>
-                    <Box>
-                      <Title order={3} size="h5" tt="uppercase">Milestone Progression Ladder</Title>
-                      <Text size="sm" c="dimmed" mt={2}>Actionable stepping stones for reaching {activeTrack.title}.</Text>
-                    </Box>
-                    <Badge variant="light" color="gray" radius="sm">3 Key Phases</Badge>
-                  </Flex>
+          {error && (
+            <Alert
+              color="red"
+              icon={<IconAlertCircle size={18} />}
+              title="Notice"
+            >
+              {error}
+            </Alert>
+          )}
 
-                  <Stack gap="md">
-                    {activeTrack.milestones.map((milestone, idx) => (
-                      <Paper key={idx} p="md" radius="sm" bg="gray.0" withBorder style={{ borderLeft: '4px solid #1b4d3e' }}>
-                        <Flex gap="md" align="flex-start">
-                          <ThemeIcon size="md" color="#1b4d3e" radius="sm">
-                            <Text size="xs" fw={700}>{idx + 1}</Text>
-                          </ThemeIcon>
-                          <Box style={{ flex: 1 }}>
-                            <Flex justify="space-between" align="center">
-                              <Text size="sm" fw={700} tt="uppercase">Phase {idx + 1} Milestone</Text>
-                              <Text size="xs" fw={700} c="dimmed" tt="uppercase">Month {idx * 6} – {(idx + 1) * 6}</Text>
-                            </Flex>
-                            <Text size="sm" c="dimmed" mt={4}>{milestone}</Text>
-                          </Box>
-                        </Flex>
-                      </Paper>
-                    ))}
-                  </Stack>
+          {loading && (
+            <Paper p="xl" withBorder radius="md">
+              <Stack align="center" gap="sm">
+                <Loader color="teal" size="lg" />
+                <Text fw={600}>Analysing your skills...</Text>
+                <Text size="sm" c="dimmed">
+                  Comparing your profile against ESCO occupations.
+                  The first request may take a little longer.
+                </Text>
+              </Stack>
+            </Paper>
+          )}
 
-                  {/* Core Competencies Tagged */}
-                  <Box pt="md" style={{ borderTop: '1px solid #e9ecef' }}>
-                    <Text size="xs" fw={700} tt="uppercase" mb="xs">Core Architectural Competencies</Text>
-                    <Group gap="xs">
-                      {activeTrack.keyCompetencies.map((comp) => (
-                        <Badge key={comp} color="#1b4d3e" variant="light" radius="sm" size="sm">{comp}</Badge>
-                      ))}
-                    </Group>
-                  </Box>
-                </Stack>
-              </Paper>
-            </Grid.Col>
+          {recommendations.length > 0 && !loading && (
+            <Stack gap="md">
+              <Group justify="space-between">
+                <Box>
+                  <Title order={2}>Recommended Careers</Title>
+                  <Text size="sm" c="dimmed">
+                    {recommendations.length} career matches identified
+                  </Text>
+                </Box>
 
-            {/* Right: Market Compensation & Next Steps */}
-            <Grid.Col span={{ base: 12, lg: 4 }}>
-              <Paper p="lg" shadow="sm" radius="sm" withBorder h="100%">
-                <Stack gap="xl">
-                  <Title order={3} size="h5" tt="uppercase">Market Compensation Index</Title>
+                <Button
+                  variant="light"
+                  color="teal"
+                  leftSection={<IconRefresh size={16} />}
+                  onClick={handleRecommend}
+                >
+                  Refresh
+                </Button>
+              </Group>
 
-                  <Paper p="md" bg="gray.0" withBorder radius="sm">
-                    <Text size="xs" fw={700} tt="uppercase" c="dimmed">Salary Range (Target Band)</Text>
-                    <Title order={2} size="h3" mt={4}>{activeTrack.salaryRange}</Title>
-                    <Text size="xs" fw={700} tt="uppercase" c="teal" mt={4}>Top 15th percentile benchmark</Text>
-                  </Paper>
-
-                  <Stack gap="sm" pt="sm" style={{ borderTop: '1px solid #e9ecef' }}>
-                    <Flex justify="space-between">
-                      <Text size="sm" c="dimmed" tt="uppercase">Role Transition Difficulty</Text>
-                      <Text size="sm" fw={700} tt="uppercase">{activeTrack.difficulty}</Text>
-                    </Flex>
-                    <Flex justify="space-between">
-                      <Text size="sm" c="dimmed" tt="uppercase">Target Time to Transition</Text>
-                      <Text size="sm" fw={700} tt="uppercase">{activeTrack.timeline}</Text>
-                    </Flex>
-                  </Stack>
-
-                  <Box mt="lg">
-                    <Button
-                      component={Link}
-                      to="/skills"
-                      color="#1b4d3e"
-                      fullWidth
-                      radius="sm"
-                      size="md"
-                      styles={{ root: { textTransform: 'uppercase', fontWeight: 700 } }}
+              <Grid>
+                {recommendations.map((career, index) => (
+                  <Grid.Col span={{ base: 12, md: 6 }} key={career.occupation_uri}>
+                    <Paper
+                      p="lg"
+                      radius="md"
+                      withBorder
+                      style={{
+                        height: '100%',
+                        borderColor:
+                          selectedCareer?.occupation_uri === career.occupation_uri
+                            ? '#1b4d3e'
+                            : undefined,
+                      }}
                     >
-                      Analyze Skill Gaps for this Role
-                    </Button>
-                  </Box>
-                </Stack>
-              </Paper>
-            </Grid.Col>
-          </Grid>
+                      <Stack gap="md">
+                        <Group justify="space-between" align="flex-start">
+                          <Badge color="teal" variant="light">
+                            Career #{index + 1}
+                          </Badge>
+                          <Text fw={800} size="xl" c="teal">
+                            {career.match_score}%
+                          </Text>
+                        </Group>
+
+                        <Title order={3}>{career.title}</Title>
+
+                        <Text size="sm" c="dimmed" lineClamp={3}>
+                          {career.description}
+                        </Text>
+
+                        <Box>
+                          <Group justify="space-between" mb={5}>
+                            <Text size="xs" fw={600}>
+                              Overall career match
+                            </Text>
+                            <Text size="xs" fw={700}>
+                              {career.match_score}%
+                            </Text>
+                          </Group>
+                          <Progress
+                            value={Math.min(100, Math.max(0, career.match_score))}
+                            color="teal"
+                            size="lg"
+                            radius="xl"
+                          />
+                        </Box>
+
+                        <Divider />
+
+                        <Group justify="space-between">
+                          <Text size="sm" c="dimmed">
+                            Matched skills
+                          </Text>
+                          <Badge color="green">
+                            {career.matched_skills.length}
+                          </Badge>
+                        </Group>
+
+                        <Group gap={6}>
+                          {career.matched_skills.slice(0, 5).map((skill) => (
+                            <Badge key={skill.uri} color="green" variant="light">
+                              {skill.label}
+                            </Badge>
+                          ))}
+                          {career.matched_skills.length > 5 && (
+                            <Badge color="gray">
+                              +{career.matched_skills.length - 5} more
+                            </Badge>
+                          )}
+                        </Group>
+
+                        <Group justify="space-between">
+                          <Text size="sm" c="dimmed">
+                            Skills to develop
+                          </Text>
+                          <Badge color="orange">
+                            {career.missing_skills.length}
+                          </Badge>
+                        </Group>
+
+                        <Button
+                          fullWidth
+                          color="teal"
+                          variant={
+                            selectedCareer?.occupation_uri === career.occupation_uri
+                              ? 'filled'
+                              : 'light'
+                          }
+                          onClick={() => handleSkillGap(career)}
+                        >
+                          Analyse Skill Gap
+                        </Button>
+                      </Stack>
+                    </Paper>
+                  </Grid.Col>
+                ))}
+              </Grid>
+            </Stack>
+          )}
+
+          {gapLoading && (
+            <Paper p="xl" withBorder radius="md">
+              <Group justify="center">
+                <Loader color="teal" />
+                <Text>Generating skill-gap analysis...</Text>
+              </Group>
+            </Paper>
+          )}
+
+          {gapData && selectedCareer && !gapLoading && (
+            <Paper p="lg" radius="md" withBorder>
+              <Stack gap="lg">
+                <Box>
+                  <Badge color="teal" mb="xs">
+                    SKILL GAP ANALYSIS
+                  </Badge>
+                  <Title order={2}>{gapData.occupation_title}</Title>
+                  <Text size="sm" c="dimmed">
+                    Compare your mapped skills with the requirements
+                    of this occupation.
+                  </Text>
+                </Box>
+
+                <Paper p="md" bg="gray.0" radius="md">
+                  <Text size="sm" fw={600}>
+                    ESCO Skill Coverage
+                  </Text>
+                  <Title order={1} c="teal" my="xs">
+                    {gapData.coverage_percentage}%
+                  </Title>
+                  <Progress
+                    value={Math.min(
+                      100,
+                      Math.max(0, gapData.coverage_percentage)
+                    )}
+                    color="teal"
+                    size="xl"
+                  />
+                </Paper>
+
+                <Grid>
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <Stack gap="sm">
+                      <Group>
+                        <IconCheck color="green" />
+                        <Title order={4}>Matched Skills</Title>
+                      </Group>
+
+                      {gapData.possessed_skills.length > 0 ? (
+                        gapData.possessed_skills.map((skill: any) => (
+                          <Paper key={skill.uri} p="sm" withBorder radius="sm">
+                            <Group justify="space-between">
+                              <Text size="sm" fw={600}>
+                                {skill.label}
+                              </Text>
+                              <Badge color="green">
+                                {skill.importance}
+                              </Badge>
+                            </Group>
+                          </Paper>
+                        ))
+                      ) : (
+                        <Text size="sm" c="dimmed">
+                          No matched skills found.
+                        </Text>
+                      )}
+                    </Stack>
+                  </Grid.Col>
+
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <Stack gap="sm">
+                      <Group>
+                        <IconTarget color="orange" />
+                        <Title order={4}>Skills to Develop</Title>
+                      </Group>
+
+                      {gapData.missing_skills.length > 0 ? (
+                        gapData.missing_skills.slice(0, 20).map((skill: any) => (
+                          <Paper key={skill.uri} p="sm" withBorder radius="sm">
+                            <Group justify="space-between">
+                              <Text size="sm" fw={600}>
+                                {skill.label}
+                              </Text>
+                              <Badge color="orange">
+                                {skill.importance}
+                              </Badge>
+                            </Group>
+                          </Paper>
+                        ))
+                      ) : (
+                        <Text size="sm" c="dimmed">
+                          No missing skills identified.
+                        </Text>
+                      )}
+                    </Stack>
+                  </Grid.Col>
+                </Grid>
+
+                <Alert color="blue" title="How to interpret this result">
+                  {gapData.note}
+                </Alert>
+              </Stack>
+            </Paper>
+          )}
+
+          {!recommendations.length && !loading && !error && (
+            <Paper p="xl" radius="md" withBorder>
+              <Stack align="center" gap="sm">
+                <IconBrain size={40} color="#1b4d3e" />
+                <Title order={3}>Discover Your Career Opportunities</Title>
+                <Text size="sm" c="dimmed" ta="center">
+                  Enter your skills and click Find My Careers to generate
+                  recommendations from the ESCO occupation catalogue.
+                </Text>
+              </Stack>
+            </Paper>
+          )}
+
         </Stack>
       </Container>
     </Box>
